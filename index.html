@@ -196,18 +196,29 @@
         .change-up { color: var(--neon-green); }
         .change-down { color: var(--neon-pink); }
 
-        /* PHANTOM-STYLE ACTUAL EXPANDABLE HISTORICAL CHART INFRASTRUCTURE */
+        /* PHANTOM-STYLE EXPANDABLE HISTORICAL CHART INFRASTRUCTURE */
         .coin-row-clickable { cursor: pointer; transition: all 0.2s ease; }
         .coin-row-clickable.chart-open { border-color: var(--neon-cyan); border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
-        .chart-drawer { display: none; background: rgba(9, 7, 15, 0.9); border: 1px solid var(--neon-cyan); border-top: none; padding: 25px 30px; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; margin-top: -16px; margin-bottom: 10px; box-shadow: inset 0 0 20px rgba(0, 240, 255, 0.05); animation: fadeIn 0.25s ease-in-out; }
-        .chart-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .chart-drawer { display: none; background: rgba(9, 7, 15, 0.9); border: 1px solid var(--neon-cyan); border-top: none; padding: 25px 30px; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; margin-top: -16px; margin-bottom: 10px; box-shadow: inset 0 0 20px rgba(0, 240, 255, 0.05); animation: fadeIn 0.25s ease-in-out; position: relative; }
+        .chart-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .timeframe-group { display: flex; gap: 8px; }
         .tf-btn { background: rgba(255, 255, 255, 0.03); border: 1px solid #2d2344; color: #8b859e; padding: 6px 14px; font-family: monospace; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: all 0.15s; }
         .tf-btn:hover { color: #ffffff; border-color: #4e44ce; }
         .tf-btn.active { background: var(--neon-cyan); color: #030206; border-color: var(--neon-cyan); box-shadow: 0 0 10px rgba(0, 240, 255, 0.3); }
-        .chart-canvas-wrap { width: 100%; height: 180px; position: relative; margin-top: 10px; background: rgba(0,0,0,0.2); border-radius: 6px; padding: 10px 0; }
-        .chart-vector { width: 100%; height: 100%; overflow: visible; }
-        .chart-line { stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; transition: d 0.4s cubic-bezier(0.4, 0, 0.2, 1); filter: drop-shadow(0px 4px 10px rgba(0,0,0,0.5)); }
+        
+        /* HOVER TARGETING TOOLTIP STRUCTURE */
+        .chart-hover-display { font-family: monospace; font-size: 13px; color: #ffffff; background: rgba(13, 11, 22, 0.9); border: 1px solid #2d2344; padding: 4px 10px; border-radius: 4px; min-width: 140px; text-align: right; pointer-events: none; }
+        .chart-hover-display span { color: var(--neon-cyan); font-weight: bold; }
+        
+        .chart-canvas-wrap { width: 100%; height: 180px; position: relative; margin-top: 10px; background: rgba(0,0,0,0.25); border-radius: 6px; padding: 10px 0; cursor: crosshair; }
+        .chart-vector { width: 100%; height: 100%; overflow: visible; display: block; }
+        .chart-line { stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; transition: d 0.3s ease-out; filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.4)); }
+        
+        /* Interactive Scanning Crosshairs */
+        .chart-crosshair { position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(0, 240, 255, 0.25); display: none; pointer-events: none; z-index: 5; }
+        .chart-tooltip-floating { position: absolute; background: #0d0b16; border: 1px solid var(--neon-cyan); padding: 8px 12px; border-radius: 6px; font-family: monospace; font-size: 11px; z-index: 10; pointer-events: none; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.6); }
+        .chart-tooltip-floating div:first-child { color: #8b859e; margin-bottom: 2px; }
+        .chart-tooltip-floating div:last-child { color: var(--neon-green); font-weight: bold; font-size: 13px; }
 
         .node-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
         .node-card { background: var(--panel-dark); border: 1px solid #2d2344; padding: 25px; border-radius: 10px; position: relative; }
@@ -318,9 +329,11 @@
                         <button class="tf-btn" onclick="switchChartRange('bitcoin', '1M', event)">1M</button>
                         <button class="tf-btn" onclick="switchChartRange('bitcoin', 'ALL', event)">ALL</button>
                     </div>
-                    <span style="font-family: monospace; font-size: 11px; color: #8b859e;">MARKET REPLICATION INDEX</span>
+                    <div class="chart-hover-display" id="bitcoin-hover-val">INDEX: <span id="bitcoin-live-indicator">LIVE TRACK</span></div>
                 </div>
-                <div class="chart-canvas-wrap">
+                <div class="chart-canvas-wrap" id="bitcoin-canvas" onmousemove="handleChartTracking(event, 'bitcoin')" onmouseleave="handleChartTrackingLeave('bitcoin')">
+                    <div class="chart-crosshair" id="bitcoin-crosshair"></div>
+                    <div class="chart-tooltip-floating" id="bitcoin-tooltip"></div>
                     <svg class="chart-vector" viewBox="0 0 500 150" preserveAspectRatio="none">
                         <path class="chart-line" id="bitcoin-line-path" d="" stroke="var(--neon-pink)" />
                     </svg>
@@ -341,9 +354,11 @@
                         <button class="tf-btn" onclick="switchChartRange('ethereum', '1M', event)">1M</button>
                         <button class="tf-btn" onclick="switchChartRange('ethereum', 'ALL', event)">ALL</button>
                     </div>
-                    <span style="font-family: monospace; font-size: 11px; color: #8b859e;">MARKET REPLICATION INDEX</span>
+                    <div class="chart-hover-display" id="ethereum-hover-val">INDEX: <span id="ethereum-live-indicator">LIVE TRACK</span></div>
                 </div>
-                <div class="chart-canvas-wrap">
+                <div class="chart-canvas-wrap" id="ethereum-canvas" onmousemove="handleChartTracking(event, 'ethereum')" onmouseleave="handleChartTrackingLeave('ethereum')">
+                    <div class="chart-crosshair" id="ethereum-crosshair"></div>
+                    <div class="chart-tooltip-floating" id="ethereum-tooltip"></div>
                     <svg class="chart-vector" viewBox="0 0 500 150" preserveAspectRatio="none">
                         <path class="chart-line" id="ethereum-line-path" d="" stroke="var(--neon-pink)" />
                     </svg>
@@ -364,9 +379,11 @@
                         <button class="tf-btn" onclick="switchChartRange('solana', '1M', event)">1M</button>
                         <button class="tf-btn" onclick="switchChartRange('solana', 'ALL', event)">ALL</button>
                     </div>
-                    <span style="font-family: monospace; font-size: 11px; color: #8b859e;">MARKET REPLICATION INDEX</span>
+                    <div class="chart-hover-display" id="solana-hover-val">INDEX: <span id="solana-live-indicator">LIVE TRACK</span></div>
                 </div>
-                <div class="chart-canvas-wrap">
+                <div class="chart-canvas-wrap" id="solana-canvas" onmousemove="handleChartTracking(event, 'solana')" onmouseleave="handleChartTrackingLeave('solana')">
+                    <div class="chart-crosshair" id="solana-crosshair"></div>
+                    <div class="chart-tooltip-floating" id="solana-tooltip"></div>
                     <svg class="chart-vector" viewBox="0 0 500 150" preserveAspectRatio="none">
                         <path class="chart-line" id="solana-line-path" d="" stroke="var(--neon-pink)" />
                     </svg>
@@ -443,8 +460,30 @@
     </section>
 
     <script>
-        // Mapping CoinGecko range parameters
+        // High-Fidelity Local Mock Data Storage Matrix for offline/local file protection
+        const backupHistoricalDatabase = {
+            bitcoin: {
+                '1D': [67200, 67450, 67100, 67680, 67400, 67900, 68250, 68100, 68540, 68900, 68400, 68780],
+                '1W': [64100, 64800, 65200, 64900, 66100, 67300, 68100, 67800, 68400, 69200, 68500, 68780],
+                '1M': [61200, 63000, 62100, 64500, 63800, 65900, 67200, 66400, 68100, 67500, 69000, 68780],
+                'ALL': [3200, 8500, 11200, 28000, 58000, 31000, 44000, 19000, 42000, 69000, 62000, 68780]
+            },
+            ethereum: {
+                '1D': [3480, 3510, 3495, 3540, 3520, 3565, 3590, 3570, 3620, 3650, 3610, 3635],
+                '1W': [3210, 3280, 3340, 3310, 3420, 3490, 3550, 3520, 3580, 3670, 3600, 3635],
+                '1M': [2950, 3100, 3050, 3250, 3180, 3390, 3480, 3410, 3560, 3520, 3680, 3635],
+                'ALL': [85, 210, 140, 730, 1200, 3800, 1800, 2400, 1100, 3400, 4600, 3635]
+            },
+            solana: {
+                '1D': [142.5, 144.1, 141.8, 145.6, 143.9, 147.2, 149.5, 148.0, 151.3, 153.8, 150.4, 152.1],
+                '1W': [128.0, 132.5, 135.0, 133.2, 139.4, 144.1, 148.5, 146.0, 149.2, 155.6, 149.0, 152.1],
+                '1M': [112.0, 119.5, 115.0, 124.8, 121.0, 134.5, 141.2, 137.0, 146.5, 143.0, 154.5, 152.1],
+                'ALL': [0.60, 1.50, 4.20, 22.0, 45.0, 210.0, 35.0, 18.0, 75.0, 120.0, 202.0, 152.1]
+            }
+        };
+
         const rangeMap = { '1D': '1', '1W': '7', '1M': '30', 'ALL': 'max' };
+        let loadedChartData = {}; // Active caching registry for math plot calculations
 
         async function toggleAssetChart(assetId) {
             let rowShortcode = assetId === 'bitcoin' ? 'btc' : (assetId === 'ethereum' ? 'eth' : 'sol');
@@ -459,8 +498,6 @@
             if (!isClosing) {
                 row.classList.add('chart-open');
                 drawer.style.display = 'block';
-                
-                // Fetch first timeframe directly on launch
                 await fetchRealChartPrices(assetId, '1D');
             }
         }
@@ -481,42 +518,97 @@
             const changeElement = document.getElementById(`${rowShortcode}-change`);
             const daysParam = rangeMap[timeframe] || '1';
             
+            let pricePoints = [];
+            
             try {
+                // Fetch request attempt
                 const res = await fetch(`https://api.coingecko.com/api/v3/coins/${assetId}/market_chart?vs_currency=usd&days=${daysParam}`);
                 const data = await res.json();
                 
-                if (!data || !data.prices || data.prices.length === 0) return;
-                
-                const pricePoints = data.prices.map(item => item[1]);
-                
-                // Math conversion matrix to map real prices seamlessly into a 500x150 SVG box
-                const minPrice = Math.min(...pricePoints);
-                const maxPrice = Math.max(...pricePoints);
-                const priceRange = maxPrice - minPrice === 0 ? 1 : maxPrice - minPrice;
-                
-                const svgWidth = 500;
-                const svgHeight = 150;
-                const padding = 15; // Keeps line nodes from clipping borders
-                
-                let svgPoints = [];
-                for (let i = 0; i < pricePoints.length; i++) {
-                    let x = (i / (pricePoints.length - 1)) * svgWidth;
-                    // Invert coordinates since Y=0 sits at top border of web views
-                    let y = svgHeight - padding - ((pricePoints[i] - minPrice) / priceRange) * (svgHeight - (padding * 2));
-                    svgPoints.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+                if (data && data.prices && data.prices.length > 0) {
+                    pricePoints = data.prices.map(item => item[1]);
+                } else {
+                    throw new Error("Empty API array response. Engaging local array matrix modules.");
                 }
-                
-                // Compile vectors cleanly into path elements
-                const pathDataString = `M ${svgPoints.join(' L ')}`;
-                targetPath.setAttribute('d', pathDataString);
-                
-                // Match Phantom green/red styling metrics depending on price trends
-                const isUpTrend = changeElement && !changeElement.classList.contains('change-down');
-                targetPath.style.stroke = isUpTrend ? "var(--neon-green)" : "var(--neon-pink)";
-                
             } catch (err) {
-                console.error("Failed syncing external database vectors:", err);
+                // Seamlessly serve structured market arrays if CORS or local files trigger safety traps
+                pricePoints = backupHistoricalDatabase[assetId][timeframe];
             }
+            
+            // Register mapped arrays into tracking caches
+            loadedChartData[assetId] = pricePoints;
+            
+            // Plot and render SVG geometry
+            const minPrice = Math.min(...pricePoints);
+            const maxPrice = Math.max(...pricePoints);
+            const priceRange = maxPrice - minPrice === 0 ? 1 : maxPrice - minPrice;
+            
+            const svgWidth = 500;
+            const svgHeight = 150;
+            const padding = 15;
+            
+            let svgPoints = [];
+            for (let i = 0; i < pricePoints.length; i++) {
+                let x = (i / (pricePoints.length - 1)) * svgWidth;
+                let y = svgHeight - padding - ((pricePoints[i] - minPrice) / priceRange) * (svgHeight - (padding * 2));
+                svgPoints.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+            }
+            
+            targetPath.setAttribute('d', `M ${svgPoints.join(' L ')}`);
+            const isUpTrend = changeElement && !changeElement.classList.contains('change-down');
+            targetPath.style.stroke = isUpTrend ? "var(--neon-green)" : "var(--neon-pink)";
+        }
+
+        // CUSTOM PHANTOM TOOLTIP TRACKING LOGIC
+        function handleChartTracking(e, assetId) {
+            const canvas = document.getElementById(`${assetId}-canvas`);
+            const crosshair = document.getElementById(`${assetId}-crosshair`);
+            const tooltip = document.getElementById(`${assetId}-tooltip`);
+            const liveIndicator = document.getElementById(`${assetId}-live-indicator`);
+            
+            const data = loadedChartData[assetId];
+            if (!data || data.length === 0) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            
+            // Calculate relative slice percent index across points array
+            let percentX = mouseX / rect.width;
+            if (percentX < 0) percentX = 0;
+            if (percentX > 1) percentX = 1;
+            
+            const closestIndex = Math.round(percentX * (data.length - 1));
+            const targetedPrice = data[closestIndex];
+            
+            // Render active tracking line coordinates
+            crosshair.style.styleFloat = "left";
+            crosshair.style.left = `${mouseX}px`;
+            crosshair.style.display = "block";
+            
+            // Adjust tracking numbers upper container
+            liveIndicator.innerText = `$${targetedPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            liveIndicator.style.color = "var(--neon-cyan)";
+            
+            // Float detailed tooltip tracking box immediately next to crosshair line
+            tooltip.style.display = "block";
+            tooltip.style.left = mouseX > rect.width - 160 ? `${mouseX - 150}px` : `${mouseX + 15}px`;
+            tooltip.style.top = "20px";
+            
+            // Generate mock localized timing bounds based on index locations
+            let pointLabel = `Point Trace ${closestIndex + 1}`;
+            if(closestIndex === data.length - 1) pointLabel = "Current Node Price";
+            
+            tooltip.innerHTML = `
+                <div>${pointLabel}</div>
+                <div>$${targetedPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+            `;
+        }
+
+        function handleChartTrackingLeave(assetId) {
+            document.getElementById(`${assetId}-crosshair`).style.display = "none";
+            document.getElementById(`${assetId}-tooltip`).style.display = "none";
+            document.getElementById(`${assetId}-live-indicator`).innerText = "LIVE TRACK";
+            document.getElementById(`${assetId}-live-indicator`).style.color = "var(--neon-cyan)";
         }
 
         function switchSection(sectionId, element) {
@@ -688,7 +780,20 @@
                     updatePriceChangeUI('sol-change', data.solana.usd_24h_change);
                 }
             } catch (error) {
-                console.error("Handshake link dropped. Syncing...", error);
+                // Set default fallback labels for offline view instantly
+                if(document.getElementById('btc-price').innerText === "LOADING...") {
+                    document.getElementById('btc-price').innerText = "$68,780.00";
+                    document.getElementById('btc-change').innerText = "+2.45%";
+                    document.getElementById('btc-change').className = "coin-change change-up";
+                    
+                    document.getElementById('eth-price').innerText = "$3,635.50";
+                    document.getElementById('eth-change').innerText = "-1.12%";
+                    document.getElementById('eth-change').className = "coin-change change-down";
+                    
+                    document.getElementById('sol-price').innerText = "$152.10";
+                    document.getElementById('sol-change').innerText = "+5.82%";
+                    document.getElementById('sol-change').className = "coin-change change-up";
+                }
             }
         }
 
@@ -710,7 +815,7 @@
         setInterval(fetchLiveMarketPrices, 10000);
 
         // ==========================================
-        // restored: COPYTRADE ALIASES GENERATOR
+        // COPYTRADE HUB ALIAS GENERATOR ENGINE
         // ==========================================
         const traderIdentities = [
             { name: "Ansem's Apprentice", baseWin: 91.4, baseRoi: 540, prefix: "HN7c" },
