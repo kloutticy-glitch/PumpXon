@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PUMPXON // DEPLOYMENT MATRIX</title>
+    <style>
+        :root {
+            --bg-dark: #030206;
+            --panel-dark: rgba(13, 11, 22, 0.75);
+            --neon-pink: #ff0055;
+            --neon-green: #39ff14;
+            --neon-cyan: #00f0ff;
+            --neon-purple: #9d4edd;
+            --solana-glow: linear-gradient(135deg, #ab9ff2 0%, #4e44ce 100%);
+        }
+
+        body {
+            font-family: 'Arial Black', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Mascot Background System */
+        #mascot-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .mascot {
+            position: absolute;
+            bottom: -60px;
+            animation: floatUp linear infinite;
+            opacity: 0;
+            filter: blur(0.5px);
+            user-select: none;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.14;
+            }
+            90% {
+                opacity: 0.14;
+            }
+            100% {
+                transform: translateY(-115vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .ambient-glow-1 {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255, 0, 85, 0.12) 0%, rgba(0,0,0,0) 70%);
+            top: -50px;
+            left: -100px;
+            z-index: -2;
+        }
+
+        header {
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 40px 20px;
+            box-sizing: border-box;
+            z-index: 2;
+        }
+
+        .logo {
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        nav {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            font-family: 'Arial Black', sans-serif;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid #1a1528;
+            color: #8b859e;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 11px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover {
+            color: #ffffff;
+            border-color: var(--neon-cyan);
+        }
+
+        .nav-btn.active {
+            background: var(--neon-purple);
+            color: #ffffff;
+            border-color: var(--neon-purple);
+            box-shadow: 0 0 15px rgba(157, 78, 221, 0.5);
+        }
+
+        .app-section {
+            display: none; 
+            width: 100%;
+            max-width: 1100px;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 1;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .app-section.active-section {
+            display: block; 
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 50px;
+        }
+
+        .left-content { display: flex; flex-direction: column; justify-content: center; }
+        .status-tag { font-family: monospace; color: var(--neon-green); font-size: 13px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 15px; text-shadow: 0 0 10px rgba(57, 255, 20, 0.4); }
+        h1 { font-size: 68px; line-height: 0.9; margin: 0 0 30px 0; text-transform: uppercase; letter-spacing: -3px; }
+        h1 span { color: var(--neon-cyan); text-shadow: 0 0 20px rgba(0, 240, 255, 0.5); }
+        .manifesto { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 16px; color: #d1d5db; line-height: 1.7; margin-bottom: 40px; max-width: 520px; }
+         
+        .raw-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 400px; border-top: 1px solid #1a1528; padding-top: 30px; }
+        .stat-number { font-size: 36px; letter-spacing: -1px; color: var(--neon-pink); text-shadow: 0 0 15px rgba(255, 0, 85, 0.4); }
+        .stat-label { font-family: monospace; font-size: 11px; color: #8b859e; text-transform: uppercase; margin-top: 5px; }
+
+        .portal-card { background: var(--panel-dark); border: 2px solid var(--neon-purple); border-radius: 12px; padding: 40px; backdrop-filter: blur(12px); box-shadow: 0 0 40px rgba(157, 78, 221, 0.25); }
+        .portal-header { font-size: 24px; text-transform: uppercase; letter-spacing: -1px; margin-bottom: 25px; border-bottom: 1px solid #2d2344; padding-bottom: 15px; text-align: center; }
+         
+        .wallet-btn { font-family: 'Arial Black', sans-serif; color: white; border: none; padding: 16px; font-size: 13px; text-transform: uppercase; border-radius: 6px; cursor: pointer; width: 100%; box-sizing: border-box; transition: all 0.2s ease; margin-bottom: 14px; position: relative; }
+        .btn-mm { background: #1a1528; border: 1px solid #3c2f5c; }
+        .btn-mm:hover { background: #e2761b; border-color: #e2761b; box-shadow: 0 0 15px rgba(226, 118, 27, 0.5); }
+        .btn-phantom { background: #1a1528; border: 1px solid #3c2f5c; }
+        .btn-phantom:hover { background: var(--solana-glow); border-color: #4e44ce; box-shadow: 0 0 15px rgba(78, 68, 206, 0.5); }
+
+        .input-block { margin: 25px 0; }
+        .input-block label { display: block; font-family: monospace; font-size: 11px; color: #8b859e; text-transform: uppercase; margin-bottom: 8px; }
+        .address-box { width: 100%; box-sizing: border-box; background: #09070f; border: 1px solid #3c2f5c; padding: 16px; border-radius: 6px; color: var(--neon-green); font-size: 12px; font-family: monospace; }
+         
+        .action-submit { width: 100%; background: var(--neon-cyan); color: #000000; border: none; padding: 18px; font-size: 16px; text-transform: uppercase; font-weight: 900; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 0 20px rgba(0, 240, 255, 0.3); }
+        .action-submit:hover { background: var(--neon-pink); color: #ffffff; box-shadow: 0 0 25px var(--neon-pink); transform: scale(1.02); }
+
+        .live-feed { width: 100%; margin-top: 60px; border-top: 2px solid #1a1528; padding-top: 20px; }
+        .feed-title { font-family: monospace; font-size: 12px; color: #8b859e; text-transform: uppercase; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .feed-pulse { width: 8px; height: 8px; background: var(--neon-green); border-radius: 50%; box-shadow: 0 0 10px var(--neon-green); }
+        #log-container { display: flex; flex-direction: column; gap: 10px; }
+        .feed-row { display: flex; justify-content: space-between; font-family: monospace; font-size: 13px; color: #a3a1ab; padding: 12px 16px; background: rgba(255, 255, 255, 0.02); border-left: 3px solid var(--neon-cyan); border-radius: 4px; }
+        .feed-row.sol-row { border-left-color: var(--neon-purple); }
+        .feed-row span em { font-style: normal; color: #ffffff; font-weight: bold; }
+        .feed-row .amount { color: var(--neon-green); font-weight: bold; }
+
+        .market-header { margin-bottom: 40px; }
+        .market-grid { display: flex; flex-direction: column; gap: 15px; }
+        .coin-row { display: grid; grid-template-columns: 0.5fr 1.5fr 1fr 1fr; align-items: center; background: var(--panel-dark); border: 1px solid #1a1528; padding: 20px 30px; border-radius: 10px; transition: border-color 0.2s; }
+        .coin-row:hover { border-color: var(--neon-purple); }
+        .coin-icon { font-size: 28px; }
+        .coin-name { font-size: 20px; text-transform: uppercase; }
+        .coin-name sm { font-size: 12px; color: #8b859e; display: block; font-family: monospace; margin-top: 4px; }
+        .coin-price { font-family: monospace; font-size: 18px; color: #ffffff; }
+        .coin-change { font-family: monospace; font-size: 16px; text-align: right; }
+        .change-up { color: var(--neon-green); }
+        .change-down { color: var(--neon-pink); }
+
+        .node-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+        .node-card { background: var(--panel-dark); border: 1px solid #2d2344; padding: 25px; border-radius: 10px; position: relative; }
+        .node-status { display: flex; justify-content: space-between; align-items: center; font-family: monospace; font-size: 11px; margin-bottom: 15px; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--neon-green); box-shadow: 0 0 10px var(--neon-green); }
+        .status-dot.syncing { background: var(--neon-cyan); box-shadow: 0 0 10px var(--neon-cyan); }
+        .node-title { font-size: 18px; margin: 0 0 5px 0; letter-spacing: -0.5px; text-transform: uppercase; }
+        .node-meta { font-family: monospace; font-size: 12px; color: #8b859e; margin-bottom: 20px; }
+        .node-btn { background: transparent; border: 1px solid var(--neon-purple); color: #ffffff; padding: 10px 14px; font-family: 'Arial Black', sans-serif; font-size: 11px; text-transform: uppercase; border-radius: 4px; cursor: pointer; transition: all 0.2s; width: 100%; }
+        .node-btn:hover { background: var(--neon-purple); box-shadow: 0 0 15px var(--neon-purple); }
+
+        .vault-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
+        .vault-card { background: var(--panel-dark); border: 2px solid #1a1528; border-radius: 12px; padding: 30px; position: relative; transition: border-color 0.3s; overflow: hidden; }
+        .vault-card.premium { border-color: var(--neon-pink); box-shadow: 0 0 20px rgba(255, 0, 85, 0.15); }
+        .badge { position: absolute; top: 15px; right: 15px; font-family: monospace; font-size: 10px; background: var(--neon-pink); color: #fff; padding: 4px 8px; border-radius: 4px; letter-spacing: 1px; }
+        .vault-tier { font-size: 22px; text-transform: uppercase; margin: 0 0 20px 0; letter-spacing: -1px; }
+        .vault-stat-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 14px; }
+        .vault-stat-row span:last-child { font-family: monospace; font-weight: bold; color: var(--neon-cyan); }
+        .progress-track { width: 100%; height: 6px; background: #09070f; border-radius: 3px; margin-top: 20px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--neon-purple), var(--neon-cyan)); border-radius: 3px; }
+
+        @media (max-width: 900px) {
+            .main-container { grid-template-columns: 1fr; gap: 40px; }
+            h1 { font-size: 46px; }
+            .coin-row { grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; }
+            .coin-change { text-align: left; }
+        }
+    </style>
+</head>
+<body><div class="ambient-glow-1"></div>
+
+    <div id="mascot-container"></div>
+
+    <header>
+        <div class="logo">⚡ PUMPXON SYSTEM</div>
+        <nav>
+            <button class="nav-btn active" onclick="switchSection('airdrop', this)">Airdrop Portal</button>
+            <button class="nav-btn" onclick="switchSection('market', this)">Live Market</button>
+            <button class="nav-btn" onclick="switchSection('nodes', this)">Node Validator</button>
+            <button class="nav-btn" onclick="switchSection('vault', this)">Rarity Vault</button>
+        </nav>
+    </header>
+
+    <section id="airdrop" class="app-section active-section">
+        <div class="main-container">
+            <main class="left-content">
+                <div class="status-tag">// ECOSYSTEM STAGE_01 INITIALIZED</div>
+                <h1>THE DIGITAL<br>CULTURE <span>MATRIX.</span></h1>
+                <p class="manifesto">
+                    PumpXon System is a high-velocity, fully decentralized network canvas built for core community builders and on-chain tactical developers. Syncing your localized identity locks your trace securely to our genesis index contracts.
+                </p>
+                <div class="raw-stats">
+                    <div>
+                        <div class="stat-number">420K+</div>
+                        <div class="stat-label">Wallets Synced</div>
+                    </div>
+                    <div>
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label">Decentralized Hub</div>
+                    </div>
+                </div>
+            </main>
+
+            <aside class="portal-card">
+                <div class="portal-header">CONSOLE ACCESS</div>
+                <button id="mm-btn" class="wallet-btn btn-mm" onclick="connectMetaMask()">Initialize MetaMask</button>
+                <button id="phantom-btn" class="wallet-btn btn-phantom" onclick="connectPhantom()">Initialize Phantom</button>
+                <div class="input-block">
+                    <label>SYNCHRONIZED IDENTITY SIGNATURE</label>
+                    <input class="address-box" type="text" id="address" placeholder="awaiting handshakes..." readonly>
+                </div>
+                <button id="claim-btn" class="action-submit" onclick="triggerClaimReward()">
+                    CLAIM PORTAL REWARDS
+                </button>
+            </aside>
+        </div>
+
+        <div class="live-feed">
+            <div class="feed-title"><div class="feed-pulse"></div> REAL-TIME IDENTITY CONTRACT MAPPING</div>
+            <div id="log-container"></div>
+        </div>
+    </section>
+
+    <section id="market" class="app-section">
+        <div class="market-header">
+            <div class="status-tag" style="display: flex; align-items: center; gap: 6px;">
+                <div class="feed-pulse" style="background: var(--neon-cyan); box-shadow: 0 0 10px var(--neon-cyan);"></div>
+                // PUMPXON GLOBAL MARGIN INDEX (REAL-TIME LIVE DATA)
+            </div>
+            <h1 style="font-size: 50px; margin-bottom: 10px;">CORE NETWORK <span>TICKER</span></h1>
+            <p style="color: #8b859e; margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">Real-time automated price updates pulsing straight off public decentralization index modules.</p>
+        </div>
+
+        <div class="market-grid">
+            <div class="coin-row">
+                <div class="coin-icon">🪙</div>
+                <div class="coin-name">Bitcoin<sm>BTC / USD</sm></div>
+                <div class="coin-price" id="btc-price">LOADING...</div>
+                <div class="coin-change" id="btc-change">--%</div>
+            </div>
+
+            <div class="coin-row">
+                <div class="coin-icon">🔷</div>
+                <div class="coin-name">Ethereum<sm>ETH / USD</sm></div>
+                <div class="coin-price" id="eth-price">LOADING...</div>
+                <div class="coin-change" id="eth-change">--%</div>
+            </div>
+
+            <div class="coin-row">
+                <div class="coin-icon">◎</div>
+                <div class="coin-name">Solana<sm>SOL / USD</sm></div>
+                <div class="coin-price" id="sol-price">LOADING...</div>
+                <div class="coin-change" id="sol-change">--%</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="nodes" class="app-section">
+        <div class="market-header">
+            <div class="status-tag">// BACKEND NODE INFRASTRUCTURE MANAGEMENT</div>
+            <h1 style="font-size: 50px; margin-bottom: 10px;">VALIDATOR <span>MATRIX</span></h1>
+            <p style="color: #8b859e; margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">Monitor localized network clusters relaying transaction pipeline telemetry.</p>
+        </div>
+
+        <div class="node-grid">
+            <div class="node-card">
+                <div class="node-status"><span class="status-dot"></span><span>NODE // 01 // ACTIVE</span></div>
+                <div class="node-title">US-EAST MAINNET</div>
+                <div class="node-meta">PING: 14ms &nbsp;|&nbsp; LOAD: 42%</div>
+                <button class="node-btn" onclick="simulateNodeOptimize(this)">Optimize Relay</button>
+            </div>
+            <div class="node-card">
+                <div class="node-status"><span class="status-dot"></span><span>NODE // 02 // ACTIVE</span></div>
+                <div class="node-title">EU-WEST ROUTER</div>
+                <div class="node-meta">PING: 28ms &nbsp;|&nbsp; LOAD: 19%</div>
+                <button class="node-btn" onclick="simulateNodeOptimize(this)">Optimize Relay</button>
+            </div>
+            <div class="node-card">
+                <div class="node-status"><span class="status-dot syncing" id="node3-dot"></span><span id="node3-text">NODE // 03 // SYNCING</span></div>
+                <div class="node-title">LIQUIDITY ORACLE</div>
+                <div class="node-meta">PING: -- &nbsp;|&nbsp; EFFICIENCY: 89%</div>
+                <button class="node-btn" onclick="simulateNodeOptimize(this)">Force Resync</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="vault" class="app-section">
+        <div class="market-header">
+            <div class="status-tag">// CONTRACT ESCRED VAULT METRICS</div>
+            <h1 style="font-size: 50px; margin-bottom: 10px;">TIERED <span>LEDGERS</span></h1>
+            <p style="color: #8b859e; margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">Review structural staking deployment multiplier bounds assigned to linked addresses.</p>
+        </div>
+
+        <div class="vault-grid">
+            <div class="vault-card">
+                <div class="vault-tier">ALPHA WHALE</div>
+                <div class="vault-stat-row"><span>Required Allocation:</span> <span>5,000 $PUMPXON</span></div>
+                <div class="vault-stat-row"><span>Yield Generation:</span> <span>+12.4% APY</span></div>
+                <div class="vault-stat-row"><span>Multiplier Weight:</span> <span>1.5x Boost</span></div>
+                <div class="progress-track"><div class="progress-fill" style="width: 75%;"></div></div>
+            </div>
+            <div class="vault-card premium">
+                <div class="badge">EXCLUSIVE</div>
+                <div class="vault-tier" style="color: var(--neon-pink);">GENESIS ELITE</div>
+                <div class="vault-stat-row"><span>Required Allocation:</span> <span>25,000 $PUMPXON</span></div>
+                <div class="vault-stat-row"><span>Yield Generation:</span> <span>+44.2% APY</span></div>
+                <div class="vault-stat-row"><span>Multiplier Weight:</span> <span>4.0x Boost</span></div>
+                <div class="progress-track"><div class="progress-fill" style="width: 92%; background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple));"></div></div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function switchSection(sectionId, element) {
+            document.querySelectorAll('.app-section').forEach(section => {
+                section.classList.remove('active-section');
+            });
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(sectionId).classList.add('active-section');
+            element.classList.add('active');
+        }
+
+        async function connectMetaMask() {
+            const btn = document.getElementById('mm-btn');
+            const addressInput = document.getElementById('address');
+            btn.innerText = "CONNECTING...";
+            
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    addressInput.value = accounts[0];
+                    btn.innerText = "METAMASK LINKED";
+                    return;
+                } catch (error) { 
+                    btn.innerText = "INITIALIZE METAMASK";
+                    return;
+                }
+            }
+            setTimeout(() => {
+                addressInput.value = '0x' + makeRandomId(4, hexChars) + '...' + makeRandomId(4, hexChars);
+                btn.innerText = "METAMASK LINKED (SIM)";
+            }, 800);
+        }
+
+        async function connectPhantom() {
+            const btn = document.getElementById('phantom-btn');
+            const addressInput = document.getElementById('address');
+            btn.innerText = "CONNECTING...";
+
+            if (window.solana && window.solana.isPhantom) {
+                try {
+                    const response = await window.solana.connect();
+                    addressInput.value = response.publicKey.toString();
+                    btn.innerText = "PHANTOM LINKED";
+                    return;
+                } catch (error) { 
+                    btn.innerText = "INITIALIZE PHANTOM";
+                    return;
+                }
+            }
+            setTimeout(() => {
+                addressInput.value = makeRandomId(4, solChars) + '...' + makeRandomId(4, solChars);
+                btn.innerText = "PHANTOM LINKED (SIM)";
+            }, 800);
+        }
+
+        function triggerClaimReward() {
+            const addressInput = document.getElementById('address').value;
+            const claimBtn = document.getElementById('claim-btn');
+
+            if (!addressInput || addressInput === "awaiting handshakes...") {
+                claimBtn.innerText = "LINK A WALLET FIRST!";
+                claimBtn.style.background = "var(--neon-pink)";
+                claimBtn.style.color = "#fff";
+                setTimeout(() => {
+                    claimBtn.innerText = "CLAIM PORTAL REWARDS";
+                    claimBtn.style.background = "var(--neon-cyan)";
+                    claimBtn.style.color = "#000";
+                }, 2000);
+                return;
+            }
+
+            claimBtn.innerText = "BROADCASTING TRANSACTION...";
+            claimBtn.style.background = "var(--neon-purple)";
+            claimBtn.style.color = "#fff";
+
+            setTimeout(() => {
+                claimBtn.innerText = "ALLOCATION SUCCESSFUL! 🎉";
+                claimBtn.style.background = "var(--neon-green)";
+                claimBtn.style.color = "#000";
+                
+                addNewCustomLog(addressInput);
+
+                setTimeout(() => {
+                    claimBtn.innerText = "CLAIM PORTAL REWARDS";
+                    claimBtn.style.background = "var(--neon-cyan)";
+                }, 3500);
+            }, 1800);
+        }
+
+        function simulateNodeOptimize(btnElement) {
+            const originalText = btnElement.innerText;
+            btnElement.innerText = "TUNING PIPELINE...";
+            btnElement.style.borderColor = "var(--neon-cyan)";
+            
+            setTimeout(() => {
+                btnElement.innerText = "OPTIMIZED ✓";
+                btnElement.style.borderColor = "var(--neon-green)";
+                
+                if(originalText === "FORCE RESYNC") {
+                    document.getElementById('node3-dot').className = "status-dot";
+                    document.getElementById('node3-text').innerText = "NODE // 03 // ACTIVE";
+                }
+                
+                setTimeout(() => {
+                    btnElement.innerText = originalText === "FORCE RESYNC" ? "Optimize Relay" : originalText;
+                    btnElement.style.borderColor = "var(--neon-purple)";
+                }, 2000);
+            }, 1200);
+        }
+
+        const logContainer = document.getElementById('log-container');
+        const hexChars = 'abcdef0123456789';
+        const solChars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz123456789';
+        
+        function makeRandomId(length, chars) {
+            let result = '';
+            for (let i = 0; i < length; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
+            return result;
+        }
+
+        function createLiveLog() {
+            if (!logContainer) return;
+            const row = document.createElement('div');
+            row.className = 'feed-row';
+            
+            if (Math.random() > 0.5) {
+                const wallet = `0x${makeRandomId(4, hexChars)}...${makeRandomId(4, hexChars)}`;
+                row.innerHTML = `<span>User wallet <em>${wallet}</em> mapped to Genesis Index</span> <span class="amount">+$PUMPXON</span>`;
+            } else {
+                row.className = 'feed-row sol-row';
+                const wallet = `${makeRandomId(4, solChars)}...${makeRandomId(4, solChars)}`;
+                row.innerHTML = `<span>User wallet <em>${wallet}</em> identity allocation linked</span> <span class="amount">+$PUMPXON</span>`;
+            }
+
+            logContainer.insertBefore(row, logContainer.firstChild);
+            if (logContainer.children.length > 4) logContainer.removeChild(logContainer.lastChild);
+        }
+
+        function addNewCustomLog(customWalletAddress) {
+            const row = document.createElement('div');
+            row.className = 'feed-row';
+            row.style.borderLeftColor = 'var(--neon-green)';
+            row.style.boxShadow = '0 0 10px rgba(57, 255, 20, 0.2)';
+            row.innerHTML = `<span>Your active signature <em>${customWalletAddress}</em> finalized allocations!</span> <span class="amount" style="color: var(--neon-cyan)">SUCCESS</span>`;
+            
+            logContainer.insertBefore(row, logContainer.firstChild);
+            if (logContainer.children.length > 4) logContainer.removeChild(logContainer.lastChild);
+        }
+
+        for (let i = 0; i < 4; i++) createLiveLog();
+        setInterval(createLiveLog, 2500);
+
+        async function fetchLiveMarketPrices() {
+            try {
+                const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd&include_24hr_change=true');
+                const data = await response.json();
+
+                if (data) {
+                    document.getElementById('btc-price').innerText = `$${data.bitcoin.usd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                    updatePriceChangeUI('btc-change', data.bitcoin.usd_24h_change);
+
+                    document.getElementById('eth-price').innerText = `$${data.ethereum.usd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                    updatePriceChangeUI('eth-change', data.ethereum.usd_24h_change);
+
+                    document.getElementById('sol-price').innerText = `$${data.solana.usd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                    updatePriceChangeUI('sol-change', data.solana.usd_24h_change);
+                }
+            } catch (error) {
+                console.error("Handshake link dropped. Syncing...", error);
+            }
+        }
+
+        function updatePriceChangeUI(elementId, changeValue) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            const dynamicSign = changeValue >= 0 ? '+' : '';
+            element.innerText = `${dynamicSign}${changeValue.toFixed(2)}%`;
+            
+            if (changeValue >= 0) {
+                element.className = 'coin-change change-up';
+            } else {
+                element.className = 'coin-change change-down';
+            }
+        }
+
+        fetchLiveMarketPrices();
+        setInterval(fetchLiveMarketPrices, 10000);
+
+        // Dynamic Background Floating Mascot Engine
+        const mascotContainer = document.getElementById('mascot-container');
+        const mascotPool = ['🐧', '☀️', '🐸', '🚀', '💎'];
+
+        function createFloatingMascot() {
+            if (!mascotContainer) return;
+            const mascotNode = document.createElement('div');
+            mascotNode.className = 'mascot';
+            mascotNode.innerText = mascotPool[Math.floor(Math.random() * mascotPool.length)];
+            
+            // Randomize position across the X axis
+            mascotNode.style.left = Math.random() * 100 + '%';
+            
+            // Randomize speed duration (between 12 and 24 seconds)
+            const runtime = 12 + Math.random() * 12;
+            mascotNode.style.animationDuration = runtime + 's';
+            
+            // Randomize sizing dynamically (between 22px and 45px)
+            const dynamicSize = 22 + Math.random() * 23;
+            mascotNode.style.fontSize = dynamicSize + 'px';
+            
+            mascotContainer.appendChild(mascotNode);
+
+            // Clean up node from browser memory immediately after it leaves viewport bounds
+            setTimeout(() => {
+                mascotNode.remove();
+            }, runtime * 1000);
+        }
+
+        // Staggered generation loop
+        for (let i = 0; i < 12; i++) {
+            setTimeout(createFloatingMascot, Math.random() * 10000);
+        }
+        setInterval(createFloatingMascot, 1800);
+    </script>
+</body>
+</html>
