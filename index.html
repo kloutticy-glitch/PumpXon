@@ -29,6 +29,7 @@
             position: relative;
         }
 
+        /* Matrix Mascot & Ambient Layout Background Elements */
         .ambient-glow-1 {
             position: absolute;
             width: 500px;
@@ -37,6 +38,39 @@
             top: -50px;
             left: -100px;
             z-index: -2;
+        }
+
+        .mascot-bg-matrix {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90vw;
+            height: 90vh;
+            background-image: 
+                linear-gradient(rgba(157, 78, 221, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(157, 78, 221, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.85;
+        }
+
+        .mascot-glow-core {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0, 240, 255, 0.04) 0%, rgba(157, 78, 221, 0.02) 40%, rgba(0,0,0,0) 70%);
+            bottom: -100px;
+            right: -100px;
+            z-index: -2;
+            pointer-events: none;
+            animation: pulseGlow 8s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(1) translate(0, 0); opacity: 0.6; }
+            100% { transform: scale(1.15) translate(-30px, -20px); opacity: 0.9; }
         }
 
         header {
@@ -190,7 +224,10 @@
         }
     </style>
 </head>
-<body><div class="ambient-glow-1"></div>
+<body>
+    <div class="ambient-glow-1"></div>
+    <div class="mascot-bg-matrix"></div>
+    <div class="mascot-glow-core"></div>
 
     <header>
         <div class="logo">⚡ PUMPXON SYSTEM</div>
@@ -537,30 +574,44 @@
         setInterval(fetchLiveMarketPrices, 10000);
 
         // ==========================================
-        // COPYTRADE CORE ENGINE LOGIC
+        // COPYTRADE ALIASES GENERATOR (NON-ROBOTIC)
         // ==========================================
-        const strategistTypes = [
-            { name: "MEV BOT ALPHA", baseWin: 98, baseRoi: 428, prefix: "0x71" },
-            { name: "SOL WHALE #09", baseWin: 89, baseRoi: 194, prefix: "HN7c" },
-            { name: "INSIDER DEV CORE", baseWin: 91, baseRoi: 612, prefix: "0x3f" },
-            { name: "MEME DEPLOYER L7", baseWin: 94, baseRoi: 310, prefix: "6xRp" },
-            { name: "SANDWICH BOT PRIME", baseWin: 86, baseRoi: 519, prefix: "0x9a" },
-            { name: "RAYDIUM SNIPER PRO", baseWin: 95, baseRoi: 843, prefix: "Ak3W" }
+        const traderIdentities = [
+            { name: "Ansem's Apprentice", baseWin: 91.4, baseRoi: 540, prefix: "HN7c" },
+            { name: "Degenerate Dev Core", baseWin: 86.8, baseRoi: 820, prefix: "0x3f" },
+            { name: "Wizard of Pump", baseWin: 94.2, baseRoi: 410, prefix: "Ak3W" },
+            { name: "GigaWhale Alpha", baseWin: 89.1, baseRoi: 195, prefix: "7xRp" },
+            { name: "Sandwich King MEV", baseWin: 98.6, baseRoi: 312, prefix: "0x9a" },
+            { name: "Solana Sniper Elite", baseWin: 93.5, baseRoi: 625, prefix: "6fVn" },
+            { name: "Meme Cult Leader", baseWin: 88.3, baseRoi: 710, prefix: "0x71" },
+            { name: "Phantom Frontrunner", baseWin: 90.7, baseRoi: 485, prefix: "zTop" },
+            { name: "Terminal Velocity", baseWin: 95.1, baseRoi: 910, prefix: "0xab" },
+            { name: "Liquidity Vampire", baseWin: 87.4, baseRoi: 360, prefix: "vMpq" }
         ];
 
         const walletsToDisplay = [];
         for (let i = 1; i <= 30; i++) {
-            const base = strategistTypes[(i - 1) % strategistTypes.length];
-            const winRate = (base.baseWin + (i % 3) * 0.4 - (i % 2) * 0.2).toFixed(1);
-            const return30d = (base.baseRoi + (i * 4) - (i * 2));
-            const activeMirrors = (800 + (i * 115)) - (i * 9);
+            const base = traderIdentities[(i - 1) % traderIdentities.length];
             
-            const suffix = base.prefix.startsWith("0x") ? "89aF" : "k9pQ";
+            // Generate natural numeric tags or variation labels for overflow matching
+            let dynamicName = base.name;
+            if (i > 10 && i <= 20) {
+                dynamicName = `${base.name} II`;
+            } else if (i > 20) {
+                dynamicName = `${base.name.split(' ')[0]} Private Vault`;
+            }
+
+            // Create organic variance in trading performance metrics
+            const winRate = (parseFloat(base.winWin || base.baseWin) + (i % 3) * 0.3 - (i % 2) * 0.4).toFixed(1);
+            const return30d = (base.baseRoi + (i * 9) - (i * 4));
+            const activeMirrors = Math.floor(1200 + (i * 84) - (i * 11));
+            
+            const suffix = base.prefix.startsWith("0x") ? "e2fB" : "7mKz";
             const address = `${base.prefix}...${suffix}`;
 
             walletsToDisplay.push({
                 id: i,
-                name: i <= 6 ? base.name : `${base.name.split(' ')[0]} PRO v${Math.ceil(i/6)}`,
+                name: dynamicName,
                 address: address,
                 winRate: winRate,
                 return30d: return30d,
