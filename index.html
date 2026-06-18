@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PUMPXON // AUTOMATED COPYTRADE MATRIX</title>
+    <title>PUMPXON SYSTEM</title>
     <style>
         :root {
             --bg-dark: #030206;
@@ -204,6 +204,18 @@
         .change-up { color: var(--neon-green); }
         .change-down { color: var(--neon-pink); }
 
+        /* Copytrade Specific UI Styles */
+        .trader-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
+        .trader-card { background: var(--panel-dark); border: 1px solid #2d2344; padding: 30px; border-radius: 12px; position: relative; transition: border-color 0.3s; }
+        .trader-card:hover { border-color: var(--neon-cyan); }
+        .trader-badge { position: absolute; top: 15px; right: 15px; font-family: monospace; font-size: 11px; color: var(--neon-green); border: 1px solid var(--neon-green); padding: 2px 8px; border-radius: 4px; text-transform: uppercase; }
+        .trader-title { font-size: 22px; margin: 0 0 5px 0; text-transform: uppercase; letter-spacing: -0.5px; }
+        .trader-address { font-family: monospace; font-size: 12px; color: #8b859e; margin-bottom: 25px; display: block; }
+        .trader-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; border-top: 1px solid #1a1528; padding-top: 15px; }
+        .metric-block .m-val { font-family: monospace; font-size: 20px; color: #ffffff; font-weight: bold; }
+        .metric-block .m-val.up { color: var(--neon-green); }
+        .metric-block .m-lbl { font-family: monospace; font-size: 10px; color: #8b859e; text-transform: uppercase; margin-top: 3px; }
+
         .node-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
         .node-card { background: var(--panel-dark); border: 1px solid #2d2344; padding: 25px; border-radius: 10px; position: relative; }
         .node-status { display: flex; justify-content: space-between; align-items: center; font-family: monospace; font-size: 11px; margin-bottom: 15px; }
@@ -233,36 +245,38 @@
     </style>
 </head>
 <body>
+    <!-- Floating Mascot Layer -->
     <div id="mascot-container"></div>
 
     <div class="ambient-glow-1"></div>
 
     <header>
-        <div class="logo">⚡ PUMPXON COPYTRADE</div>
+        <div class="logo">⚡ PUMPXON SYSTEM</div>
         <nav>
-            <button class="nav-btn active" onclick="switchSection('airdrop', this)">Mirror Portal</button>
+            <button class="nav-btn active" onclick="switchSection('airdrop', this)">Airdrop Portal</button>
             <button class="nav-btn" onclick="switchSection('market', this)">Live Market</button>
+            <button class="nav-btn" onclick="switchSection('copytrade', this)">Copytrade Hub</button>
             <button class="nav-btn" onclick="switchSection('nodes', this)">Node Validator</button>
-            <button class="nav-btn" onclick="switchSection('vault', this)">Replication Vault</button>
+            <button class="nav-btn" onclick="switchSection('vault', this)">Rarity Vault</button>
         </nav>
     </header>
 
     <section id="airdrop" class="app-section active-section">
         <div class="main-container">
             <main class="left-content">
-                <div class="status-tag">// COPYTRADE PIPELINE STAGE_01 INITIALIZED</div>
-                <h1>MIRROR THE<br>INSIDER <span>WALLETS.</span></h1>
+                <div class="status-tag">// ECOSYSTEM STAGE_01 INITIALIZED</div>
+                <h1>THE DIGITAL<br>CULTURE <span>MATRIX.</span></h1>
                 <p class="manifesto">
-                    PumpXon System is a high-velocity, fully automated copytrading network canvas built for core community members to track alpha-tier liquid wallets. Syncing your localized identity binds your execution layers securely to our real-time master replication contracts.
+                    PumpXon System is a high-velocity, fully decentralized network canvas built for core community builders and on-chain tactical developers. Syncing your localized identity locks your trace securely to our genesis index contracts.
                 </p>
                 <div class="raw-stats">
                     <div>
                         <div class="stat-number">420K+</div>
-                        <div class="stat-label">Active Copytraders</div>
+                        <div class="stat-label">Wallets Synced</div>
                     </div>
                     <div>
                         <div class="stat-number">100%</div>
-                        <div class="stat-label">Automated Mirroring</div>
+                        <div class="stat-label">Decentralized Hub</div>
                     </div>
                 </div>
             </main>
@@ -272,17 +286,17 @@
                 <button id="mm-btn" class="wallet-btn btn-mm" onclick="connectMetaMask()">Initialize MetaMask</button>
                 <button id="phantom-btn" class="wallet-btn btn-phantom" onclick="connectPhantom()">Initialize Phantom</button>
                 <div class="input-block">
-                    <label>SYNCHRONIZED COPYTRADE IDENTITY</label>
+                    <label>SYNCHRONIZED IDENTITY SIGNATURE</label>
                     <input class="address-box" type="text" id="address" placeholder="awaiting handshakes..." readonly>
                 </div>
                 <button id="claim-btn" class="action-submit" onclick="triggerClaimReward()">
-                    INITIALIZE COPY CORES
+                    CLAIM PORTAL REWARDS
                 </button>
             </aside>
         </div>
 
         <div class="live-feed">
-            <div class="feed-title"><div class="feed-pulse"></div> REAL-TIME REPLICATION PIPELINE METRICS</div>
+            <div class="feed-title"><div class="feed-pulse"></div> REAL-TIME IDENTITY CONTRACT MAPPING</div>
             <div id="log-container"></div>
         </div>
     </section>
@@ -321,6 +335,49 @@
         </div>
     </section>
 
+    <section id="copytrade" class="app-section">
+        <div class="market-header">
+            <div class="status-tag">// REAL-TIME MULTI-CHAIN REPLICATION BLOCKS</div>
+            <h1 style="font-size: 50px; margin-bottom: 10px;">COPYTRADE <span>CORES</span></h1>
+            <p style="color: #8b859e; margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">Instantly link your synchronized matrix footprint to automatically mirror high-ROI alpha insider wallets.</p>
+        </div>
+
+        <div class="trader-grid">
+            <div class="trader-card">
+                <div class="trader-badge">98.4% Win Rate</div>
+                <div class="trader-title">MEV BOT ALPHA</div>
+                <span class="trader-address">0x71C...89aF</span>
+                <div class="trader-metrics">
+                    <div class="metric-block"><div class="m-val up">+428.1%</div><div class="m-lbl">30D Return</div></div>
+                    <div class="metric-block"><div class="m-val">1,240</div><div class="m-lbl">Active Mirrors</div></div>
+                </div>
+                <button class="node-btn" style="border-color: var(--neon-cyan);" onclick="simulateCopyTradeLink(this)">Mirror Execution</button>
+            </div>
+
+            <div class="trader-card">
+                <div class="trader-badge">89.2% Win Rate</div>
+                <div class="trader-title">SOL WHALE #09</div>
+                <span class="trader-address">HN7c...k9pQ</span>
+                <div class="trader-metrics">
+                    <div class="metric-block"><div class="m-val up">+194.5%</div><div class="m-lbl">30D Return</div></div>
+                    <div class="metric-block"><div class="m-val">3,112</div><div class="m-lbl">Active Mirrors</div></div>
+                </div>
+                <button class="node-btn" style="border-color: var(--neon-cyan);" onclick="simulateCopyTradeLink(this)">Mirror Execution</button>
+            </div>
+
+            <div class="trader-card">
+                <div class="trader-badge">91.7% Win Rate</div>
+                <div class="trader-title">INSIDER DEV CORE</div>
+                <span class="trader-address">0x3fA...22bC</span>
+                <div class="trader-metrics">
+                    <div class="metric-block"><div class="m-val up">+612.0%</div><div class="m-lbl">30D Return</div></div>
+                    <div class="metric-block"><div class="m-val">849</div><div class="m-lbl">Active Mirrors</div></div>
+                </div>
+                <button class="node-btn" style="border-color: var(--neon-cyan);" onclick="simulateCopyTradeLink(this)">Mirror Execution</button>
+            </div>
+        </div>
+    </section>
+
     <section id="nodes" class="app-section">
         <div class="market-header">
             <div class="status-tag">// BACKEND NODE INFRASTRUCTURE MANAGEMENT</div>
@@ -352,25 +409,25 @@
 
     <section id="vault" class="app-section">
         <div class="market-header">
-            <div class="status-tag">// CONTRACT REPLICATION VAULT BOUNDS</div>
-            <h1 style="font-size: 50px; margin-bottom: 10px;">TIERED <span>MIRRORS</span></h1>
-            <p style="color: #8b859e; margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">Review structural staking allocation targets assigned to linked copytrade execution pathways.</p>
+            <div class="status-tag">// CONTRACT ESCRED VAULT METRICS</div>
+            <h1 style="font-size: 50px; margin-bottom: 10px;">TIERED <span>LEDGERS</span></h1>
+            <p style="color: #8b859e; margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">Review structural staking deployment multiplier bounds assigned to linked addresses.</p>
         </div>
 
         <div class="vault-grid">
             <div class="vault-card">
-                <div class="vault-tier">ALPHA WHALE MIRROR</div>
+                <div class="vault-tier">ALPHA WHALE</div>
                 <div class="vault-stat-row"><span>Required Allocation:</span> <span>5,000 $PUMPXON</span></div>
-                <div class="vault-stat-row"><span>Target Pool:</span> <span>Top 50 Wallets</span></div>
-                <div class="vault-stat-row"><span>Execution Weight:</span> <span>1.5x Boost</span></div>
+                <div class="vault-stat-row"><span>Yield Generation:</span> <span>+12.4% APY</span></div>
+                <div class="vault-stat-row"><span>Multiplier Weight:</span> <span>1.5x Boost</span></div>
                 <div class="progress-track"><div class="progress-fill" style="width: 75%;"></div></div>
             </div>
             <div class="vault-card premium">
                 <div class="badge">EXCLUSIVE</div>
-                <div class="vault-tier" style="color: var(--neon-pink);">GENESIS INSIDER</div>
+                <div class="vault-tier" style="color: var(--neon-pink);">GENESIS ELITE</div>
                 <div class="vault-stat-row"><span>Required Allocation:</span> <span>25,000 $PUMPXON</span></div>
-                <div class="vault-stat-row"><span>Target Pool:</span> <span>Developer & Alpha Early Calls</span></div>
-                <div class="vault-stat-row"><span>Execution Weight:</span> <span>4.0x Boost</span></div>
+                <div class="vault-stat-row"><span>Yield Generation:</span> <span>+44.2% APY</span></div>
+                <div class="vault-stat-row"><span>Multiplier Weight:</span> <span>4.0x Boost</span></div>
                 <div class="progress-track"><div class="progress-fill" style="width: 92%; background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple));"></div></div>
             </div>
         </div>
@@ -397,7 +454,7 @@
             // Randomly pick an alternate swaying path (Left drift or Right drift)
             const animationPath = Math.random() > 0.5 ? 'floatLeft' : 'floatRight';
             
-            // Apply linear animation for perfectly smooth, non-stuttering flow [Cite:Turn 14 Request]
+            // Apply linear animation for perfectly smooth, non-stuttering flow
             mascotNode.style.animation = `${animationPath} ${runtime}s linear forwards`;
             
             // Randomize sizing dynamically (between 22px and 45px)
@@ -482,26 +539,26 @@
                 claimBtn.style.background = "var(--neon-pink)";
                 claimBtn.style.color = "#fff";
                 setTimeout(() => {
-                    claimBtn.innerText = "INITIALIZE COPY CORES";
+                    claimBtn.innerText = "CLAIM PORTAL REWARDS";
                     claimBtn.style.background = "var(--neon-cyan)";
                     claimBtn.style.color = "#000";
                 }, 2000);
                 return;
             }
 
-            claimBtn.innerText = "SYNCHRONIZING EXECUTION CORES...";
+            claimBtn.innerText = "BROADCASTING TRANSACTION...";
             claimBtn.style.background = "var(--neon-purple)";
             claimBtn.style.color = "#fff";
 
             setTimeout(() => {
-                claimBtn.innerText = "MIRROR PATHWAY SUCCESSFUL! 🎉";
+                claimBtn.innerText = "ALLOCATION SUCCESSFUL! 🎉";
                 claimBtn.style.background = "var(--neon-green)";
                 claimBtn.style.color = "#000";
                 
                 addNewCustomLog(addressInput);
 
                 setTimeout(() => {
-                    claimBtn.innerText = "INITIALIZE COPY CORES";
+                    claimBtn.innerText = "CLAIM PORTAL REWARDS";
                     claimBtn.style.background = "var(--neon-cyan)";
                 }, 3500);
             }, 1800);
@@ -528,6 +585,28 @@
             }, 1200);
         }
 
+        function simulateCopyTradeLink(btnElement) {
+            const addressInput = document.getElementById('address').value;
+            if (!addressInput || addressInput === "awaiting handshakes...") {
+                const prevText = btnElement.innerText;
+                btnElement.innerText = "CONNECT WALLET FIRST";
+                btnElement.style.borderColor = "var(--neon-pink)";
+                setTimeout(() => {
+                    btnElement.innerText = prevText;
+                    btnElement.style.borderColor = "var(--neon-cyan)";
+                }, 2000);
+                return;
+            }
+
+            btnElement.innerText = "SYNCING CORES...";
+            btnElement.style.borderColor = "var(--neon-purple)";
+
+            setTimeout(() => {
+                btnElement.innerText = "MIRRORING ✓";
+                btnElement.style.borderColor = "var(--neon-green)";
+            }, 1500);
+        }
+
         const logContainer = document.getElementById('log-container');
         const hexChars = 'abcdef0123456789';
         const solChars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz123456789';
@@ -545,11 +624,11 @@
             
             if (Math.random() > 0.5) {
                 const wallet = `0x${makeRandomId(4, hexChars)}...${makeRandomId(4, hexChars)}`;
-                row.innerHTML = `<span>User wallet <em>${wallet}</em> initialized automated copy-trade allocation</span> <span class="amount">+$PUMPXON</span>`;
+                row.innerHTML = `<span>User wallet <em>${wallet}</em> mapped to Genesis Index</span> <span class="amount">+$PUMPXON</span>`;
             } else {
                 row.className = 'feed-row sol-row';
                 const wallet = `${makeRandomId(4, solChars)}...${makeRandomId(4, solChars)}`;
-                row.innerHTML = `<span>User wallet <em>${wallet}</em> successfully mirrored target master-contract</span> <span class="amount">+$PUMPXON</span>`;
+                row.innerHTML = `<span>User wallet <em>${wallet}</em> identity allocation linked</span> <span class="amount">+$PUMPXON</span>`;
             }
 
             logContainer.insertBefore(row, logContainer.firstChild);
@@ -561,7 +640,7 @@
             row.className = 'feed-row';
             row.style.borderLeftColor = 'var(--neon-green)';
             row.style.boxShadow = '0 0 10px rgba(57, 255, 20, 0.2)';
-            row.innerHTML = `<span>Your active signature <em>${customWalletAddress}</em> locked replication pipelines!</span> <span class="amount" style="color: var(--neon-cyan)">REPLICATED</span>`;
+            row.innerHTML = `<span>Your active signature <em>${customWalletAddress}</em> finalized allocations!</span> <span class="amount" style="color: var(--neon-cyan)">SUCCESS</span>`;
             
             logContainer.insertBefore(row, logContainer.firstChild);
             if (logContainer.children.length > 4) logContainer.removeChild(logContainer.lastChild);
