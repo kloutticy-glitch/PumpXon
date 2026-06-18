@@ -379,7 +379,7 @@
     <script>
         // --- FLOATING MASCOT MOTOR ENGINE ---
         const mascotContainer = document.getElementById('mascot-container');
-        const mascotPool = ['⚡', '💎', '🟢', '🚀', '🔥', '🔮']; 
+        const mascotPool = ['🚀', '💰', '⚡']; 
 
         function spawnMascot() {
             if (!mascotContainer) return;
@@ -412,8 +412,8 @@
             }, runtime * 1000); 
         }
 
-        // Spawn a new one every 1.4 seconds
-        setInterval(spawnMascot, 1400);
+        // Spawn a new one every 3.5 seconds (tuned for a much cleaner backdrop layout)
+        setInterval(spawnMascot, 3500);
 
 
         // --- APPLICATION LOGIC ENGINE ---
