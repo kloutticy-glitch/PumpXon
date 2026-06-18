@@ -29,7 +29,6 @@
             position: relative;
         }
 
-        /* Matrix Mascot & Ambient Layout Background Elements */
         .ambient-glow-1 {
             position: absolute;
             width: 500px;
@@ -38,39 +37,6 @@
             top: -50px;
             left: -100px;
             z-index: -2;
-        }
-
-        .mascot-bg-matrix {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 90vw;
-            height: 90vh;
-            background-image: 
-                linear-gradient(rgba(157, 78, 221, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(157, 78, 221, 0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
-            z-index: -1;
-            pointer-events: none;
-            opacity: 0.85;
-        }
-
-        .mascot-glow-core {
-            position: fixed;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(0, 240, 255, 0.04) 0%, rgba(157, 78, 221, 0.02) 40%, rgba(0,0,0,0) 70%);
-            bottom: -100px;
-            right: -100px;
-            z-index: -2;
-            pointer-events: none;
-            animation: pulseGlow 8s ease-in-out infinite alternate;
-        }
-
-        @keyframes pulseGlow {
-            0% { transform: scale(1) translate(0, 0); opacity: 0.6; }
-            100% { transform: scale(1.15) translate(-30px, -20px); opacity: 0.9; }
         }
 
         header {
@@ -196,6 +162,19 @@
         .change-up { color: var(--neon-green); }
         .change-down { color: var(--neon-pink); }
 
+        /* PHANTOM-STYLE EXPANDABLE CHART INFRASTRUCTURE */
+        .coin-row-clickable { cursor: pointer; transition: all 0.2s ease; }
+        .coin-row-clickable.chart-open { border-color: var(--neon-cyan); border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+        .chart-drawer { display: none; background: rgba(9, 7, 15, 0.85); border: 1px solid var(--neon-cyan); border-top: none; padding: 25px 30px; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; margin-top: -16px; margin-bottom: 10px; box-shadow: inset 0 0 20px rgba(0, 240, 255, 0.05); animation: fadeIn 0.25s ease-in-out; }
+        .chart-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .timeframe-group { display: flex; gap: 8px; }
+        .tf-btn { background: rgba(255, 255, 255, 0.03); border: 1px solid #2d2344; color: #8b859e; padding: 6px 14px; font-family: monospace; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: all 0.15s; }
+        .tf-btn:hover { color: #ffffff; border-color: #4e44ce; }
+        .tf-btn.active { background: var(--neon-cyan); color: #030206; border-color: var(--neon-cyan); box-shadow: 0 0 10px rgba(0, 240, 255, 0.3); }
+        .chart-canvas-wrap { width: 100%; height: 160px; position: relative; margin-top: 10px; }
+        .chart-vector { width: 100%; height: 100%; overflow: visible; }
+        .chart-line { stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; transition: d 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
+
         .node-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
         .node-card { background: var(--panel-dark); border: 1px solid #2d2344; padding: 25px; border-radius: 10px; position: relative; }
         .node-status { display: flex; justify-content: space-between; align-items: center; font-family: monospace; font-size: 11px; margin-bottom: 15px; }
@@ -224,17 +203,13 @@
         }
     </style>
 </head>
-<body>
-    <div class="ambient-glow-1"></div>
-    <div class="mascot-bg-matrix"></div>
-    <div class="mascot-glow-core"></div>
+<body><div class="ambient-glow-1"></div>
 
     <header>
         <div class="logo">⚡ PUMPXON SYSTEM</div>
         <nav>
             <button class="nav-btn active" onclick="switchSection('airdrop', this)">Airdrop Portal</button>
             <button class="nav-btn" onclick="switchSection('market', this)">Live Market</button>
-            <button class="nav-btn" onclick="switchSection('copytrade', this)">Copytrade Hub</button>
             <button class="nav-btn" onclick="switchSection('nodes', this)">Node Validator</button>
             <button class="nav-btn" onclick="switchSection('vault', this)">Rarity Vault</button>
         </nav>
@@ -291,40 +266,75 @@
         </div>
 
         <div class="market-grid">
-            <div class="coin-row">
+            <div class="coin-row coin-row-clickable" id="btc-row" onclick="toggleAssetChart('btc')">
                 <div class="coin-icon">🪙</div>
                 <div class="coin-name">Bitcoin<sm>BTC / USD</sm></div>
                 <div class="coin-price" id="btc-price">LOADING...</div>
                 <div class="coin-change" id="btc-change">--%</div>
             </div>
+            <div class="chart-drawer" id="btc-drawer">
+                <div class="chart-controls">
+                    <div class="timeframe-group">
+                        <button class="tf-btn active" onclick="switchChartRange('btc', '1D', event)">1D</button>
+                        <button class="tf-btn" onclick="switchChartRange('btc', '1W', event)">1W</button>
+                        <button class="tf-btn" onclick="switchChartRange('btc', '1M', event)">1M</button>
+                        <button class="tf-btn" onclick="switchChartRange('btc', 'ALL', event)">ALL</button>
+                    </div>
+                    <span style="font-family: monospace; font-size: 11px; color: #8b859e;">MARKET REPLICATION INDEX</span>
+                </div>
+                <div class="chart-canvas-wrap">
+                    <svg class="chart-vector" viewBox="0 0 500 150" preserveAspectRatio="none">
+                        <path class="chart-line" id="btc-line-path" d="M 0 80 Q 125 110 250 60 T 500 90" stroke="var(--neon-pink)" />
+                    </svg>
+                </div>
+            </div>
 
-            <div class="coin-row">
+            <div class="coin-row coin-row-clickable" id="eth-row" onclick="toggleAssetChart('eth')">
                 <div class="coin-icon">🔷</div>
                 <div class="coin-name">Ethereum<sm>ETH / USD</sm></div>
                 <div class="coin-price" id="eth-price">LOADING...</div>
                 <div class="coin-change" id="eth-change">--%</div>
             </div>
+            <div class="chart-drawer" id="eth-drawer">
+                <div class="chart-controls">
+                    <div class="timeframe-group">
+                        <button class="tf-btn active" onclick="switchChartRange('eth', '1D', event)">1D</button>
+                        <button class="tf-btn" onclick="switchChartRange('eth', '1W', event)">1W</button>
+                        <button class="tf-btn" onclick="switchChartRange('eth', '1M', event)">1M</button>
+                        <button class="tf-btn" onclick="switchChartRange('eth', 'ALL', event)">ALL</button>
+                    </div>
+                    <span style="font-family: monospace; font-size: 11px; color: #8b859e;">MARKET REPLICATION INDEX</span>
+                </div>
+                <div class="chart-canvas-wrap">
+                    <svg class="chart-vector" viewBox="0 0 500 150" preserveAspectRatio="none">
+                        <path class="chart-line" id="eth-line-path" d="M 0 100 Q 125 40 250 80 T 500 50" stroke="var(--neon-pink)" />
+                    </svg>
+                </div>
+            </div>
 
-            <div class="coin-row">
+            <div class="coin-row coin-row-clickable" id="sol-row" onclick="toggleAssetChart('sol')">
                 <div class="coin-icon">◎</div>
                 <div class="coin-name">Solana<sm>SOL / USD</sm></div>
                 <div class="coin-price" id="sol-price">LOADING...</div>
                 <div class="coin-change" id="sol-change">--%</div>
             </div>
-        </div>
-    </section>
-
-    <section id="copytrade" class="app-section">
-        <div class="market-header">
-            <div class="status-tag">// REAL-TIME MULTI-CHAIN REPLICATION BLOCKS</div>
-            <h1 style="font-size: 50px; margin-bottom: 10px;">COPYTRADE <span>CORES</span></h1>
-            <p style="color: #8b859e; margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">
-                Instantly link your synchronized matrix footprint to automatically mirror high-ROI alpha insider wallets.
-            </p>
-        </div>
-
-        <div class="node-grid" id="copytrade-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px;">
+            <div class="chart-drawer" id="sol-drawer">
+                <div class="chart-controls">
+                    <div class="timeframe-group">
+                        <button class="tf-btn active" onclick="switchChartRange('sol', '1D', event)">1D</button>
+                        <button class="tf-btn" onclick="switchChartRange('sol', '1W', event)">1W</button>
+                        <button class="tf-btn" onclick="switchChartRange('sol', '1M', event)">1M</button>
+                        <button class="tf-btn" onclick="switchChartRange('sol', 'ALL', event)">ALL</button>
+                    </div>
+                    <span style="font-family: monospace; font-size: 11px; color: #8b859e;">MARKET REPLICATION INDEX</span>
+                </div>
+                <div class="chart-canvas-wrap">
+                    <svg class="chart-vector" viewBox="0 0 500 150" preserveAspectRatio="none">
+                        <path class="chart-line" id="sol-line-path" d="M 0 120 Q 125 90 250 40 T 500 20" stroke="var(--neon-pink)" />
+                    </svg>
+                </div>
             </div>
+        </div>
     </section>
 
     <section id="nodes" class="app-section">
@@ -383,6 +393,68 @@
     </section>
 
     <script>
+        // CHART DATA MATRIX FOR HANDSHAKES
+        const mockChartCoordinates = {
+            btc: {
+                '1D': "M 0 100 Q 120 70 240 110 T 500 85",
+                '1W': "M 0 120 L 100 80 L 200 130 L 320 60 L 420 90 L 500 40",
+                '1M': "M 0 90 Q 80 130 180 50 T 350 110 T 500 30",
+                'ALL': "M 0 140 Q 150 120 300 70 T 500 15"
+            },
+            eth: {
+                '1D': "M 0 60 Q 130 110 260 50 T 500 95",
+                '1W': "M 0 90 L 120 120 L 220 70 L 310 100 L 400 40 L 500 65",
+                '1M': "M 0 110 Q 100 40 220 95 T 380 50 T 500 20",
+                'ALL': "M 0 135 Q 140 100 280 80 T 500 25"
+            },
+            sol: {
+                '1D': "M 0 110 Q 110 50 250 90 T 500 45",
+                '1W': "M 0 130 L 90 95 L 210 115 L 330 55 L 410 75 L 500 15",
+                '1M': "M 0 85 Q 120 125 240 45 T 390 90 T 500 35",
+                'ALL': "M 0 145 Q 160 130 310 50 T 500 10"
+            }
+        };
+
+        function toggleAssetChart(assetId) {
+            const row = document.getElementById(`${assetId}-row`);
+            const drawer = document.getElementById(`${assetId}-drawer`);
+            const linePath = document.getElementById(`${assetId}-line-path`);
+            const changeElement = document.getElementById(`${assetId}-change`);
+            
+            const isClosing = row.classList.contains('chart-open');
+            
+            // Close all charts to maintain micro cleaner stack views
+            document.querySelectorAll('.coin-row-clickable').forEach(r => r.classList.remove('chart-open'));
+            document.querySelectorAll('.chart-drawer').forEach(d => d.style.display = 'none');
+
+            if (!isClosing) {
+                row.classList.add('chart-open');
+                drawer.style.display = 'block';
+                
+                // Color match trend vector stroke dynamically with performance metrics
+                const isUpTrend = changeElement && !changeElement.classList.contains('change-down');
+                linePath.style.stroke = isUpTrend ? "var(--neon-green)" : "var(--neon-pink)";
+                linePath.style.shadowColor = isUpTrend ? "rgba(57,255,20,0.4)" : "rgba(255,0,85,0.4)";
+                
+                // Set default active frame state
+                switchChartRange(assetId, '1D');
+            }
+        }
+
+        function switchChartRange(assetId, timeframe, event) {
+            if (event) {
+                event.stopPropagation(); // Stop row close trigger events bubbling up
+                const parentGroup = event.target.parentElement;
+                parentGroup.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
+                event.target.classList.add('active');
+            }
+            
+            const targetPath = document.getElementById(`${assetId}-line-path`);
+            if (targetPath && mockChartCoordinates[assetId][timeframe]) {
+                targetPath.setAttribute('d', mockChartCoordinates[assetId][timeframe]);
+            }
+        }
+
         function switchSection(sectionId, element) {
             document.querySelectorAll('.app-section').forEach(section => {
                 section.classList.remove('active-section');
@@ -572,115 +644,6 @@
 
         fetchLiveMarketPrices();
         setInterval(fetchLiveMarketPrices, 10000);
-
-        // ==========================================
-        // COPYTRADE ALIASES GENERATOR (NON-ROBOTIC)
-        // ==========================================
-        const traderIdentities = [
-            { name: "Ansem's Apprentice", baseWin: 91.4, baseRoi: 540, prefix: "HN7c" },
-            { name: "Degenerate Dev Core", baseWin: 86.8, baseRoi: 820, prefix: "0x3f" },
-            { name: "Wizard of Pump", baseWin: 94.2, baseRoi: 410, prefix: "Ak3W" },
-            { name: "GigaWhale Alpha", baseWin: 89.1, baseRoi: 195, prefix: "7xRp" },
-            { name: "Sandwich King MEV", baseWin: 98.6, baseRoi: 312, prefix: "0x9a" },
-            { name: "Solana Sniper Elite", baseWin: 93.5, baseRoi: 625, prefix: "6fVn" },
-            { name: "Meme Cult Leader", baseWin: 88.3, baseRoi: 710, prefix: "0x71" },
-            { name: "Phantom Frontrunner", baseWin: 90.7, baseRoi: 485, prefix: "zTop" },
-            { name: "Terminal Velocity", baseWin: 95.1, baseRoi: 910, prefix: "0xab" },
-            { name: "Liquidity Vampire", baseWin: 87.4, baseRoi: 360, prefix: "vMpq" }
-        ];
-
-        const walletsToDisplay = [];
-        for (let i = 1; i <= 30; i++) {
-            const base = traderIdentities[(i - 1) % traderIdentities.length];
-            
-            // Generate natural numeric tags or variation labels for overflow matching
-            let dynamicName = base.name;
-            if (i > 10 && i <= 20) {
-                dynamicName = `${base.name} II`;
-            } else if (i > 20) {
-                dynamicName = `${base.name.split(' ')[0]} Private Vault`;
-            }
-
-            // Create organic variance in trading performance metrics
-            const winRate = (parseFloat(base.winWin || base.baseWin) + (i % 3) * 0.3 - (i % 2) * 0.4).toFixed(1);
-            const return30d = (base.baseRoi + (i * 9) - (i * 4));
-            const activeMirrors = Math.floor(1200 + (i * 84) - (i * 11));
-            
-            const suffix = base.prefix.startsWith("0x") ? "e2fB" : "7mKz";
-            const address = `${base.prefix}...${suffix}`;
-
-            walletsToDisplay.push({
-                id: i,
-                name: dynamicName,
-                address: address,
-                winRate: winRate,
-                return30d: return30d,
-                activeMirrors: activeMirrors.toLocaleString()
-            });
-        }
-
-        function renderCopytradeCards() {
-            const grid = document.getElementById('copytrade-grid');
-            if (!grid) return;
-            
-            grid.innerHTML = walletsToDisplay.map(wallet => `
-                <div class="node-card" style="padding: 30px; border: 2px solid #1a1528;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <span class="status-tag" style="font-size: 11px; color: var(--neon-green); margin: 0; background: rgba(57,255,20,0.05); padding: 4px 8px; border-radius: 4px; border: 1px solid rgba(57,255,20,0.2)">
-                            ${wallet.winRate}% WIN RATE
-                        </span>
-                    </div>
-                    <h3 class="node-title" style="margin-bottom: 5px; font-size: 20px;">${wallet.name}</h3>
-                    <div class="node-meta" style="margin-bottom: 25px;">${wallet.address}</div>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; border-top: 1px solid #1a1528; padding-top: 15px;">
-                        <div>
-                            <div class="stat-number" style="font-size: 24px; color: var(--neon-green); text-shadow: 0 0 10px rgba(57, 255, 20, 0.2);">
-                                +${wallet.return30d}%
-                            </div>
-                            <div class="stat-label" style="font-size: 9px;">30D Return</div>
-                        </div>
-                        <div>
-                            <div class="stat-number" style="font-size: 24px; color: #ffffff; text-shadow: none;">
-                                ${wallet.activeMirrors}
-                            </div>
-                            <div class="stat-label" style="font-size: 9px;">Active Mirrors</div>
-                        </div>
-                    </div>
-                    
-                    <button class="node-btn" onclick="executeMirrorAction(${wallet.id}, this)">
-                        Mirror Wallet
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        function executeMirrorAction(walletId, buttonElement) {
-            const activeAddress = document.getElementById('address').value;
-
-            if (!activeAddress || activeAddress === "awaiting handshakes...") {
-                const originalText = buttonElement.innerText;
-                buttonElement.innerText = "CONNECT WALLET FIRST!";
-                buttonElement.style.borderColor = "var(--neon-pink)";
-                buttonElement.style.color = "var(--neon-pink)";
-                
-                setTimeout(() => {
-                    buttonElement.innerText = originalText;
-                    buttonElement.style.borderColor = "var(--neon-purple)";
-                    buttonElement.style.color = "#ffffff";
-                    
-                    const portalBtn = document.querySelectorAll('.nav-btn')[0];
-                    switchSection('airdrop', portalBtn);
-                }, 2000);
-                return;
-            }
-
-            buttonElement.innerText = "MIRROR SYNCED ✓";
-            buttonElement.style.borderColor = "var(--neon-green)";
-            buttonElement.style.color = "var(--neon-green)";
-        }
-
-        renderCopytradeCards();
     </script>
 </body>
 </html>
