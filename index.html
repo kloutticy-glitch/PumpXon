@@ -29,6 +29,34 @@
             position: relative;
         }
 
+        /* Mascot Container Layer */
+        #mascot-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 99;
+            overflow: hidden;
+        }
+
+        .floating-mascot {
+            position: absolute;
+            bottom: -60px;
+            pointer-events: none;
+            user-select: none;
+            animation: floatUp linear forwards;
+            filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.6));
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(-115vh) rotate(360deg); opacity: 0; }
+        }
+
         .ambient-glow-1 {
             position: absolute;
             width: 500px;
@@ -190,7 +218,10 @@
         }
     </style>
 </head>
-<body><div class="ambient-glow-1"></div>
+<body>
+    <div id="mascot-container"></div>
+
+    <div class="ambient-glow-1"></div>
 
     <header>
         <div class="logo">⚡ PUMPXON SYSTEM</div>
@@ -332,6 +363,42 @@
     </section>
 
     <script>
+        // --- FLOATING MASCOT MOTOR ENGINE ---
+        const mascotContainer = document.getElementById('mascot-container');
+        // You can swap these out with any emojis or symbols you want floating around!
+        const mascotPool = ['⚡', '💎', '🟢', '🚀', '🔥', '🔮']; 
+
+        function spawnMascot() {
+            if (!mascotContainer) return;
+            
+            const mascotNode = document.createElement('div');
+            mascotNode.className = 'floating-mascot';
+            mascotNode.innerText = mascotPool[Math.floor(Math.random() * mascotPool.length)];
+            
+            // Random horizontal setup position
+            mascotNode.style.left = Math.random() * 100 + 'vw';
+            
+            // Random runtime duration configuration
+            const runtime = 4 + Math.random() * 5; 
+            mascotNode.style.animationDuration = runtime + 's';
+            
+            // Randomize sizing dynamically (between 22px and 45px)
+            const dynamicSize = 22 + Math.random() * 23;
+            mascotNode.style.fontSize = dynamicSize + 'px';
+            
+            mascotContainer.appendChild(mascotNode);
+            
+            // Clean up node from browser memory immediately after it leaves viewport bounds
+            setTimeout(() => {
+                mascotNode.remove();
+            }, runtime * 1000);
+        }
+
+        // Spawn a new one every 1.5 seconds
+        setInterval(spawnMascot, 1500);
+
+
+        // --- APPLICATION LOGIC ENGINE ---
         function switchSection(sectionId, element) {
             document.querySelectorAll('.app-section').forEach(section => {
                 section.classList.remove('active-section');
