@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PUMPXON SYSTEM</title>
+    <title>PUMPXON // DEPLOYMENT MATRIX</title>
     <style>
         :root {
             --bg-dark: #030206;
@@ -29,45 +29,6 @@
             position: relative;
         }
 
-        /* Mascot Container Layer - Placed safely in background */
-        #mascot-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 1;
-            overflow: hidden;
-        }
-
-        .floating-mascot {
-            position: absolute;
-            bottom: -60px;
-            pointer-events: none;
-            user-select: none;
-            filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.4));
-        }
-
-        /* Natural swaying animation tracks */
-        @keyframes floatLeft {
-            0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
-            10% { opacity: 0.5; }
-            35% { transform: translateY(-35vh) translateX(-35px) rotate(90deg); }
-            70% { transform: translateY(-75vh) translateX(15px) rotate(210deg); }
-            90% { opacity: 0.5; }
-            100% { transform: translateY(-115vh) translateX(-25px) rotate(360deg); opacity: 0; }
-        }
-
-        @keyframes floatRight {
-            0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
-            10% { opacity: 0.5; }
-            35% { transform: translateY(-35vh) translateX(35px) rotate(-90deg); }
-            70% { transform: translateY(-75vh) translateX(-15px) rotate(-210deg); }
-            90% { opacity: 0.5; }
-            100% { transform: translateY(-115vh) translateX(25px) rotate(-360deg); opacity: 0; }
-        }
-
         .ambient-glow-1 {
             position: absolute;
             width: 500px;
@@ -86,8 +47,6 @@
             align-items: center;
             padding: 40px 20px;
             box-sizing: border-box;
-            position: relative;
-            z-index: 2;
         }
 
         .logo {
@@ -137,8 +96,7 @@
             max-width: 1100px;
             padding: 20px;
             box-sizing: border-box;
-            position: relative;
-            z-index: 2;
+            z-index: 1;
             animation: fadeIn 0.3s ease-in-out;
         }
 
@@ -204,18 +162,6 @@
         .change-up { color: var(--neon-green); }
         .change-down { color: var(--neon-pink); }
 
-        /* Copytrade Dashboard Grid System */
-        .trader-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; }
-        .trader-card { background: var(--panel-dark); border: 1px solid #2d2344; padding: 30px; border-radius: 12px; position: relative; transition: border-color 0.3s; }
-        .trader-card:hover { border-color: var(--neon-cyan); }
-        .trader-badge { position: absolute; top: 15px; right: 15px; font-family: monospace; font-size: 11px; color: var(--neon-green); border: 1px solid var(--neon-green); padding: 2px 8px; border-radius: 4px; text-transform: uppercase; }
-        .trader-title { font-size: 20px; margin: 0 0 5px 0; text-transform: uppercase; letter-spacing: -0.5px; }
-        .trader-address { font-family: monospace; font-size: 12px; color: #8b859e; margin-bottom: 25px; display: block; }
-        .trader-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; border-top: 1px solid #1a1528; padding-top: 15px; }
-        .metric-block .m-val { font-family: monospace; font-size: 20px; color: #ffffff; font-weight: bold; }
-        .metric-block .m-val.up { color: var(--neon-green); }
-        .metric-block .m-lbl { font-family: monospace; font-size: 10px; color: #8b859e; text-transform: uppercase; margin-top: 3px; }
-
         .node-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
         .node-card { background: var(--panel-dark); border: 1px solid #2d2344; padding: 25px; border-radius: 10px; position: relative; }
         .node-status { display: flex; justify-content: space-between; align-items: center; font-family: monospace; font-size: 11px; margin-bottom: 15px; }
@@ -244,10 +190,7 @@
         }
     </style>
 </head>
-<body>
-    <div id="mascot-container"></div>
-
-    <div class="ambient-glow-1"></div>
+<body><div class="ambient-glow-1"></div>
 
     <header>
         <div class="logo">⚡ PUMPXON SYSTEM</div>
@@ -338,208 +281,13 @@
         <div class="market-header">
             <div class="status-tag">// REAL-TIME MULTI-CHAIN REPLICATION BLOCKS</div>
             <h1 style="font-size: 50px; margin-bottom: 10px;">COPYTRADE <span>CORES</span></h1>
-            <p style="color: #8b859e; margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">Instantly link your synchronized matrix footprint to automatically mirror high-ROI alpha insider wallets.</p>
+            <p style="color: #8b859e; margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">
+                Instantly link your synchronized matrix footprint to automatically mirror high-ROI alpha insider wallets.
+            </p>
         </div>
 
-        <div class="trader-grid">
-            <div class="trader-card">
-                <div class="trader-badge">98.4% Win Rate</div>
-                <div class="trader-title">MEV BOT ALPHA</div>
-                <span class="trader-address">0x71C...89aF</span>
-                <div class="trader-metrics">
-                    <div class="metric-block"><div class="m-val up">+428.1%</div><div class="m-lbl">30D Return</div></div>
-                    <div class="metric-block"><div class="m-val">1,240</div><div class="m-lbl">Active Mirrors</div></div>
-                </div>
-                <button class="node-btn" style="border-color: var(--neon-cyan);" onclick="simulateCopyTradeLink(this)">Mirror Wallet</button>
+        <div class="node-grid" id="copytrade-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px;">
             </div>
-
-            <div class="trader-card">
-                <div class="trader-badge">89.2% Win Rate</div>
-                <div class="trader-title">SOL WHALE #09</div>
-                <span class="trader-address">HN7c...k9pQ</span>
-                <div class="trader-metrics">
-                    <div class="metric-block"><div class="m-val up">+194.5%</div><div class="m-lbl">30D Return</div></div>
-                    <div class="metric-block"><div class="m-val">3,112</div><div class="m-lbl">Active Mirrors</div></div>
-                </div>
-                <button class="node-btn" style="border-color: var(--neon-cyan);" onclick="simulateCopyTradeLink(this)">Mirror Wallet</button>
-            </div>
-
-            <div class="trader-card">
-                <div class="trader-badge">91.7% Win Rate</div>
-                <div class="trader-title">INSIDER DEV CORE</div>
-                <span class="trader-address">0x3fA...22bC</span>
-                <div class="trader-metrics">
-                    <div class="metric-block"><div class="m-val up">+612.0%</div><div class="m-lbl">30D Return</div></div>
-                    <div class="metric-block"><div class="m-val">849</div><div class="m-lbl">Active Mirrors</div></div>
-                </div>
-                <button class="node-btn" style="border-color: var(--neon-cyan);" onclick="simulateCopyTradeLink(this)">Mirror Wallet</button>
-            </div>
-
-            <div class="trader-card">
-                <div class="trader-badge">94.1% Win Rate</div>
-                <div class="trader-title">MEME DEPLOYER L7</div>
-                <span class="trader-address">6xRp...88vT</span>
-                <div class="trader-metrics">
-                    <div class="metric-block"><div class="m-val up">+310.4%</div><div class="m-lbl">30D Return</div></div>
-                    <div class="metric-block"><div class="m-val">1,821</div><div class="m-lbl">Active Mirrors</div></div>
-                </div>
-                <button class="node-btn" style="border-color: var(--neon-cyan);" onclick="simulateCopyTradeLink(this)">Mirror Wallet</button>
-            </div>
-
-            <div class="trader-card">
-                <div class="trader-badge">86.5% Win Rate</div>
-                <div class="trader-title">SANDWICH BOT PRIME</div>
-                <span class="trader-address">0x9aE...45dE</span>
-                <div class="trader-metrics">
-                    <div class="metric-block"><div class="m-val up">+519.2%</div><div class="m-lbl">30D Return</div></div>
-                    <div class="metric-block"><div class="m-val">904</div><div class="m-lbl">Active Mirrors</div></div>
-                </div>
-                <button class="node-btn" style="border-color: var(--neon-cyan);" onclick="simulateCopyTradeLink(this)">Mirror Wallet</button>
-            </div>
-
-            <div class="trader-card">
-                <div class="trader-badge">95.0% Win Rate</div>
-                <div class="trader-title">RAYDIUM SNIPER PRO</div>
-                <span class="trader-address">Ak3W...mN5z</span>
-                <div class="trader-metrics">
-                    <div class="metric-block"><div class="m-val up">+843.9%</div><div class="m-lbl">30D Return</div></div>
-                    <div class="metric-block"><div class="m-val">2,440</div><div class="m-lbl">Active Mirrors</div></div>
-                </div>
-                <button class="node-btn" style="border-color: var(--neon-cyan);" onclick="simulateCopyTradeLink(this)">Mirror Wallet</button>
-            </div>
-
-            <div class="trader-card">
-                <div class="trader-badge">92.3% Win Rate</div>
-                <div class="trader-title">LIQUIDITY RUNNER</div>
-                <span class="trader-address">0x11b...CC78</span>
-                <div class="trader-metrics">
-                    <div class="metric-block"><div class="m-val up">+275.1%</div><div class="m-lbl">30D Return</div></div>
-                    <div class="metric-block"><div class="m-val">1,115</div><div class="m-lbl">Active Mirrors</div></div>
-                </div>
-                <button class="node-btn" style="border-color: var(--neon-cyan);" onclick="simulateCopyTradeLink(this)">Mirror Wallet</button>
-            </div>
-
-            <div class="trader-card">
-                <div class="trader-badge">88.9% Win Rate</div>
-                <div class="trader-title">SOL UNDERGROUND</div>
-                <span class="trader-address">FZ7a...pP92</span>
-                <div class="trader-metrics">
-                    <div class="metric-block"><div class="m-val up">+409.6%</div><div class="m-lbl">30D Return</div></div>
-                    <div class="metric-block"><div class="m-val">3,782</div><div class="m-lbl">Active Mirrors</div></div>
-                </div>
-                <button class="node-btn" style="border-color: var(--neon-cyan);" onclick="simulateCopyTradeLink(this)">Mirror Wallet</button>
-            </div>
-
-            <div class="trader-card">
-                <div class="trader-badge">97.6% Win Rate</div>
-                <div class="trader-title">ALPHA NODE HUNTER</div>
-                <span class="trader-address">0xee4...99FF</span>
-                <div class="trader-metrics">
-                    <div class="metric-block"><div class="m-val up">+932.5%</div><div class="m-lbl">30D Return</div></div>
-                    <div class="metric-block"><div class="m-val">1,506</div><div class="m-lbl">Active Mirrors</div></div>
-                </div>
-                <button class="node-btn" style="border-color: var(--neon-cyan);" onclick="simulateCopyTradeLink(this)">Mirror Wallet</button>
-            </div>
-
-            <div class="trader-card">
-                <div class="trader-badge">90.2% Win Rate</div>
-                <div class="trader-title">PUMPFUN SNIPER MASTER</div>
-                <span class="trader-address">9xQr...LL21</span>
-                <div class="trader-metrics">
-                    <div class="metric-block"><div class="m-val up">+356.4%</div><div class="m-lbl">30D Return</div></div>
-                    <div class="metric-block"><div class="m-val">4,210</div><div class="m-lbl">Active Mirrors</div></div>
-                </div>
-                <button class="node-btn" style="border-color: var(--neon-cyan);" onclick="simulateCopyTradeLink(this)">Mirror Wallet</button>
-            </div>
-
-            <div class="trader-card">
-                <div class="trader-badge">93.8% Win Rate</div>
-                <div class="trader-title">JUPITER ARB MATRIX</div>
-                <span class="trader-address">JuP7...tW4s</span>
-                <div class="trader-metrics">
-                    <div class="metric-block"><div class="m-val up">+188.2%</div><div class="m-lbl">30D Return</div></div>
-                    <div class="metric-block"><div class="m-val">2,990</div><div class="m-lbl">Active Mirrors</div></div>
-                </div>
-                <button class="node-btn" style="border-color: var(--neon-cyan);" onclick="simulateCopyTradeLink(this)">Mirror Wallet</button>
-            </div>
-
-            <div class="trader-card">
-                <div class="trader-badge">96.3% Win Rate</div>
-                <div class="trader-title">WHALE ACCUMULATOR</div>
-                <span class="trader-address">0x55A...cd3E</span>
-                <div class="trader-metrics">
-                    <div class="metric-block"><div class="m-val up">+512.7%</div><div class="m-lbl">30D Return</div></div>
-                    <div class="metric-block"><div class="m-val">714</div><div class="m-lbl">Active Mirrors</div></div>
-                </div>
-                <button class="node-btn" style="border-color: var(--neon-cyan);" onclick="simulateCopyTradeLink(this)">Mirror Wallet</button>
-            </div>
-
-            <div class="trader-card">
-                <div class="trader-badge">87.1% Win Rate</div>
-                <div class="trader-title">STABLE YIELD ORACLE</div>
-                <span class="trader-address">0x88F...aa12</span>
-                <div class="trader-metrics">
-                    <div class="metric-block"><div class="m-val up">+94.3%</div><div class="m-lbl">30D Return</div></div>
-                    <div class="metric-block"><div class="m-val">1,603</div><div class="m-lbl">Active Mirrors</div></div>
-                </div>
-                <button class="node-btn" style="border-color: var(--neon-cyan);" onclick="simulateCopyTradeLink(this)">Mirror Wallet</button>
-            </div>
-
-            <div class="trader-card">
-                <div class="trader-badge">94.7% Win Rate</div>
-                <div class="trader-title">NFT FLIP MASTER</div>
-                <span class="trader-address">7vBn...kK71</span>
-                <div class="trader-metrics">
-                    <div class="metric-block"><div class="m-val up">+460.0%</div><div class="m-lbl">30D Return</div></div>
-                    <div class="metric-block"><div class="m-val">882</div><div class="m-lbl">Active Mirrors</div></div>
-                </div>
-                <button class="node-btn" style="border-color: var(--neon-cyan);" onclick="simulateCopyTradeLink(this)">Mirror Wallet</button>
-            </div>
-
-            <div class="trader-card">
-                <div class="trader-badge">91.2% Win Rate</div>
-                <div class="trader-title">DEFI INSIDER EXECUTE</div>
-                <span class="trader-address">0xdd2...66bB</span>
-                <div class="trader-metrics">
-                    <div class="metric-block"><div class="m-val up">+672.4%</div><div class="m-lbl">30D Return</div></div>
-                    <div class="metric-block"><div class="m-val">1,345</div><div class="m-lbl">Active Mirrors</div></div>
-                </div>
-                <button class="node-btn" style="border-color: var(--neon-cyan);" onclick="simulateCopyTradeLink(this)">Mirror Wallet</button>
-            </div>
-
-            <div class="trader-card">
-                <div class="trader-badge">99.1% Win Rate</div>
-                <div class="trader-title">FLASHLOAN KERNEL</div>
-                <span class="trader-address">0x00A...fF88</span>
-                <div class="trader-metrics">
-                    <div class="metric-block"><div class="m-val up">+1,204.5%</div><div class="m-lbl">30D Return</div></div>
-                    <div class="metric-block"><div class="m-val">529</div><div class="m-lbl">Active Mirrors</div></div>
-                </div>
-                <button class="node-btn" style="border-color: var(--neon-cyan);" onclick="simulateCopyTradeLink(this)">Mirror Wallet</button>
-            </div>
-
-            <div class="trader-card">
-                <div class="trader-badge">89.5% Win Rate</div>
-                <div class="trader-title">PEPE INSIDER FLOW</div>
-                <span class="trader-address">0x4bC...77cD</span>
-                <div class="trader-metrics">
-                    <div class="metric-block"><div class="m-val up">+389.1%</div><div class="m-lbl">30D Return</div></div>
-                    <div class="metric-block"><div class="m-val">2,118</div><div class="m-lbl">Active Mirrors</div></div>
-                </div>
-                <button class="node-btn" style="border-color: var(--neon-cyan);" onclick="simulateCopyTradeLink(this)">Mirror Wallet</button>
-            </div>
-
-            <div class="trader-card">
-                <div class="trader-badge">93.0% Win Rate</div>
-                <div class="trader-title">SOLANA FOUNDATION DEV</div>
-                <span class="trader-address">Ch4z...mK42</span>
-                <div class="trader-metrics">
-                    <div class="metric-block"><div class="m-val up">+540.2%</div><div class="m-lbl">30D Return</div></div>
-                    <div class="metric-block"><div class="m-val">1,940</div><div class="m-lbl">Active Mirrors</div></div>
-                </div>
-                <button class="node-btn" style="border-color: var(--neon-cyan);" onclick="simulateCopyTradeLink(this)">Mirror Wallet</button>
-            </div>
-        </div>
     </section>
 
     <section id="nodes" class="app-section">
@@ -598,36 +346,6 @@
     </section>
 
     <script>
-        // --- FLOATING MASCOT MOTOR ENGINE ---
-        const mascotContainer = document.getElementById('mascot-container');
-        const mascotPool = ['🚀', '💰', '⚡']; 
-
-        function spawnMascot() {
-            if (!mascotContainer) return;
-            
-            const mascotNode = document.createElement('div');
-            mascotNode.className = 'floating-mascot';
-            mascotNode.innerText = mascotPool[Math.floor(Math.random() * mascotPool.length)];
-            
-            mascotNode.style.left = Math.random() * 95 + 'vw';
-            const runtime = 6 + Math.random() * 6; 
-            const animationPath = Math.random() > 0.5 ? 'floatLeft' : 'floatRight';
-            
-            mascotNode.style.animation = `${animationPath} ${runtime}s linear forwards`;
-            const dynamicSize = 22 + Math.random() * 23; 
-            mascotNode.style.fontSize = dynamicSize + 'px'; 
-            
-            mascotContainer.appendChild(mascotNode); 
-            
-            setTimeout(() => { 
-                mascotNode.remove(); 
-            }, runtime * 1000); 
-        }
-
-        setInterval(spawnMascot, 3500);
-
-
-        // --- APPLICATION LOGIC ENGINE ---
         function switchSection(sectionId, element) {
             document.querySelectorAll('.app-section').forEach(section => {
                 section.classList.remove('active-section');
@@ -688,7 +406,7 @@
             const addressInput = document.getElementById('address').value;
             const claimBtn = document.getElementById('claim-btn');
 
-            if (!addressInput || addressInput === "awaiting handshakes..." ) {
+            if (!addressInput || addressInput === "awaiting handshakes...") {
                 claimBtn.innerText = "LINK A WALLET FIRST!";
                 claimBtn.style.background = "var(--neon-pink)";
                 claimBtn.style.color = "#fff";
@@ -737,28 +455,6 @@
                     btnElement.style.borderColor = "var(--neon-purple)";
                 }, 2000);
             }, 1200);
-        }
-
-        function simulateCopyTradeLink(btnElement) {
-            const addressInput = document.getElementById('address').value;
-            if (!addressInput || addressInput === "awaiting handshakes...") {
-                const prevText = btnElement.innerText;
-                btnElement.innerText = "CONNECT WALLET FIRST";
-                btnElement.style.borderColor = "var(--neon-pink)";
-                setTimeout(() => {
-                    btnElement.innerText = prevText;
-                    btnElement.style.borderColor = "var(--neon-cyan)";
-                }, 2000);
-                return;
-            }
-
-            btnElement.innerText = "SYNCING MIRROR...";
-            btnElement.style.borderColor = "var(--neon-purple)";
-
-            setTimeout(() => {
-                btnElement.innerText = "MIRRORING ✓";
-                btnElement.style.borderColor = "var(--neon-green)";
-            }, 1500);
         }
 
         const logContainer = document.getElementById('log-container');
@@ -839,6 +535,101 @@
 
         fetchLiveMarketPrices();
         setInterval(fetchLiveMarketPrices, 10000);
+
+        // ==========================================
+        // COPYTRADE CORE ENGINE LOGIC
+        // ==========================================
+        const strategistTypes = [
+            { name: "MEV BOT ALPHA", baseWin: 98, baseRoi: 428, prefix: "0x71" },
+            { name: "SOL WHALE #09", baseWin: 89, baseRoi: 194, prefix: "HN7c" },
+            { name: "INSIDER DEV CORE", baseWin: 91, baseRoi: 612, prefix: "0x3f" },
+            { name: "MEME DEPLOYER L7", baseWin: 94, baseRoi: 310, prefix: "6xRp" },
+            { name: "SANDWICH BOT PRIME", baseWin: 86, baseRoi: 519, prefix: "0x9a" },
+            { name: "RAYDIUM SNIPER PRO", baseWin: 95, baseRoi: 843, prefix: "Ak3W" }
+        ];
+
+        const walletsToDisplay = [];
+        for (let i = 1; i <= 30; i++) {
+            const base = strategistTypes[(i - 1) % strategistTypes.length];
+            const winRate = (base.baseWin + (i % 3) * 0.4 - (i % 2) * 0.2).toFixed(1);
+            const return30d = (base.baseRoi + (i * 4) - (i * 2));
+            const activeMirrors = (800 + (i * 115)) - (i * 9);
+            
+            const suffix = base.prefix.startsWith("0x") ? "89aF" : "k9pQ";
+            const address = `${base.prefix}...${suffix}`;
+
+            walletsToDisplay.push({
+                id: i,
+                name: i <= 6 ? base.name : `${base.name.split(' ')[0]} PRO v${Math.ceil(i/6)}`,
+                address: address,
+                winRate: winRate,
+                return30d: return30d,
+                activeMirrors: activeMirrors.toLocaleString()
+            });
+        }
+
+        function renderCopytradeCards() {
+            const grid = document.getElementById('copytrade-grid');
+            if (!grid) return;
+            
+            grid.innerHTML = walletsToDisplay.map(wallet => `
+                <div class="node-card" style="padding: 30px; border: 2px solid #1a1528;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <span class="status-tag" style="font-size: 11px; color: var(--neon-green); margin: 0; background: rgba(57,255,20,0.05); padding: 4px 8px; border-radius: 4px; border: 1px solid rgba(57,255,20,0.2)">
+                            ${wallet.winRate}% WIN RATE
+                        </span>
+                    </div>
+                    <h3 class="node-title" style="margin-bottom: 5px; font-size: 20px;">${wallet.name}</h3>
+                    <div class="node-meta" style="margin-bottom: 25px;">${wallet.address}</div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; border-top: 1px solid #1a1528; padding-top: 15px;">
+                        <div>
+                            <div class="stat-number" style="font-size: 24px; color: var(--neon-green); text-shadow: 0 0 10px rgba(57, 255, 20, 0.2);">
+                                +${wallet.return30d}%
+                            </div>
+                            <div class="stat-label" style="font-size: 9px;">30D Return</div>
+                        </div>
+                        <div>
+                            <div class="stat-number" style="font-size: 24px; color: #ffffff; text-shadow: none;">
+                                ${wallet.activeMirrors}
+                            </div>
+                            <div class="stat-label" style="font-size: 9px;">Active Mirrors</div>
+                        </div>
+                    </div>
+                    
+                    <button class="node-btn" onclick="executeMirrorAction(${wallet.id}, this)">
+                        Mirror Wallet
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function executeMirrorAction(walletId, buttonElement) {
+            const activeAddress = document.getElementById('address').value;
+
+            if (!activeAddress || activeAddress === "awaiting handshakes...") {
+                const originalText = buttonElement.innerText;
+                buttonElement.innerText = "CONNECT WALLET FIRST!";
+                buttonElement.style.borderColor = "var(--neon-pink)";
+                buttonElement.style.color = "var(--neon-pink)";
+                
+                setTimeout(() => {
+                    buttonElement.innerText = originalText;
+                    buttonElement.style.borderColor = "var(--neon-purple)";
+                    buttonElement.style.color = "#ffffff";
+                    
+                    const portalBtn = document.querySelectorAll('.nav-btn')[0];
+                    switchSection('airdrop', portalBtn);
+                }, 2000);
+                return;
+            }
+
+            buttonElement.innerText = "MIRROR SYNCED ✓";
+            buttonElement.style.borderColor = "var(--neon-green)";
+            buttonElement.style.color = "var(--neon-green)";
+        }
+
+        renderCopytradeCards();
     </script>
 </body>
 </html>
