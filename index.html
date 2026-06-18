@@ -69,7 +69,7 @@
         }
 
         @keyframes pulseGlow {
-            0+ { transform: scale(1) translate(0, 0); opacity: 0.6; }
+            0% { transform: scale(1) translate(0, 0); opacity: 0.6; }
             100% { transform: scale(1.15) translate(-30px, -20px); opacity: 0.9; }
         }
 
@@ -498,6 +498,12 @@
             if (!isClosing) {
                 row.classList.add('chart-open');
                 drawer.style.display = 'block';
+                
+                // Reset active timeframe tab visual back to 1D when opening
+                const tfButtons = drawer.querySelectorAll('.tf-btn');
+                tfButtons.forEach(b => b.classList.remove('active'));
+                if(tfButtons[0]) tfButtons[0].classList.add('active');
+
                 await fetchRealChartPrices(assetId, '1D');
             }
         }
@@ -513,9 +519,7 @@
         }
 
         async function fetchRealChartPrices(assetId, timeframe) {
-            let rowShortcode = assetId === 'bitcoin' ? 'btc' : (assetId === 'ethereum' ? 'eth' : 'sol');
             const targetPath = document.getElementById(`${assetId}-line-path`);
-            const changeElement = document.getElementById(`${rowShortcode}-change`);
             const daysParam = rangeMap[timeframe] || '1';
             
             let pricePoints = [];
@@ -552,12 +556,11 @@
             
             targetPath.setAttribute('d', `M ${svgPoints.join(' L ')}`);
             
-            // Apply correct Phantom trending hex accents to stroke attributes
-            const isUpTrend = changeElement && !changeElement.classList.contains('change-down');
+            // FIXED: Evaluate color based on selected chart data trend (end price vs start price)
+            const isUpTrend = pricePoints[pricePoints.length - 1] >= pricePoints[0];
             targetPath.style.stroke = isUpTrend ? "var(--neon-green)" : "var(--neon-pink)";
         }
 
-        // CUSTOM PHANTOM TOOLTIP TRACKING LOGIC
         function handleChartTracking(e, assetId) {
             const canvas = document.getElementById(`${assetId}-canvas`);
             const crosshair = document.getElementById(`${assetId}-crosshair`);
@@ -787,13 +790,12 @@
                 }
             }
 
-            // Sync the open vector line styles with any new trend changes on the background ticker run
+            // FIXED: Background ticker loop now respects the timeframe data currently displayed on screen
             ['bitcoin', 'ethereum', 'solana'].forEach(assetId => {
-                let rowShortcode = assetId === 'bitcoin' ? 'btc' : (assetId === 'ethereum' ? 'eth' : 'sol');
                 const targetPath = document.getElementById(`${assetId}-line-path`);
-                const changeElement = document.getElementById(`${rowShortcode}-change`);
-                if(targetPath && changeElement) {
-                    const isUpTrend = !changeElement.classList.contains('change-down');
+                const points = loadedChartData[assetId];
+                if(targetPath && points && points.length > 1) {
+                    const isUpTrend = points[points.length - 1] >= points[0];
                     targetPath.style.stroke = isUpTrend ? "var(--neon-green)" : "var(--neon-pink)";
                 }
             });
