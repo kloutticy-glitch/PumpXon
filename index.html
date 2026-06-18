@@ -69,7 +69,7 @@
         }
 
         @keyframes pulseGlow {
-            0% { transform: scale(1) translate(0, 0); opacity: 0.6; }
+            0+ { transform: scale(1) translate(0, 0); opacity: 0.6; }
             100% { transform: scale(1.15) translate(-30px, -20px); opacity: 0.9; }
         }
 
@@ -521,24 +521,20 @@
             let pricePoints = [];
             
             try {
-                // Fetch request attempt
                 const res = await fetch(`https://api.coingecko.com/api/v3/coins/${assetId}/market_chart?vs_currency=usd&days=${daysParam}`);
                 const data = await res.json();
                 
                 if (data && data.prices && data.prices.length > 0) {
                     pricePoints = data.prices.map(item => item[1]);
                 } else {
-                    throw new Error("Empty API array response. Engaging local array matrix modules.");
+                    throw new Error("Empty API array response.");
                 }
             } catch (err) {
-                // Seamlessly serve structured market arrays if CORS or local files trigger safety traps
                 pricePoints = backupHistoricalDatabase[assetId][timeframe];
             }
             
-            // Register mapped arrays into tracking caches
             loadedChartData[assetId] = pricePoints;
             
-            // Plot and render SVG geometry
             const minPrice = Math.min(...pricePoints);
             const maxPrice = Math.max(...pricePoints);
             const priceRange = maxPrice - minPrice === 0 ? 1 : maxPrice - minPrice;
@@ -555,6 +551,8 @@
             }
             
             targetPath.setAttribute('d', `M ${svgPoints.join(' L ')}`);
+            
+            // Apply correct Phantom trending hex accents to stroke attributes
             const isUpTrend = changeElement && !changeElement.classList.contains('change-down');
             targetPath.style.stroke = isUpTrend ? "var(--neon-green)" : "var(--neon-pink)";
         }
@@ -572,7 +570,6 @@
             const rect = canvas.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
             
-            // Calculate relative slice percent index across points array
             let percentX = mouseX / rect.width;
             if (percentX < 0) percentX = 0;
             if (percentX > 1) percentX = 1;
@@ -580,21 +577,16 @@
             const closestIndex = Math.round(percentX * (data.length - 1));
             const targetedPrice = data[closestIndex];
             
-            // Render active tracking line coordinates
-            crosshair.style.styleFloat = "left";
             crosshair.style.left = `${mouseX}px`;
             crosshair.style.display = "block";
             
-            // Adjust tracking numbers upper container
             liveIndicator.innerText = `$${targetedPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             liveIndicator.style.color = "var(--neon-cyan)";
             
-            // Float detailed tooltip tracking box immediately next to crosshair line
             tooltip.style.display = "block";
             tooltip.style.left = mouseX > rect.width - 160 ? `${mouseX - 150}px` : `${mouseX + 15}px`;
             tooltip.style.top = "20px";
             
-            // Generate mock localized timing bounds based on index locations
             let pointLabel = `Point Trace ${closestIndex + 1}`;
             if(closestIndex === data.length - 1) pointLabel = "Current Node Price";
             
@@ -780,7 +772,6 @@
                     updatePriceChangeUI('sol-change', data.solana.usd_24h_change);
                 }
             } catch (error) {
-                // Set default fallback labels for offline view instantly
                 if(document.getElementById('btc-price').innerText === "LOADING...") {
                     document.getElementById('btc-price').innerText = "$68,780.00";
                     document.getElementById('btc-change').innerText = "+2.45%";
@@ -795,6 +786,17 @@
                     document.getElementById('sol-change').className = "coin-change change-up";
                 }
             }
+
+            // Sync the open vector line styles with any new trend changes on the background ticker run
+            ['bitcoin', 'ethereum', 'solana'].forEach(assetId => {
+                let rowShortcode = assetId === 'bitcoin' ? 'btc' : (assetId === 'ethereum' ? 'eth' : 'sol');
+                const targetPath = document.getElementById(`${assetId}-line-path`);
+                const changeElement = document.getElementById(`${rowShortcode}-change`);
+                if(targetPath && changeElement) {
+                    const isUpTrend = !changeElement.classList.contains('change-down');
+                    targetPath.style.stroke = isUpTrend ? "var(--neon-green)" : "var(--neon-pink)";
+                }
+            });
         }
 
         function updatePriceChangeUI(elementId, changeValue) {
