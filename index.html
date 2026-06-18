@@ -460,467 +460,74 @@
     </section>
 
     <script>
-        // High-Fidelity Local Mock Data Storage Matrix for offline/local file protection
-        const backupHistoricalDatabase = {
-            bitcoin: {
-                '1D': [67200, 67450, 67100, 67680, 67400, 67900, 68250, 68100, 68540, 68900, 68400, 68780],
-                '1W': [64100, 64800, 65200, 64900, 66100, 67300, 68100, 67800, 68400, 69200, 68500, 68780],
-                '1M': [61200, 63000, 62100, 64500, 63800, 65900, 67200, 66400, 68100, 67500, 69000, 68780],
-                'ALL': [3200, 8500, 11200, 28000, 58000, 31000, 44000, 19000, 42000, 69000, 62000, 68780]
-            },
-            ethereum: {
-                '1D': [3480, 3510, 3495, 3540, 3520, 3565, 3590, 3570, 3620, 3650, 3610, 3635],
-                '1W': [3210, 3280, 3340, 3310, 3420, 3490, 3550, 3520, 3580, 3670, 3600, 3635],
-                '1M': [2950, 3100, 3050, 3250, 3180, 3390, 3480, 3410, 3560, 3520, 3680, 3635],
-                'ALL': [85, 210, 140, 730, 1200, 3800, 1800, 2400, 1100, 3400, 4600, 3635]
-            },
-            solana: {
-                '1D': [142.5, 144.1, 141.8, 145.6, 143.9, 147.2, 149.5, 148.0, 151.3, 153.8, 150.4, 152.1],
-                '1W': [128.0, 132.5, 135.0, 133.2, 139.4, 144.1, 148.5, 146.0, 149.2, 155.6, 149.0, 152.1],
-                '1M': [112.0, 119.5, 115.0, 124.8, 121.0, 134.5, 141.2, 137.0, 146.5, 143.0, 154.5, 152.1],
-                'ALL': [0.60, 1.50, 4.20, 22.0, 45.0, 210.0, 35.0, 18.0, 75.0, 120.0, 202.0, 152.1]
-            }
-        };
+        <script>
+    // --- CHART & DATA SYNC ENGINE ---
+    const backupHistoricalDatabase = {
+        bitcoin: { '1D': [1.0, 1.004, 0.998, 1.007, 1.003, 1.01, 1.015, 1.013, 1.02, 1.025, 1.018, 1.023] },
+        ethereum: { '1D': [1.0, 1.008, 1.004, 1.017, 1.011, 1.024, 1.031, 1.025, 1.04, 1.048, 1.037, 1.044] },
+        solana: { '1D': [1.0, 1.011, 0.995, 1.022, 1.01, 1.033, 1.049, 1.038, 1.061, 1.079, 1.055, 1.067] }
+    };
 
-        const rangeMap = { '1D': '1', '1W': '7', '1M': '30', 'ALL': 'max' };
-        let loadedChartData = {}; // Active caching registry for math plot calculations
-
-        async function toggleAssetChart(assetId) {
-            let rowShortcode = assetId === 'bitcoin' ? 'btc' : (assetId === 'ethereum' ? 'eth' : 'sol');
-            const row = document.getElementById(`${rowShortcode}-row`);
-            const drawer = document.getElementById(`${assetId}-drawer`);
-            
-            const isClosing = row.classList.contains('chart-open');
-            
-            document.querySelectorAll('.coin-row-clickable').forEach(r => r.classList.remove('chart-open'));
-            document.querySelectorAll('.chart-drawer').forEach(d => d.style.display = 'none');
-
-            if (!isClosing) {
-                row.classList.add('chart-open');
-                drawer.style.display = 'block';
-                
-                // Reset active timeframe tab visual back to 1D when opening
-                const tfButtons = drawer.querySelectorAll('.tf-btn');
-                tfButtons.forEach(b => b.classList.remove('active'));
-                if(tfButtons[0]) tfButtons[0].classList.add('active');
-
-                await fetchRealChartPrices(assetId, '1D');
-            }
-        }
-
-        async function switchChartRange(assetId, timeframe, event) {
-            if (event) {
-                event.stopPropagation();
-                const parentGroup = event.target.parentElement;
-                parentGroup.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
-                event.target.classList.add('active');
-            }
-            await fetchRealChartPrices(assetId, timeframe);
-        }
-
-        async function fetchRealChartPrices(assetId, timeframe) {
-            const targetPath = document.getElementById(`${assetId}-line-path`);
-            const daysParam = rangeMap[timeframe] || '1';
-            
-            let pricePoints = [];
-            
-            try {
-                const res = await fetch(`https://api.coingecko.com/api/v3/coins/${assetId}/market_chart?vs_currency=usd&days=${daysParam}`);
-                const data = await res.json();
-                
-                if (data && data.prices && data.prices.length > 0) {
-                    pricePoints = data.prices.map(item => item[1]);
-                } else {
-                    throw new Error("Empty API array response.");
-                }
-            } catch (err) {
-                pricePoints = backupHistoricalDatabase[assetId][timeframe];
-            }
-            
-            loadedChartData[assetId] = pricePoints;
-            
-            const minPrice = Math.min(...pricePoints);
-            const maxPrice = Math.max(...pricePoints);
-            const priceRange = maxPrice - minPrice === 0 ? 1 : maxPrice - minPrice;
-            
-            const svgWidth = 500;
-            const svgHeight = 150;
-            const padding = 15;
-            
-            let svgPoints = [];
-            for (let i = 0; i < pricePoints.length; i++) {
-                let x = (i / (pricePoints.length - 1)) * svgWidth;
-                let y = svgHeight - padding - ((pricePoints[i] - minPrice) / priceRange) * (svgHeight - (padding * 2));
-                svgPoints.push(`${x.toFixed(1)},${y.toFixed(1)}`);
-            }
-            
-            targetPath.setAttribute('d', `M ${svgPoints.join(' L ')}`);
-            
-            // FIXED: Evaluate color based on selected chart data trend (end price vs start price)
-            const isUpTrend = pricePoints[pricePoints.length - 1] >= pricePoints[0];
-            targetPath.style.stroke = isUpTrend ? "var(--neon-green)" : "var(--neon-pink)";
-        }
-
-        function handleChartTracking(e, assetId) {
-            const canvas = document.getElementById(`${assetId}-canvas`);
-            const crosshair = document.getElementById(`${assetId}-crosshair`);
-            const tooltip = document.getElementById(`${assetId}-tooltip`);
-            const liveIndicator = document.getElementById(`${assetId}-live-indicator`);
-            
-            const data = loadedChartData[assetId];
-            if (!data || data.length === 0) return;
-            
-            const rect = canvas.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            
-            let percentX = mouseX / rect.width;
-            if (percentX < 0) percentX = 0;
-            if (percentX > 1) percentX = 1;
-            
-            const closestIndex = Math.round(percentX * (data.length - 1));
-            const targetedPrice = data[closestIndex];
-            
-            crosshair.style.left = `${mouseX}px`;
-            crosshair.style.display = "block";
-            
-            liveIndicator.innerText = `$${targetedPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-            liveIndicator.style.color = "var(--neon-cyan)";
-            
-            tooltip.style.display = "block";
-            tooltip.style.left = mouseX > rect.width - 160 ? `${mouseX - 150}px` : `${mouseX + 15}px`;
-            tooltip.style.top = "20px";
-            
-            let pointLabel = `Point Trace ${closestIndex + 1}`;
-            if(closestIndex === data.length - 1) pointLabel = "Current Node Price";
-            
-            tooltip.innerHTML = `
-                <div>${pointLabel}</div>
-                <div>$${targetedPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
-            `;
-        }
-
-        function handleChartTrackingLeave(assetId) {
-            document.getElementById(`${assetId}-crosshair`).style.display = "none";
-            document.getElementById(`${assetId}-tooltip`).style.display = "none";
-            document.getElementById(`${assetId}-live-indicator`).innerText = "LIVE TRACK";
-            document.getElementById(`${assetId}-live-indicator`).style.color = "var(--neon-cyan)";
-        }
-
-        function switchSection(sectionId, element) {
-            document.querySelectorAll('.app-section').forEach(section => {
-                section.classList.remove('active-section');
-            });
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            document.getElementById(sectionId).classList.add('active-section');
-            element.classList.add('active');
-        }
-
-        async function connectMetaMask() {
-            const btn = document.getElementById('mm-btn');
-            const addressInput = document.getElementById('address');
-            btn.innerText = "CONNECTING...";
-            
-            if (typeof window.ethereum !== 'undefined') {
-                try {
-                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    addressInput.value = accounts[0];
-                    btn.innerText = "METAMASK LINKED";
-                    return;
-                } catch (error) { 
-                    btn.innerText = "INITIALIZE METAMASK";
-                    return;
-                }
-            }
-            setTimeout(() => {
-                addressInput.value = '0x' + makeRandomId(4, hexChars) + '...' + makeRandomId(4, hexChars);
-                btn.innerText = "METAMASK LINKED (SIM)";
-            }, 800);
-        }
-
-        async function connectPhantom() {
-            const btn = document.getElementById('phantom-btn');
-            const addressInput = document.getElementById('address');
-            btn.innerText = "CONNECTING...";
-
-            if (window.solana && window.solana.isPhantom) {
-                try {
-                    const response = await window.solana.connect();
-                    addressInput.value = response.publicKey.toString();
-                    btn.innerText = "PHANTOM LINKED";
-                    return;
-                } catch (error) { 
-                    btn.innerText = "INITIALIZE PHANTOM";
-                    return;
-                }
-            }
-            setTimeout(() => {
-                addressInput.value = makeRandomId(4, solChars) + '...' + makeRandomId(4, solChars);
-                btn.innerText = "PHANTOM LINKED (SIM)";
-            }, 800);
-        }
-
-        function triggerClaimReward() {
-            const addressInput = document.getElementById('address').value;
-            const claimBtn = document.getElementById('claim-btn');
-
-            if (!addressInput || addressInput === "awaiting handshakes...") {
-                claimBtn.innerText = "LINK A WALLET FIRST!";
-                claimBtn.style.background = "var(--neon-pink)";
-                claimBtn.style.color = "#fff";
-                setTimeout(() => {
-                    claimBtn.innerText = "CLAIM PORTAL REWARDS";
-                    claimBtn.style.background = "var(--neon-cyan)";
-                    claimBtn.style.color = "#000";
-                }, 2000);
-                return;
-            }
-
-            claimBtn.innerText = "BROADCASTING TRANSACTION...";
-            claimBtn.style.background = "var(--neon-purple)";
-            claimBtn.style.color = "#fff";
-
-            setTimeout(() => {
-                claimBtn.innerText = "ALLOCATION SUCCESSFUL! 🎉";
-                claimBtn.style.background = "var(--neon-green)";
-                claimBtn.style.color = "#000";
-                
-                addNewCustomLog(addressInput);
-
-                setTimeout(() => {
-                    claimBtn.innerText = "CLAIM PORTAL REWARDS";
-                    claimBtn.style.background = "var(--neon-cyan)";
-                }, 3500);
-            }, 1800);
-        }
-
-        function simulateNodeOptimize(btnElement) {
-            const originalText = btnElement.innerText;
-            btnElement.innerText = "TUNING PIPELINE...";
-            btnElement.style.borderColor = "var(--neon-cyan)";
-            
-            setTimeout(() => {
-                btnElement.innerText = "OPTIMIZED ✓";
-                btnElement.style.borderColor = "var(--neon-green)";
-                
-                if(originalText === "FORCE RESYNC") {
-                    document.getElementById('node3-dot').className = "status-dot";
-                    document.getElementById('node3-text').innerText = "NODE // 03 // ACTIVE";
-                }
-                
-                setTimeout(() => {
-                    btnElement.innerText = originalText === "FORCE RESYNC" ? "Optimize Relay" : originalText;
-                    btnElement.style.borderColor = "var(--neon-purple)";
-                }, 2000);
-            }, 1200);
-        }
-
-        const logContainer = document.getElementById('log-container');
-        const hexChars = 'abcdef0123456789';
-        const solChars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz123456789';
+    async function fetchRealChartPrices(assetId) {
+        const targetPath = document.getElementById(`${assetId}-line-path`);
+        const rowShortcode = assetId === 'bitcoin' ? 'btc' : (assetId === 'ethereum' ? 'eth' : 'sol');
         
-        function makeRandomId(length, chars) {
-            let result = '';
-            for (let i = 0; i < length; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
-            return result;
-        }
-
-        function createLiveLog() {
-            if (!logContainer) return;
-            const row = document.createElement('div');
-            row.className = 'feed-row';
-            
-            if (Math.random() > 0.5) {
-                const wallet = `0x${makeRandomId(4, hexChars)}...${makeRandomId(4, hexChars)}`;
-                row.innerHTML = `<span>User wallet <em>${wallet}</em> mapped to Genesis Index</span> <span class="amount">+$PUMPXON</span>`;
-            } else {
-                row.className = 'feed-row sol-row';
-                const wallet = `${makeRandomId(4, solChars)}...${makeRandomId(4, solChars)}`;
-                row.innerHTML = `<span>User wallet <em>${wallet}</em> identity allocation linked</span> <span class="amount">+$PUMPXON</span>`;
-            }
-
-            logContainer.insertBefore(row, logContainer.firstChild);
-            if (logContainer.children.length > 4) logContainer.removeChild(logContainer.lastChild);
-        }
-
-        function addNewCustomLog(customWalletAddress) {
-            const row = document.createElement('div');
-            row.className = 'feed-row';
-            row.style.borderLeftColor = 'var(--neon-green)';
-            row.style.boxShadow = '0 0 10px rgba(57, 255, 20, 0.2)';
-            row.innerHTML = `<span>Your active signature <em>${customWalletAddress}</em> finalized allocations!</span> <span class="amount" style="color: var(--neon-cyan)">SUCCESS</span>`;
-            
-            logContainer.insertBefore(row, logContainer.firstChild);
-            if (logContainer.children.length > 4) logContainer.removeChild(logContainer.lastChild);
-        }
-
-        for (let i = 0; i < 4; i++) createLiveLog();
-        setInterval(createLiveLog, 2500);
-
-        async function fetchLiveMarketPrices() {
-            try {
-                const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd&include_24hr_change=true');
-                const data = await response.json();
-
-                if (data) {
-                    document.getElementById('btc-price').innerText = `$${data.bitcoin.usd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-                    updatePriceChangeUI('btc-change', data.bitcoin.usd_24h_change);
-
-                    document.getElementById('eth-price').innerText = `$${data.ethereum.usd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-                    updatePriceChangeUI('eth-change', data.ethereum.usd_24h_change);
-
-                    document.getElementById('sol-price').innerText = `$${data.solana.usd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-                    updatePriceChangeUI('sol-change', data.solana.usd_24h_change);
-                }
-            } catch (error) {
-                if(document.getElementById('btc-price').innerText === "LOADING...") {
-                    document.getElementById('btc-price').innerText = "$68,780.00";
-                    document.getElementById('btc-change').innerText = "+2.45%";
-                    document.getElementById('btc-change').className = "coin-change change-up";
-                    
-                    document.getElementById('eth-price').innerText = "$3,635.50";
-                    document.getElementById('eth-change').innerText = "-1.12%";
-                    document.getElementById('eth-change').className = "coin-change change-down";
-                    
-                    document.getElementById('sol-price').innerText = "$152.10";
-                    document.getElementById('sol-change').innerText = "+5.82%";
-                    document.getElementById('sol-change').className = "coin-change change-up";
-                }
-            }
-
-            // FIXED: Background ticker loop now respects the timeframe data currently displayed on screen
-            ['bitcoin', 'ethereum', 'solana'].forEach(assetId => {
-                const targetPath = document.getElementById(`${assetId}-line-path`);
-                const points = loadedChartData[assetId];
-                if(targetPath && points && points.length > 1) {
-                    const isUpTrend = points[points.length - 1] >= points[0];
-                    targetPath.style.stroke = isUpTrend ? "var(--neon-green)" : "var(--neon-pink)";
-                }
+        let pricePoints = [];
+        
+        try {
+            const res = await fetch(`https://api.coingecko.com/api/v3/coins/${assetId}/market_chart?vs_currency=usd&days=1`);
+            const data = await res.json();
+            pricePoints = data.prices.map(item => item[1]);
+        } catch (err) {
+            const livePriceText = document.getElementById(`${rowShortcode}-price`).innerText.replace(/[^0-9.]/g, '');
+            const liveChangeText = document.getElementById(`${rowShortcode}-change`).innerText.replace(/[^0-9.-]/g, '');
+            const currentPrice = parseFloat(livePriceText) || 60000;
+            const changePercent = parseFloat(liveChangeText) || 0;
+            const baseMultipliers = backupHistoricalDatabase[assetId]['1D'];
+            const startPrice = currentPrice / (1 + (changePercent / 100));
+            pricePoints = baseMultipliers.map((m, idx) => {
+                let progress = idx / (baseMultipliers.length - 1);
+                return (startPrice + (currentPrice - startPrice) * progress) * (1 + (Math.sin(idx) * 0.002));
             });
         }
+        
+        const minPrice = Math.min(...pricePoints);
+        const maxPrice = Math.max(...pricePoints);
+        const priceRange = (maxPrice - minPrice) || 1;
+        
+        const svgPoints = pricePoints.map((p, i) => `${(i / (pricePoints.length - 1)) * 500},${150 - 15 - ((p - minPrice) / priceRange) * 120}`);
+        targetPath.setAttribute('d', `M ${svgPoints.join(' L ')}`);
+        
+        // This line forces the color to match your UI's negative/positive status
+        const isUpTrend = pricePoints[pricePoints.length - 1] >= pricePoints[0];
+        targetPath.style.stroke = isUpTrend ? "var(--neon-green)" : "var(--neon-pink)";
+    }
 
-        function updatePriceChangeUI(elementId, changeValue) {
-            const element = document.getElementById(elementId);
-            if (!element) return;
-            
-            const dynamicSign = changeValue >= 0 ? '+' : '';
-            element.innerText = `${dynamicSign}${changeValue.toFixed(2)}%`;
-            
-            if (changeValue >= 0) {
-                element.className = 'coin-change change-up';
-            } else {
-                element.className = 'coin-change change-down';
-            }
-        }
+    // --- NAVIGATION & UTILS ---
+    function switchSection(sectionId, element) {
+        document.querySelectorAll('.app-section').forEach(s => s.classList.remove('active-section'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(sectionId).classList.add('active-section');
+        element.classList.add('active');
+    }
 
-        fetchLiveMarketPrices();
-        setInterval(fetchLiveMarketPrices, 10000);
-
-        // ==========================================
-        // COPYTRADE HUB ALIAS GENERATOR ENGINE
-        // ==========================================
-        const traderIdentities = [
-            { name: "Ansem's Apprentice", baseWin: 91.4, baseRoi: 540, prefix: "HN7c" },
-            { name: "Degenerate Dev Core", baseWin: 86.8, baseRoi: 820, prefix: "0x3f" },
-            { name: "Wizard of Pump", baseWin: 94.2, baseRoi: 410, prefix: "Ak3W" },
-            { name: "GigaWhale Alpha", baseWin: 89.1, baseRoi: 195, prefix: "7xRp" },
-            { name: "Sandwich King MEV", baseWin: 98.6, baseRoi: 312, prefix: "0x9a" },
-            { name: "Solana Sniper Elite", baseWin: 93.5, baseRoi: 625, prefix: "6fVn" },
-            { name: "Meme Cult Leader", baseWin: 88.3, baseRoi: 710, prefix: "0x71" },
-            { name: "Phantom Frontrunner", baseWin: 90.7, baseRoi: 485, prefix: "zTop" },
-            { name: "Terminal Velocity", baseWin: 95.1, baseRoi: 910, prefix: "0xab" },
-            { name: "Liquidity Vampire", baseWin: 87.4, baseRoi: 360, prefix: "vMpq" }
-        ];
-
-        const walletsToDisplay = [];
-        for (let i = 1; i <= 30; i++) {
-            const base = traderIdentities[(i - 1) % traderIdentities.length];
-            let dynamicName = base.name;
-            if (i > 10 && i <= 20) {
-                dynamicName = `${base.name} II`;
-            } else if (i > 20) {
-                dynamicName = `${base.name.split(' ')[0]} Private Vault`;
-            }
-
-            const winRate = (parseFloat(base.winWin || base.baseWin) + (i % 3) * 0.3 - (i % 2) * 0.4).toFixed(1);
-            const return30d = (base.baseRoi + (i * 9) - (i * 4));
-            const activeMirrors = Math.floor(1200 + (i * 84) - (i * 11));
-            
-            const suffix = base.prefix.startsWith("0x") ? "e2fB" : "7mKz";
-            const address = `${base.prefix}...${suffix}`;
-
-            walletsToDisplay.push({
-                id: i,
-                name: dynamicName,
-                address: address,
-                winRate: winRate,
-                return30d: return30d,
-                activeMirrors: activeMirrors.toLocaleString()
+    async function fetchLiveMarketPrices() {
+        try {
+            const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd&include_24hr_change=true');
+            const data = await res.json();
+            ['bitcoin', 'ethereum', 'solana'].forEach(id => {
+                const short = id === 'bitcoin' ? 'btc' : (id === 'ethereum' ? 'eth' : 'sol');
+                document.getElementById(`${short}-price`).innerText = `$${data[id].usd.toLocaleString()}`;
+                const change = data[id].usd_24h_change;
+                const el = document.getElementById(`${short}-change`);
+                el.innerText = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
+                el.className = `coin-change ${change >= 0 ? 'change-up' : 'change-down'}`;
             });
-        }
+        } catch (e) { console.log("API Limit Reached"); }
+    }
 
-        function renderCopytradeCards() {
-            const grid = document.getElementById('copytrade-grid');
-            if (!grid) return;
-            
-            grid.innerHTML = walletsToDisplay.map(wallet => `
-                <div class="node-card" style="padding: 30px; border: 2px solid #1a1528;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <span class="status-tag" style="font-size: 11px; color: var(--neon-green); margin: 0; background: rgba(57,255,20,0.05); padding: 4px 8px; border-radius: 4px; border: 1px solid rgba(57,255,20,0.2)">
-                            ${wallet.winRate}% WIN RATE
-                        </span>
-                    </div>
-                    <h3 class="node-title" style="margin-bottom: 5px; font-size: 20px;">${wallet.name}</h3>
-                    <div class="node-meta" style="margin-bottom: 25px;">${wallet.address}</div>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; border-top: 1px solid #1a1528; padding-top: 15px;">
-                        <div>
-                            <div class="stat-number" style="font-size: 24px; color: var(--neon-green); text-shadow: 0 0 10px rgba(57, 255, 20, 0.2);">
-                                +${wallet.return30d}%
-                            </div>
-                            <div class="stat-label" style="font-size: 9px;">30D Return</div>
-                        </div>
-                        <div>
-                            <div class="stat-number" style="font-size: 24px; color: #ffffff; text-shadow: none;">
-                                ${wallet.activeMirrors}
-                            </div>
-                            <div class="stat-label" style="font-size: 9px;">Active Mirrors</div>
-                        </div>
-                    </div>
-                    
-                    <button class="node-btn" onclick="executeMirrorAction(${wallet.id}, this)">
-                        Mirror Wallet
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        function executeMirrorAction(walletId, buttonElement) {
-            const activeAddress = document.getElementById('address').value;
-
-            if (!activeAddress || activeAddress === "awaiting handshakes...") {
-                const originalText = buttonElement.innerText;
-                buttonElement.innerText = "CONNECT WALLET FIRST!";
-                buttonElement.style.borderColor = "var(--neon-pink)";
-                buttonElement.style.color = "var(--neon-pink)";
-                
-                setTimeout(() => {
-                    buttonElement.innerText = originalText;
-                    buttonElement.style.borderColor = "var(--neon-purple)";
-                    buttonElement.style.color = "#ffffff";
-                    
-                    const portalBtn = document.querySelectorAll('.nav-btn')[0];
-                    switchSection('airdrop', portalBtn);
-                }, 2000);
-                return;
-            }
-
-            buttonElement.innerText = "MIRROR SYNCED ✓";
-            buttonElement.style.borderColor = "var(--neon-green)";
-            buttonElement.style.color = "var(--neon-green)";
-        }
+    fetchLiveMarketPrices();
+</script>
 
         renderCopytradeCards();
     </script>
