@@ -82,7 +82,7 @@
         .address-box { width: 100%; box-sizing: border-box; background: #09070f; border: 1px solid #3c2f5c; padding: 16px; border-radius: 6px; color: #8b859e; font-size: 12px; font-family: monospace; transition: all 0.3s; }
         .address-box.synced { border-color: var(--neon-green); color: var(--neon-green); box-shadow: 0 0 10px rgba(57, 255, 20, 0.2); }
           
-        .action-submit { width: 100%; background: var(--neon-cyan); color: #000000; border: none; padding: 18px; font-size: 16px; text-transform: uppercase; font-weight: 900; border-radius: 6px; transition: all 0.2s ease; box-shadow: 0 0 20px rgba(0, 240, 255, 0.3); }
+        .action-submit { width: 100%; background: var(--neon-cyan); color: #000000; border: none; padding: 18px; font-size: 16px; text-transform: uppercase; font-weight: 900; border-radius: 6px; transition: all 0.2s ease; box-shadow: 0 0 20px rgba(0, 240, 255, 0.3); position: relative; }
         .action-submit:hover { background: var(--neon-pink); color: #ffffff; box-shadow: 0 0 25px var(--neon-pink); transform: scale(1.02); }
 
         /* Trollbox Chat Overlay */
@@ -129,20 +129,32 @@
         .chart-ticker-val { font-size: 28px; font-weight: bold; color: #ffffff; }
         .chart-ticker-time { font-size: 11px; color: #8b859e; margin-top: 4px; text-transform: uppercase; }
         .timeframe-cluster { display: flex; gap: 8px; }
-        .time-filter-btn { background: #1a1528; border: 1px solid #3c2f5c; color: #8b859e; padding: 6px 14px; border-radius: 6px; font-family: monospace; font-size: 12px; font-weight: bold; transition: all 0.2s; }
-        .time-filter-btn:hover { color: #ffffff; border-color: var(--neon-cyan); }
-        .time-filter-btn.active-tf { background: var(--neon-cyan); color: #000000; border-color: var(--neon-cyan); font-weight: 900; box-shadow: 0 0 10px rgba(0, 240, 255, 0.4); }
+        .chart-filter-btn { background: #1a1528; border: 1px solid #3c2f5c; color: #8b859e; padding: 6px 14px; border-radius: 6px; font-family: monospace; font-size: 12px; font-weight: bold; transition: all 0.2s; }
+        .chart-filter-btn:hover { color: #ffffff; border-color: var(--neon-cyan); }
+        .chart-filter-btn.active-tf { background: var(--neon-cyan); color: #000000; border-color: var(--neon-cyan); font-weight: 900; box-shadow: 0 0 10px rgba(0, 240, 255, 0.4); }
         .canvas-container { width: 100%; height: 240px; position: relative; margin-top: 10px; }
         #crypto-chart-canvas { width: 100%; height: 100%; display: block; }
 
-        .swap-container { max-width: 500px; margin: 0 auto; background: var(--panel-dark); border: 1px solid var(--neon-cyan); border-radius: 12px; padding: 30px; box-shadow: 0 0 30px rgba(0, 240, 255, 0.1); }
-        .swap-block { background: #09070f; border: 1px solid #2d2344; border-radius: 8px; padding: 20px; margin-bottom: 10px; }
+        /* ADVANCED SWAP DROPDOWN MATRIX STYLES */
+        .swap-container { max-width: 500px; margin: 0 auto; background: var(--panel-dark); border: 1px solid var(--neon-cyan); border-radius: 12px; padding: 30px; box-shadow: 0 0 30px rgba(0, 240, 255, 0.1); pointer-events: auto; }
+        .swap-block { background: #09070f; border: 1px solid #2d2344; border-radius: 8px; padding: 20px; margin-bottom: 10px; position: relative; }
         .swap-label { font-family: monospace; font-size: 11px; color: #8b859e; display: flex; justify-content: space-between; margin-bottom: 10px; }
-        .swap-input-row { display: flex; justify-content: space-between; align-items: center; }
-        .swap-input { background: transparent; border: none; color: white; font-size: 28px; font-family: monospace; outline: none; width: 60%; }
-        .token-selector { background: #1a1528; border: 1px solid #3c2f5c; color: white; padding: 8px 12px; border-radius: 20px; font-family: 'Arial Black'; font-size: 12px; display: flex; align-items: center; gap: 8px; }
+        .swap-input-row { display: flex; justify-content: space-between; align-items: center; position: relative; }
+        .swap-input { background: transparent; border: none; color: white; font-size: 28px; font-family: monospace; outline: none; width: 60%; pointer-events: auto; }
+        
+        .token-selector-wrapper { position: relative; }
+        .token-selector { background: #1a1528; border: 1px solid #3c2f5c; color: white; padding: 8px 16px; border-radius: 20px; font-family: 'Arial Black'; font-size: 12px; display: flex; align-items: center; gap: 8px; pointer-events: auto; transition: all 0.2s; }
+        .token-selector:hover { border-color: var(--neon-cyan); box-shadow: 0 0 10px rgba(0,240,255,0.2); }
+        
+        .token-dropdown { display: none; position: absolute; top: calc(100% + 8px); right: 0; background: #0d0b16; border: 1px solid #3c2f5c; border-radius: 10px; width: 120px; z-index: 100; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.8); }
+        .token-dropdown.show { display: block; }
+        .dropdown-item { padding: 10px 14px; font-family: 'Arial Black'; font-size: 12px; color: #8b859e; display: flex; align-items: center; gap: 8px; pointer-events: auto; transition: all 0.15s; }
+        .dropdown-item:hover { background: #1a1528; color: #fff; }
+        .dropdown-item.selected { color: var(--neon-cyan); background: rgba(0,240,255,0.05); }
+
         .swap-divider { text-align: center; margin: -15px 0; position: relative; z-index: 2; }
-        .swap-arrow { background: var(--bg-dark); border: 1px solid var(--neon-cyan); color: var(--neon-cyan); width: 32px; height: 32px; border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; font-size: 14px; }
+        .swap-arrow { background: var(--bg-dark); border: 1px solid var(--neon-cyan); color: var(--neon-cyan); width: 32px; height: 32px; border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; font-size: 14px; transition: transform 0.3s; pointer-events: auto; }
+        .swap-arrow:hover { transform: rotate(180deg); color: var(--neon-pink); border-color: var(--neon-pink); }
 
         .leaderboard-table { width: 100%; border-collapse: collapse; background: var(--panel-dark); border-radius: 10px; overflow: hidden; border: 1px solid #2d2344; }
         .leaderboard-table th { background: #1a1528; padding: 15px; text-align: left; font-family: monospace; color: #8b859e; font-size: 11px; border-bottom: 1px solid #3c2f5c; }
@@ -270,21 +282,39 @@
         </div>
         <div class="swap-container">
             <div class="swap-block">
-                <div class="swap-label"><span>Pay</span><span>Balance: 0.00</span></div>
+                <div class="swap-label"><span>Pay</span><span>Balance: <span id="swap-pay-bal">0.00</span></span></div>
                 <div class="swap-input-row">
-                    <input type="number" class="swap-input" placeholder="0" value="1.5">
-                    <div class="token-selector">🔷 ETH ▾</div>
+                    <input type="number" id="swap-pay-input" class="swap-input" placeholder="0" value="1.5" oninput="calculateSwapOutput()">
+                    <div class="token-selector-wrapper">
+                        <button id="pay-token-btn" class="token-selector" onclick="toggleSwapDropdown('pay')">🔷 ETH ▾</button>
+                        <div id="pay-token-dropdown" class="token-dropdown">
+                            <div class="dropdown-item selected" onclick="selectSwapToken('pay', 'ETH', '🔷')">🔷 ETH</div>
+                            <div class="dropdown-item" onclick="selectSwapToken('pay', 'SOL', '◎')">◎ SOL</div>
+                            <div class="dropdown-item" onclick="selectSwapToken('pay', 'BTC', '🪙')">🪙 BTC</div>
+                            <div class="dropdown-item" onclick="selectSwapToken('pay', 'USDC', '💵')">💵 USDC</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="swap-divider"><div class="swap-arrow">↓</div></div>
+            
+            <div class="swap-divider"><div class="swap-arrow" onclick="flipSwapTokens()">↓</div></div>
+            
             <div class="swap-block">
-                <div class="swap-label"><span>Receive</span><span>Balance: 0.00</span></div>
+                <div class="swap-label"><span>Receive</span><span>Balance: <span id="swap-recv-bal">0.00</span></span></div>
                 <div class="swap-input-row">
-                    <input type="number" class="swap-input" placeholder="0" value="4820.45" readonly>
-                    <div class="token-selector" style="background: rgba(255,0,85,0.2); border-color: var(--neon-pink);"> USDC ▾</div>
+                    <input type="number" id="swap-recv-input" class="swap-input" placeholder="0" value="4820.45" readonly>
+                    <div class="token-selector-wrapper">
+                        <button id="recv-token-btn" class="token-selector" style="background: rgba(255,0,85,0.2); border-color: var(--neon-pink);" onclick="toggleSwapDropdown('recv')">💵 USDC ▾</button>
+                        <div id="recv-token-dropdown" class="token-dropdown">
+                            <div class="dropdown-item" onclick="selectSwapToken('recv', 'ETH', '🔷')">🔷 ETH</div>
+                            <div class="dropdown-item" onclick="selectSwapToken('recv', 'SOL', '◎')">◎ SOL</div>
+                            <div class="dropdown-item" onclick="selectSwapToken('recv', 'BTC', '🪙')">🪙 BTC</div>
+                            <div class="dropdown-item selected" onclick="selectSwapToken('recv', 'USDC', '💵')">💵 USDC</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <button class="action-submit" onclick="executeAction(this, 'SWAP EXECUTED')">EXECUTE SWAP</button>
+            <button class="action-submit" onclick="executeSecureRouterSwap(this)">EXECUTE SWAP</button>
         </div>
     </section>
 
@@ -295,22 +325,22 @@
             <div class="coin-row" onclick="openChartBay('BTC')">
                 <div class="coin-icon">🪙</div>
                 <div class="coin-name">Bitcoin<sm>BTC / USD</sm></div>
-                <div class="coin-price" id="price-BTC">$62,558.33</div>
-                <div class="coin-change" id="change-BTC" style="color: var(--neon-pink);">-1.4%</div>
+                <div class="coin-price" id="price-BTC">$68,240.50</div>
+                <div class="coin-change" id="change-BTC" style="color: var(--neon-green);">+2.4%</div>
             </div>
             
             <div class="coin-row" onclick="openChartBay('ETH')">
                 <div class="coin-icon">🔷</div>
                 <div class="coin-name">Ethereum<sm>ETH / USD</sm></div>
-                <div class="coin-price" id="price-ETH">$1,709.80</div>
-                <div class="coin-change" id="change-ETH">+1.8%</div>
+                <div class="coin-price" id="price-ETH">$3,540.20</div>
+                <div class="coin-change" id="change-ETH" style="color: var(--neon-green);">+1.8%</div>
             </div>
             
             <div class="coin-row" onclick="openChartBay('SOL')">
                 <div class="coin-icon">◎</div>
                 <div class="coin-name">Solana<sm>SOL / USD</sm></div>
-                <div class="coin-price" id="price-SOL">$71.45</div>
-                <div class="coin-change" id="change-SOL" style="color: var(--neon-green);">+3.2%</div>
+                <div class="coin-price" id="price-SOL">$148.90</div>
+                <div class="coin-change" id="change-SOL" style="color: var(--neon-pink);">-0.5%</div>
             </div>
 
             <div id="chart-expansion-bay" class="chart-bay">
@@ -320,11 +350,11 @@
                         <div id="chart-target-time" class="chart-ticker-time">INDEX LEDGER STREAM</div>
                     </div>
                     <div class="timeframe-cluster">
-                        <button class="time-filter-btn" onclick="setTimeframe('1D', event)">1D</button>
-                        <button class="time-filter-btn" onclick="setTimeframe('1W', event)">1W</button>
-                        <button class="time-filter-btn active-tf" onclick="setTimeframe('1M', event)">1M</button>
-                        <button class="time-filter-btn" onclick="setTimeframe('1Y', event)">1Y</button>
-                        <button class="time-filter-btn" onclick="setTimeframe('ALL', event)">ALL</button>
+                        <button class="chart-filter-btn" onclick="setTimeframe('1D', event)">1D</button>
+                        <button class="chart-filter-btn" onclick="setTimeframe('1W', event)">1W</button>
+                        <button class="chart-filter-btn active-tf" onclick="setTimeframe('1M', event)">1M</button>
+                        <button class="chart-filter-btn" onclick="setTimeframe('1Y', event)">1Y</button>
+                        <button class="chart-filter-btn" onclick="setTimeframe('ALL', event)">ALL</button>
                     </div>
                 </div>
                 <div class="canvas-container">
@@ -341,9 +371,6 @@
             <tbody>
                 <tr><td class="rank">#1</td><td>0x88A...4F1 (DeepBlue)</td><td>82.4%</td><td class="roi-positive">+412.5%</td><td><button class="nav-btn" style="padding: 5px 10px;" onclick="verifyAndMirror(this)">MIRROR</button></td></tr>
                 <tr><td class="rank">#2</td><td>sol:9Av...K2q (Phantom_Menace)</td><td>78.1%</td><td class="roi-positive">+280.2%</td><td><button class="nav-btn" style="padding: 5px 10px;" onclick="verifyAndMirror(this)">MIRROR</button></td></tr>
-                <tr><td class="rank">#3</td><td>0x3F5...E89 (WhaleAlpha)</td><td>85.6%</td><td class="roi-positive">+319.4%</td><td><button class="nav-btn" style="padding: 5px 10px;" onclick="verifyAndMirror(this)">MIRROR</button></td></tr>
-                <tr><td class="rank">#4</td><td>sol:D6v...7pX (SolSurfer)</td><td>74.2%</td><td class="roi-positive">+195.8%</td><td><button class="nav-btn" style="padding: 5px 10px;" onclick="verifyAndMirror(this)">MIRROR</button></td></tr>
-                <tr><td class="rank">#5</td><td>0x71C...3A2 (GasGuzzler)</td><td>81.0%</td><td class="roi-positive">+244.1%</td><td><button class="nav-btn" style="padding: 5px 10px;" onclick="verifyAndMirror(this)">MIRROR</button></td></tr>
             </tbody>
         </table>
     </section>
@@ -365,12 +392,17 @@
     </section>
 
     <script>
-        // --- ASSET PARAMETERS MATRIX ---
+        // --- DATA MATRIX (UPDATED BASE VALUES FROM CAPTURES) ---
         const assetDatabase = {
-            BTC: { base: 62558.33, change: "-1.4%", trendUp: false, seed: 1.2 },
-            ETH: { base: 1709.80, change: "+1.8%", trendUp: true, seed: 4.8 },
-            SOL: { base: 71.45, change: "+3.2%", trendUp: true, seed: 9.5 }
+            BTC: { base: 68240.50, change: "+2.4%", trendUp: true, seed: 1.2 },
+            ETH: { base: 3540.20, change: "+1.8%", trendUp: true, seed: 4.8 },
+            SOL: { base: 148.90, change: "-0.5%", trendUp: false, seed: 9.5 },
+            USDC: { base: 1.00, change: "0.0%", trendUp: true, seed: 0.0 }
         };
+
+        // Current UI Swap Token State Matrix
+        let currentPayToken = "ETH";
+        let currentRecvToken = "USDC";
 
         let currentActiveAsset = null;
         let currentActiveTimeframe = '1M';
@@ -392,7 +424,7 @@
         document.addEventListener('mouseup', () => cursor.classList.remove('click'));
         
         function rewireCursorHoverEffects() {
-            const interactables = document.querySelectorAll('button, input, .coin-row, th, td, .time-filter-btn');
+            const interactables = document.querySelectorAll('button, input, .coin-row, th, td, .chart-filter-btn, .dropdown-item, .swap-arrow');
             interactables.forEach(el => {
                 el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
                 el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
@@ -417,6 +449,112 @@
                 oscillator.start();
                 oscillator.stop(audioCtx.currentTime + duration);
             } catch (error) { console.log("Audio bypass."); }
+        }
+
+        // --- EXCLUSIVE SWAP ROUTER ROUTINES ---
+        function toggleSwapDropdown(type) {
+            playBeep(500, 'sine', 0.04);
+            const drop = document.getElementById(`${type}-token-dropdown`);
+            const oppositeType = type === 'pay' ? 'recv' : 'pay';
+            document.getElementById(`${oppositeType}-token-dropdown`).classList.remove('show');
+            drop.classList.toggle('show');
+        }
+
+        // Close dropdown panels instantly if clicking out into space
+        window.addEventListener('click', function(e) {
+            if (!e.target.closest('.token-selector-wrapper')) {
+                document.querySelectorAll('.token-dropdown').forEach(d => d.classList.remove('show'));
+            }
+        });
+
+        function selectSwapToken(type, symbol, icon) {
+            playBeep(650, 'sine', 0.05);
+            
+            if(type === 'pay') {
+                if(symbol === currentRecvToken) { currentRecvToken = currentPayToken; updateTokenSelectorUI('recv', currentRecvToken); }
+                currentPayToken = symbol;
+                updateTokenSelectorUI('pay', symbol);
+            } else {
+                if(symbol === currentPayToken) { currentPayToken = currentRecvToken; updateTokenSelectorUI('pay', currentPayToken); }
+                currentRecvToken = symbol;
+                updateTokenSelectorUI('recv', symbol);
+            }
+            
+            document.querySelectorAll('.token-dropdown').forEach(d => d.classList.remove('show'));
+            calculateSwapOutput();
+        }
+
+        function updateTokenSelectorUI(type, symbol) {
+            const btn = document.getElementById(`${type}-token-btn`);
+            let icon = "🔷";
+            if(symbol === "SOL") icon = "◎";
+            if(symbol === "BTC") icon = "🪙";
+            if(symbol === "USDC") icon = "💵";
+            
+            btn.innerText = `${icon} ${symbol} ▾`;
+
+            // Style individual item classes inside dropdown menus
+            const drop = document.getElementById(`${type}-token-dropdown`);
+            drop.querySelectorAll('.dropdown-item').forEach(item => {
+                if(item.innerText.includes(symbol)) item.classList.add('selected');
+                else item.classList.remove('selected');
+            });
+        }
+
+        function flipSwapTokens() {
+            playBeep(450, 'sine', 0.08);
+            const temp = currentPayToken;
+            currentPayToken = currentRecvToken;
+            currentRecvToken = temp;
+
+            updateTokenSelectorUI('pay', currentPayToken);
+            updateTokenSelectorUI('recv', currentRecvToken);
+
+            const inputPay = document.getElementById('swap-pay-input');
+            const inputRecv = document.getElementById('swap-recv-input');
+            inputPay.value = inputRecv.value;
+
+            calculateSwapOutput();
+        }
+
+        function calculateSwapOutput() {
+            const inputPay = document.getElementById('swap-pay-input');
+            const inputRecv = document.getElementById('swap-recv-input');
+            
+            const payQty = parseFloat(inputPay.value);
+            if(isNaN(payQty) || payQty <= 0) {
+                inputRecv.value = "0.00";
+                return;
+            }
+
+            const usdValueOfPayToken = assetDatabase[currentPayToken].base * payQty;
+            const absoluteTokenOutput = usdValueOfPayToken / assetDatabase[currentRecvToken].base;
+            
+            inputRecv.value = absoluteTokenOutput.toLocaleString(undefined, {
+                minimumFractionDigits: 2, 
+                maximumFractionDigits: 5
+            }).replace(/,/g, '');
+        }
+
+        function executeSecureRouterSwap(btn) {
+            const addrInput = document.getElementById('address');
+            
+            // SECURITY CHECK: Lock swap mechanism unless synchronized wallet identity flag is detected
+            if (!addrInput.value || !addrInput.classList.contains('synced')) {
+                playBeep(250, 'sawtooth', 0.2);
+                alert("IDENTITY HANDSHAKE LOCKED: Please securely synchronize your Phantom or MetaMask identity on the Airdrop Portal matrix before executing swaps.");
+                switchSection('airdrop', document.querySelector("nav button:nth-child(1)"));
+                return;
+            }
+            
+            executeAction(btn, 'SWAP EXECUTED');
+            
+            // Simulate changing current localized asset balance values on success
+            setTimeout(() => {
+                document.getElementById('swap-pay-bal').innerText = "0.00";
+                document.getElementById('swap-recv-input').value = "0.00";
+                document.getElementById('swap-pay-input').value = "0";
+            }, 1100);
         }
 
         // --- INTERACTIVE CHART LOGIC ---
@@ -447,7 +585,7 @@
         function setTimeframe(tf, event) {
             if (event) event.stopPropagation();
             playBeep(700, 'sine', 0.04);
-            document.querySelectorAll('.time-filter-btn').forEach(b => b.classList.remove('active-tf'));
+            document.querySelectorAll('.chart-filter-btn').forEach(b => b.classList.remove('active-tf'));
             if (event) event.target.classList.add('active-tf');
             
             currentActiveTimeframe = tf;
@@ -482,10 +620,7 @@
                 if(timeframe === '1Y') timestampLabel = `WEEK ${i+1} LEDGER`;
                 if(timeframe === 'ALL') timestampLabel = `CYCLE BLOCK ${i*10}`;
 
-                chartPointsData.push({
-                    value: currentVal,
-                    timeLabel: timestampLabel
-                });
+                chartPointsData.push({ value: currentVal, timeLabel: timestampLabel });
             }
             chartPointsData[chartPointsData.length - 1].value = asset.base;
             updateReadoutStrings(asset.base, "CURRENT PRICE TICKER");
@@ -595,7 +730,6 @@
             if(currentActiveAsset) renderAssetChart();
         });
 
-
         // --- TERMINAL CHAT LOGIC ---
         function sendChatMessage() {
             const input = document.getElementById('chat-input');
@@ -655,6 +789,7 @@
                     modal.classList.remove('active');
                     if (walletType === 'MetaMask') executeMetaMaskSync();
                     else executePhantomSync();
+                    rewireCursorHoverEffects();
                 }, 800);
             }, 2500);
         }
@@ -667,6 +802,9 @@
             btn.innerText = "MetaMask Connected";
             btn.classList.add('connected');
             document.getElementById('net-worth').innerText = "$14,204.50";
+            
+            document.getElementById('swap-pay-bal').innerText = "4.25";
+            document.getElementById('swap-recv-bal').innerText = "250.00";
         }
         
         function executePhantomSync() { 
@@ -677,21 +815,20 @@
             btn.innerText = "Phantom Connected";
             btn.classList.add('connected');
             document.getElementById('net-worth').innerText = "$8,430.00";
+            
+            document.getElementById('swap-pay-bal').innerText = "56.40";
+            document.getElementById('swap-recv-bal').innerText = "1,205.50";
         }
 
         // --- COPYTRADE SECURITY ROUTER ---
         function verifyAndMirror(btn) {
             const addrInput = document.getElementById('address');
-            
-            // Check if user has an active wallet signature synced
             if (!addrInput.value || !addrInput.classList.contains('synced')) {
                 playBeep(300, 'sawtooth', 0.15);
                 alert("IDENTITY HANDSHAKE REQUIRED: Please connect MetaMask or Phantom on the Airdrop Portal first.");
                 switchSection('airdrop', document.querySelector("nav button:nth-child(1)"));
                 return;
             }
-
-            // If connected, execute standard feedback workflow
             executeAction(btn, 'MIRRORING...');
         }
 
@@ -765,6 +902,9 @@
                 height = canvas.height = window.innerHeight;
             });
         }
+        
+        // Run conversion equations once at launch
+        calculateSwapOutput();
     </script>
 </body>
 </html>
