@@ -8,38 +8,37 @@
     <style>
         :root {
             --bg-dark: #030206;
-            --panel-dark: rgba(13, 11, 22, 0.85);
+            --panel-dark: rgba(13, 11, 22, 0.75);
             --neon-pink: #ff0055;
             --neon-green: #39ff14;
             --neon-cyan: #00f0ff;
             --neon-purple: #9d4edd;
+            --solana-glow: linear-gradient(135deg, #ab9ff2 0%, #4e44ce 100%);
         }
 
         * { cursor: none; }
-        body { font-family: 'Arial Black', sans-serif; background-color: var(--bg-dark); color: #ffffff; margin: 0; min-height: 100vh; overflow-x: hidden; }
+        .custom-cursor { position: fixed; top: 0; left: 0; width: 8px; height: 8px; background: var(--neon-cyan); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); box-shadow: 0 0 15px var(--neon-cyan); transition: transform 0.1s ease-out, background 0.2s; }
+        .custom-cursor.click { transform: translate(-50%, -50%) scale(1.5); background: var(--neon-pink); }
 
-        /* Persistent Global Chat */
-        .global-chat { position: fixed; bottom: 20px; right: 20px; width: 300px; z-index: 999; background: var(--panel-dark); border: 1px solid var(--neon-purple); border-radius: 8px; box-shadow: 0 0 20px rgba(157, 78, 221, 0.2); }
-        .trollbox-messages { height: 150px; overflow-y: auto; padding: 10px; font-family: monospace; font-size: 12px; }
-        .trollbox-input { display: flex; border-top: 1px solid #2d2344; }
-        .trollbox-input input { flex: 1; background: transparent; border: none; padding: 10px; color: white; outline: none; }
-        .trollbox-input button { background: var(--neon-purple); border: none; color: white; padding: 0 15px; cursor: none; }
-
-        /* Layout */
+        body { font-family: 'Arial Black', sans-serif; background-color: var(--bg-dark); color: #ffffff; margin: 0; min-height: 100vh; }
         #bg-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -3; }
-        header { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; padding: 40px 20px; }
-        .nav-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid #3c2f5c; color: #8b859e; padding: 10px 20px; border-radius: 6px; text-transform: uppercase; font-size: 12px; transition: 0.2s; }
-        .nav-btn.active { background: var(--neon-purple); color: white; border-color: var(--neon-purple); }
 
-        .app-section { display: none; max-width: 1100px; margin: 0 auto; padding: 20px; }
+        header { width: 100%; max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; padding: 40px 20px; }
+        .nav-btn { background: rgba(255, 255, 255, 0.02); border: 1px solid #1a1528; color: #8b859e; padding: 10px 16px; border-radius: 6px; text-transform: uppercase; font-size: 11px; transition: all 0.2s; }
+        .nav-btn.active { background: var(--neon-purple); color: #ffffff; border-color: var(--neon-purple); }
+
+        .app-section { display: none; width: 100%; max-width: 1100px; margin: 0 auto; padding: 20px; }
         .app-section.active-section { display: block; }
 
-        /* Interactive Elements */
-        .interactive-row { background: rgba(255,255,255,0.03); border: 1px solid #1a1528; padding: 20px; margin-bottom: 10px; border-radius: 8px; transition: 0.2s; display: flex; justify-content: space-between; }
-        .interactive-row:hover { border-color: var(--neon-cyan); background: rgba(0, 240, 255, 0.05); }
+        .main-container { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 50px; }
+        .portal-card { background: var(--panel-dark); border: 2px solid var(--neon-purple); border-radius: 12px; padding: 40px; }
 
-        /* Cursor */
-        .custom-cursor { position: fixed; width: 10px; height: 10px; background: var(--neon-cyan); border-radius: 50%; pointer-events: none; z-index: 9999; }
+        .coin-row { display: grid; grid-template-columns: 0.5fr 1.5fr 1fr 1fr; align-items: center; background: var(--panel-dark); border: 1px solid #1a1528; padding: 20px 30px; border-radius: 10px; margin-bottom: 10px; }
+        
+        .trollbox { background: rgba(9, 7, 15, 0.8); border: 1px solid #2d2344; border-radius: 8px; margin-top: 30px; }
+        .trollbox-messages { height: 150px; overflow-y: auto; padding: 15px; font-family: monospace; }
+        .trollbox-input { display: flex; border-top: 1px solid #2d2344; }
+        .trollbox-input input { flex: 1; background: transparent; border: none; padding: 12px; color: white; outline: none; }
     </style>
 </head>
 <body>
@@ -47,29 +46,37 @@
     <canvas id="bg-canvas"></canvas>
 
     <header>
-        <div style="font-size: 24px; font-weight: 900; background: linear-gradient(to right, var(--neon-pink), var(--neon-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">PUMPXON SYSTEM</div>
+        <div style="font-size: 26px; font-weight: 900; background: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">⚡ PUMPXON SYSTEM</div>
         <nav>
             <button class="nav-btn active" onclick="switchSection('airdrop', this)">Airdrop</button>
-            <button class="nav-btn" onclick="switchSection('swap', this)">Swap</button>
             <button class="nav-btn" onclick="switchSection('market', this)">Market</button>
             <button class="nav-btn" onclick="switchSection('copytrade', this)">Copytrade</button>
         </nav>
     </header>
 
     <section id="airdrop" class="app-section active-section">
-        <h1>PORTAL INITIALIZED</h1>
-        <p>Sync your identity to begin.</p>
-    </section>
-
-    <section id="swap" class="app-section">
-        <h1>LIQUIDITY ROUTER</h1>
+        <div class="main-container">
+            <main>
+                <h1>THE DIGITAL<br><span>MATRIX.</span></h1>
+                <div class="trollbox">
+                    <div class="trollbox-messages" id="chat-box"></div>
+                    <div class="trollbox-input">
+                        <input type="text" id="chat-input" placeholder="Transmit...">
+                        <button onclick="sendChatMessage()">SEND</button>
+                    </div>
+                </div>
+            </main>
+            <aside class="portal-card">
+                <button class="nav-btn" onclick="alert('Wallet connected')">Initialize Wallet</button>
+            </aside>
+        </div>
     </section>
 
     <section id="market" class="app-section">
-        <h1>LIVE TICKER</h1>
-        <div class="interactive-row" onclick="alert('BTC/USD Price: $68,240.50')"><span>Bitcoin (BTC)</span><span style="color:var(--neon-green)">+2.4%</span></div>
-        <div class="interactive-row" onclick="alert('ETH/USD Price: $3,540.20')"><span>Ethereum (ETH)</span><span style="color:var(--neon-green)">+1.8%</span></div>
-        <div class="interactive-row" onclick="alert('SOL/USD Price: $148.90')"><span>Solana (SOL)</span><span style="color:var(--neon-pink)">-0.5%</span></div>
+        <h1>LIVE MARKET</h1>
+        <div class="coin-row"><span>🪙</span><span>Bitcoin</span><span>$68,240</span><span>+2.4%</span></div>
+        <div class="coin-row"><span>🔷</span><span>Ethereum</span><span>$3,540</span><span>+1.8%</span></div>
+        <div class="coin-row"><span>◎</span><span>Solana</span><span>$148.90</span><span>-0.5%</span></div>
     </section>
 
     <section id="copytrade" class="app-section">
@@ -77,23 +84,14 @@
         <div id="wallet-list"></div>
     </section>
 
-    <div class="global-chat">
-        <div class="trollbox-messages" id="chat-box"></div>
-        <div class="trollbox-input">
-            <input type="text" id="chat-input" placeholder="Message...">
-            <button onclick="sendChatMessage()">SEND</button>
-        </div>
-    </div>
-
     <script>
-        // Copytrade Setup
-        const wallets = ["0x88A...4F1", "sol:9Av...K2q", "0x11B...99C", "0x55F...22A", "sol:3Xp...L9m", "0xAA4...11B", "0x99C...33D", "sol:7Yt...N1k"];
+        // Copytrade Database
+        const wallets = ["0x88A...4F1", "sol:9Av...K2q", "0x11B...99C", "0x55F...22A", "sol:3Xp...L9m", "0xAA4...11B", "0x77C...22X", "sol:8Lm...P4k"];
         const list = document.getElementById('wallet-list');
         wallets.forEach(w => {
-            list.innerHTML += `<div class="interactive-row" onclick="alert('Mirroring ${w}...')"><span>${w}</span><span style="color:var(--neon-cyan)">ROI +${Math.floor(Math.random()*600)}%</span></div>`;
+            list.innerHTML += `<div class="coin-row" style="cursor:none;" onclick="alert('Mirroring wallet: ${w}')"><span>👤</span><span>${w}</span><span style="color:var(--neon-green)">+${Math.floor(Math.random()*500)}% ROI</span><span>MIRROR</span></div>`;
         });
 
-        // Functions
         function switchSection(id, btn) {
             document.querySelectorAll('.app-section').forEach(s => s.classList.remove('active-section'));
             document.getElementById(id).classList.add('active-section');
@@ -104,20 +102,15 @@
         function sendChatMessage() {
             const input = document.getElementById('chat-input');
             if(input.value) {
-                document.getElementById('chat-box').innerHTML += `<div><b style="color:var(--neon-green)">YOU</b>: ${input.value}</div>`;
+                document.getElementById('chat-box').innerHTML += `<div><b>YOU</b>: ${input.value}</div>`;
                 input.value = '';
             }
         }
 
-        // Custom Cursor
         const cursor = document.getElementById('cursor');
         document.addEventListener('mousemove', e => { cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px'; });
-
-        // Background
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({canvas: document.getElementById('bg-canvas'), alpha: true});
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.addEventListener('mousedown', () => cursor.classList.add('click'));
+        document.addEventListener('mouseup', () => cursor.classList.remove('click'));
     </script>
 </body>
 </html>
