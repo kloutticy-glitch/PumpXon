@@ -411,7 +411,7 @@
                 
                 const data = await response.json();
                 
-                if (data && data.bitcoin && data.ethereum && data.solana) {
+                if (data && data.bitcoin && data.ethereum && data.solana && data['usd-coin']) {
                     assetDatabase.BTC.base = data.bitcoin.usd;
                     assetDatabase.BTC.change = (data.bitcoin.usd_24h_change >= 0 ? "+" : "") + data.bitcoin.usd_24h_change.toFixed(2) + "%";
                     assetDatabase.BTC.trendUp = data.bitcoin.usd_24h_change >= 0;
@@ -423,14 +423,16 @@
                     assetDatabase.SOL.base = data.solana.usd;
                     assetDatabase.SOL.change = (data.solana.usd_24h_change >= 0 ? "+" : "") + data.solana.usd_24h_change.toFixed(2) + "%";
                     assetDatabase.SOL.trendUp = data.solana.usd_24h_change >= 0;
+
+                    assetDatabase.USDC.base = data['usd-coin'].usd;
                 } else {
                     throw new Error("Incomplete data layout payload received.");
                 }
             } catch (err) {
                 console.warn("CoinGecko rate limited or blocked. Deploying live-calibrated fallback points.", err);
-                ['BTC', 'ETH', 'SOL'].forEach(symbol => {
+                ['BTC', 'ETH', 'SOL', 'USDC'].forEach(symbol => {
                     const jitter = 1 + ((Math.random() - 0.5) * 0.001);
-                    assetDatabase[symbol].base = assetDatabase[symbol].base * jitter;
+                    assetDatabase[symbol].base = assetDatabase[symbol].base * (symbol === 'USDC' ? 1 : jitter);
                 });
             } finally {
                 updateTickerUI();
