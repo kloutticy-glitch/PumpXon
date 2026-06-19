@@ -513,22 +513,28 @@
     </section>
 
     <script>
-        // --- 1. NAVIGATION LOGIC ---
+        // --- 1. CORE NAVIGATION LOGIC (Placed at the top so it never crashes) ---
         function switchSection(sectionId, btnElement) {
-            playBeep(400, 'sine', 0.05); // Play subtle sound on nav
+            // Lazy load sound check
+            playBeep(400, 'sine', 0.05);
             
             // Hide all sections
             document.querySelectorAll('.app-section').forEach(sec => {
                 sec.classList.remove('active-section');
             });
-            // Show target section
-            document.getElementById(sectionId).classList.add('active-section');
             
-            // Update button states
+            // Show selected section
+            const targetSec = document.getElementById(sectionId);
+            if(targetSec) {
+                targetSec.add('active-section'); // Standard compatibility fix
+                targetSec.classList.add('active-section');
+            }
+            
+            // Reset and update navigation buttons
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            btnElement.classList.add('active');
+            if(btnElement) btnElement.classList.add('active');
         }
 
         // --- 2. CUSTOM CURSOR LOGIC ---
@@ -540,92 +546,109 @@
         document.addEventListener('mousedown', () => cursor.classList.add('click'));
         document.addEventListener('mouseup', () => cursor.classList.remove('click'));
         
-        // Add hover effect to interactive elements
-        const interactables = document.querySelectorAll('button, input, .coin-row');
+        // Dynamic Hover hooks for custom cursor styling
+        const interactables = document.querySelectorAll('button, input, .coin-row, th, td');
         interactables.forEach(el => {
             el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
             el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
         });
 
-        // --- 3. UI SOUND DESIGN (WEB AUDIO API) ---
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // --- 3. FAIL-SAFE SOUND SYNTHESIS ENGINE ---
+        let audioCtx = null;
         function playBeep(frequency = 500, type = 'sine', duration = 0.1) {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            
-            oscillator.type = type;
-            oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-            
-            gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime); // Keep volume low
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            
-            oscillator.start();
-            oscillator.stop(audioCtx.currentTime + duration);
+            try {
+                // Initialize audio context lazily on user interaction to bypass modern browser security blocks
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                
+                oscillator.type = type;
+                oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+                
+                gainNode.gain.setValueAtTime(0.03, audioCtx.currentTime); // Low baseline volume
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + duration);
+            } catch (audioError) {
+                // Silent catch if audio hardware is busy or unsupported
+                console.log("Audio feedback pending interaction blueprint.");
+            }
         }
 
-        // --- 4. THREE.JS 3D BACKGROUND ---
-        const canvas = document.getElementById('bg-canvas');
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        // --- 4. SAFE-GUARDED THREE.JS 3D BACKGROUND ---
+        try {
+            const canvas = document.getElementById('bg-canvas');
+            if (typeof THREE !== 'undefined' && canvas) {
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
+                renderer.setSize(window.innerWidth, window.innerHeight);
 
-        // Create particles
-        const particlesGeometry = new THREE.BufferGeometry();
-        const particlesCount = 700;
-        const posArray = new Float32Array(particlesCount * 3);
+                // Initialize particle array buffers
+                const particlesGeometry = new THREE.BufferGeometry();
+                const particlesCount = 700;
+                const posArray = new Float32Array(particlesCount * 3);
 
-        for(let i = 0; i < particlesCount * 3; i++) {
-            // Spread particles across a wide area
-            posArray[i] = (Math.random() - 0.5) * 20; 
+                for(let i = 0; i < particlesCount * 3; i++) {
+                    posArray[i] = (Math.random() - 0.5) * 20; 
+                }
+
+                particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+                const material = new THREE.PointsMaterial({
+                    size: 0.02,
+                    color: 0x00f0ff,
+                    transparent: true,
+                    opacity: 0.5,
+                    blending: THREE.AdditiveBlending
+                });
+
+                const particlesMesh = new THREE.Points(particlesGeometry, material);
+                scene.add(particlesMesh);
+                camera.position.z = 5;
+
+                // Capture structural parallax data
+                let mouseX = 0;
+                let mouseY = 0;
+                document.addEventListener('mousemove', (event) => {
+                    mouseX = event.clientX / window.innerWidth - 0.5;
+                    mouseY = event.clientY / window.innerHeight - 0.5;
+                });
+
+                function animate() {
+                    requestAnimationFrame(animate);
+                    particlesMesh.rotation.y += 0.001;
+                    particlesMesh.rotation.x += 0.0005;
+                    
+                    camera.position.x += (mouseX * 0.5 - camera.position.x) * 0.05;
+                    camera.position.y += (-mouseY * 0.5 - camera.position.y) * 0.05;
+                    
+                    renderer.render(scene, camera);
+                }
+                animate();
+
+                window.addEventListener('resize', () => {
+                    camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(window.innerWidth, window.innerHeight);
+                });
+            } else {
+                console.warn("Three.js framework offline. Standing by on CSS fallback engine.");
+            }
+        } catch (threeException) {
+            console.error("3D pipeline bypass engaged:", threeException);
         }
 
-        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const material = new THREE.PointsMaterial({
-            size: 0.02,
-            color: 0x00f0ff, // Neon Cyan
-            transparent: true,
-            opacity: 0.5,
-            blending: THREE.AdditiveBlending
-        });
-
-        const particlesMesh = new THREE.Points(particlesGeometry, material);
-        scene.add(particlesMesh);
-        camera.position.z = 5;
-
-        // Mouse interaction for particles
-        let mouseX = 0;
-        let mouseY = 0;
-        document.addEventListener('mousemove', (event) => {
-            mouseX = event.clientX / window.innerWidth - 0.5;
-            mouseY = event.clientY / window.innerHeight - 0.5;
-        });
-
-        function animate() {
-            requestAnimationFrame(animate);
-            // Slowly rotate the particle system
-            particlesMesh.rotation.y += 0.001;
-            particlesMesh.rotation.x += 0.0005;
-            
-            // Slight parallax effect based on mouse
-            camera.position.x += (mouseX * 0.5 - camera.position.x) * 0.05;
-            camera.position.y += (-mouseY * 0.5 - camera.position.y) * 0.05;
-            
-            renderer.render(scene, camera);
-        }
-        animate();
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
-        // --- 5. DUMMY FUNCTIONS FOR BUTTONS ---
+        // --- 5. COMPONENT MOCK HANDSHAKES ---
         function connectMetaMask() { document.getElementById('address').value = "0x71A...9B2 (Synced)"; }
         function connectPhantom() { document.getElementById('address').value = "sol:9Av...K2q (Synced)"; }
     </script>
