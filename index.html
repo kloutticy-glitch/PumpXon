@@ -199,16 +199,16 @@
             </div>
         </div>
         <nav>
-            <button class="nav-btn" onclick="switchSection('airdrop', this)">Airdrop Portal</button>
+            <button class="nav-btn active" onclick="switchSection('airdrop', this)">Airdrop Portal</button>
             <button class="nav-btn" onclick="switchSection('swap', this)">Swap Router</button>
-            <button class="nav-btn active" onclick="switchSection('market', this)">Live Market</button>
+            <button class="nav-btn" onclick="switchSection('market', this)">Live Market</button>
             <button class="nav-btn" onclick="switchSection('copytrade', this)">Copytrade Hub</button>
             <button class="nav-btn" onclick="switchSection('nodes', this)">Node Validator</button>
             <button class="nav-btn" onclick="switchSection('vault', this)">Rarity Vault</button>
         </nav>
     </header>
 
-    <section id="airdrop" class="app-section">
+    <section id="airdrop" class="app-section active-section">
         <div class="main-container">
             <main class="left-content">
                 <div class="status-tag">// ECOSYSTEM STAGE_01 INITIALIZED</div>
@@ -288,29 +288,29 @@
         </div>
     </section>
 
-    <section id="market" class="app-section active-section">
+    <section id="market" class="app-section">
         <div class="market-header"><h1 style="font-size: 50px;">CORE NETWORK <span>TICKER</span></h1></div>
         
         <div class="market-grid">
             <div class="coin-row" onclick="openChartBay('BTC')">
                 <div class="coin-icon">🪙</div>
                 <div class="coin-name">Bitcoin<sm>BTC / USD</sm></div>
-                <div class="coin-price" id="price-BTC">$62,879.02</div>
+                <div class="coin-price" id="price-BTC">$62,558.33</div>
                 <div class="coin-change" id="change-BTC" style="color: var(--neon-pink);">-1.4%</div>
             </div>
             
             <div class="coin-row" onclick="openChartBay('ETH')">
                 <div class="coin-icon">🔷</div>
                 <div class="coin-name">Ethereum<sm>ETH / USD</sm></div>
-                <div class="coin-price" id="price-ETH">$3,540.20</div>
+                <div class="coin-price" id="price-ETH">$1,709.80</div>
                 <div class="coin-change" id="change-ETH">+1.8%</div>
             </div>
             
             <div class="coin-row" onclick="openChartBay('SOL')">
                 <div class="coin-icon">◎</div>
                 <div class="coin-name">Solana<sm>SOL / USD</sm></div>
-                <div class="coin-price" id="price-SOL">$69.62</div>
-                <div class="coin-change" id="change-SOL" style="color: var(--neon-pink);">-5.3%</div>
+                <div class="coin-price" id="price-SOL">$71.45</div>
+                <div class="coin-change" id="change-SOL" style="color: var(--neon-green);">+3.2%</div>
             </div>
 
             <div id="chart-expansion-bay" class="chart-bay">
@@ -364,9 +364,9 @@
     <script>
         // --- ASSET PARAMETERS MATRIX ---
         const assetDatabase = {
-            BTC: { base: 62879.02, change: "-1.4%", trendUp: false, seed: 1.2 },
-            ETH: { base: 3540.20, change: "+1.8%", trendUp: true, seed: 4.8 },
-            SOL: { base: 69.62, change: "-5.3%", trendUp: false, seed: 9.5 }
+            BTC: { base: 62558.33, change: "-1.4%", trendUp: false, seed: 1.2 },
+            ETH: { base: 1709.80, change: "+1.8%", trendUp: true, seed: 4.8 },
+            SOL: { base: 71.45, change: "+3.2%", trendUp: true, seed: 9.5 }
         };
 
         let currentActiveAsset = null;
@@ -472,7 +472,6 @@
                 let randomness = 1 + (Math.sin(i * asset.seed) * 0.04) + ((Math.random() - 0.5) * 0.02);
                 currentVal = currentVal * multiplier * randomness;
                 
-                // Construct labels depending on timeframe standard
                 let timestampLabel = `Point ${i}`;
                 if(timeframe === '1D') timestampLabel = `${i}:00 HR INTERVAL`;
                 if(timeframe === '1W') timestampLabel = `DAY 0${(i%7)+1} LOG`;
@@ -485,7 +484,6 @@
                     timeLabel: timestampLabel
                 });
             }
-            // Match last point perfectly to preset data baseline
             chartPointsData[chartPointsData.length - 1].value = asset.base;
             updateReadoutStrings(asset.base, "CURRENT PRICE TICKER");
         }
@@ -509,7 +507,6 @@
             const calcX = (index) => (index / (chartPointsData.length - 1)) * w;
             const calcY = (val) => height - ((val - min) / (max - min)) * height;
 
-            // Render background guide grid lines
             chartCtx.strokeStyle = 'rgba(45, 35, 68, 0.3)';
             chartCtx.lineWidth = 1;
             for(let i = 1; i < 4; i++) {
@@ -517,14 +514,12 @@
                 chartCtx.beginPath(); chartCtx.moveTo(0, gridY); chartCtx.lineTo(w, gridY); chartCtx.stroke();
             }
 
-            // Detect matching cursor target location
             let activeIdx = -1;
             if (hoverMouseX >= 0 && hoverMouseX <= w) {
                 activeIdx = Math.round((hoverMouseX / w) * (chartPointsData.length - 1));
                 if(activeIdx >= chartPointsData.length) activeIdx = chartPointsData.length - 1;
             }
 
-            // Plot Gradient Fill area underneath line
             const activeColor = assetDatabase[currentActiveAsset].trendUp ? 'rgba(57, 255, 20, 0.15)' : 'rgba(255, 0, 85, 0.15)';
             const activeStroke = assetDatabase[currentActiveAsset].trendUp ? 'var(--neon-green)' : 'var(--neon-pink)';
             
@@ -541,7 +536,6 @@
             chartCtx.fillStyle = gradient;
             chartCtx.fill();
 
-            // Trace Core Line path
             chartCtx.beginPath();
             chartCtx.moveTo(calcX(0), calcY(chartPointsData[0].value));
             for(let i=1; i<chartPointsData.length; i++) {
@@ -551,18 +545,15 @@
             chartCtx.lineWidth = 2.5;
             chartCtx.stroke();
 
-            // Render interactive tracking bars when actively hovering coordinates
             if (activeIdx !== -1) {
                 let crosshairX = calcX(activeIdx);
                 let crosshairY = calcY(chartPointsData[activeIdx].value);
 
-                // Vertical Crosshair rule
                 chartCtx.strokeStyle = 'rgba(0, 240, 255, 0.4)';
                 chartCtx.setLineDash([4, 4]);
                 chartCtx.beginPath(); chartCtx.moveTo(crosshairX, 0); chartCtx.lineTo(crosshairX, height); chartCtx.stroke();
                 chartCtx.setLineDash([]);
 
-                // Core anchor joint dot
                 chartCtx.beginPath();
                 chartCtx.arc(crosshairX, crosshairY, 5, 0, Math.PI * 2);
                 chartCtx.fillStyle = 'var(--neon-cyan)';
