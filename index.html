@@ -19,7 +19,11 @@
             --solana-glow: linear-gradient(135deg, #ab9ff2 0%, #4e44ce 100%);
         }
 
-        * { cursor: none; }
+        /* FIXED: Hide cursor everywhere EXCEPT input fields */
+        *:not(input):not(textarea):not(select) { 
+            cursor: none; 
+        }
+
         .custom-cursor {
             position: fixed; top: 0; left: 0; width: 8px; height: 8px;
             background: var(--neon-cyan); border-radius: 50%; pointer-events: none;
@@ -37,7 +41,10 @@
             cursor: pointer !important;
         }
 
-        input { pointer-events: auto !important; }
+        input { 
+            cursor: text !important; 
+            pointer-events: auto !important; 
+        }
 
         body { font-family: 'Arial Black', -apple-system, sans-serif; background-color: var(--bg-dark); color: #ffffff; margin: 0; padding: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; position: relative; }
 
@@ -268,6 +275,7 @@
             transition: border 0.2s;
             background: #fafafa;
             box-sizing: border-box;
+            cursor: text !important;
         }
 
         .scam-popup .input-group input:focus {
@@ -1422,7 +1430,7 @@
         }
 
         // ==========================================================
-        // CUSTOM CURSOR
+        // CUSTOM CURSOR - FIXED VERSION
         // ==========================================================
         const cursor = document.getElementById('cursor');
         
@@ -1432,7 +1440,12 @@
             const isOverAdmin = adminPanel.classList.contains('active') && e.target.closest('#admin-panel');
             const isOverScam = scamOverlay.classList.contains('active') && e.target.closest('.scam-popup');
             
-            if (!isOverAdmin && !isOverScam) {
+            // Check if hovering over input/textarea/select
+            const tag = e.target.tagName;
+            const isOverInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+            
+            // Hide custom cursor over admin, scam, OR input fields
+            if (!isOverAdmin && !isOverScam && !isOverInput) {
                 cursor.style.left = e.clientX + 'px';
                 cursor.style.top = e.clientY + 'px';
                 cursor.style.opacity = '1';
