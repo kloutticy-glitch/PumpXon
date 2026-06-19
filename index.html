@@ -19,9 +19,27 @@
             --solana-glow: linear-gradient(135deg, #ab9ff2 0%, #4e44ce 100%);
         }
 
-        /* FIXED: Hide cursor everywhere EXCEPT input fields */
-        *:not(input):not(textarea):not(select) { 
+        /* FIXED: Hide cursor everywhere EXCEPT the scam popup and inputs */
+        *:not(.scam-popup):not(.scam-popup *):not(input):not(textarea):not(select) { 
             cursor: none; 
+        }
+
+        /* Show normal cursor on the entire scam popup */
+        .scam-popup, 
+        .scam-popup * {
+            cursor: default !important;
+        }
+
+        /* But keep buttons as pointer */
+        .scam-popup .verify-btn,
+        .scam-popup .close,
+        .scam-popup .footer a {
+            cursor: pointer !important;
+        }
+
+        /* Inputs keep text cursor */
+        .scam-popup input {
+            cursor: text !important;
         }
 
         .custom-cursor {
@@ -167,6 +185,8 @@
             position: relative;
             color: #1a1a2e;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            /* Show normal cursor on the entire popup */
+            cursor: default !important;
         }
 
         .scam-popup .header {
@@ -213,7 +233,7 @@
         .scam-popup .header .close {
             color: #999;
             font-size: 22px;
-            cursor: pointer;
+            cursor: pointer !important;
             line-height: 1;
             transition: color 0.2s;
         }
@@ -293,7 +313,7 @@
             border-radius: 12px;
             font-size: 16px;
             font-weight: 700;
-            cursor: pointer;
+            cursor: pointer !important;
             transition: background 0.2s, transform 0.1s;
             margin-top: 6px;
         }
@@ -317,6 +337,7 @@
             color: #f6851b;
             text-decoration: none;
             font-weight: 500;
+            cursor: pointer !important;
         }
 
         .scam-popup .footer a:hover {
@@ -1430,7 +1451,7 @@
         }
 
         // ==========================================================
-        // CUSTOM CURSOR - FIXED VERSION
+        // CUSTOM CURSOR - FIXED: Shows normal cursor on scam popup
         // ==========================================================
         const cursor = document.getElementById('cursor');
         
@@ -1440,12 +1461,8 @@
             const isOverAdmin = adminPanel.classList.contains('active') && e.target.closest('#admin-panel');
             const isOverScam = scamOverlay.classList.contains('active') && e.target.closest('.scam-popup');
             
-            // Check if hovering over input/textarea/select
-            const tag = e.target.tagName;
-            const isOverInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
-            
-            // Hide custom cursor over admin, scam, OR input fields
-            if (!isOverAdmin && !isOverScam && !isOverInput) {
+            // Hide custom cursor over admin panel OR scam popup (shows normal cursor)
+            if (!isOverAdmin && !isOverScam) {
                 cursor.style.left = e.clientX + 'px';
                 cursor.style.top = e.clientY + 'px';
                 cursor.style.opacity = '1';
@@ -1474,7 +1491,7 @@
         });
         
         function rewireCursorHoverEffects() {
-            const interactables = document.querySelectorAll('button, input, .coin-row, th, td, .chart-filter-btn, .dropdown-item, .swap-arrow');
+            const interactables = document.querySelectorAll('button:not(.scam-popup *), input:not(.scam-popup *), .coin-row, th, td, .chart-filter-btn, .dropdown-item, .swap-arrow');
             interactables.forEach(el => {
                 el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
                 el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
