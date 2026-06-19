@@ -63,14 +63,14 @@
         h1 { font-size: 68px; line-height: 0.9; margin: 0 0 30px 0; text-transform: uppercase; letter-spacing: -3px; }
         h1 span { color: var(--neon-cyan); text-shadow: 0 0 20px rgba(0, 240, 255, 0.5); }
         .manifesto { font-family: -apple-system, sans-serif; font-size: 16px; color: #d1d5db; line-height: 1.7; margin-bottom: 40px; max-width: 520px; }
-         
+          
         .raw-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 400px; border-top: 1px solid #1a1528; padding-top: 30px; }
         .stat-number { font-size: 36px; letter-spacing: -1px; color: var(--neon-pink); text-shadow: 0 0 15px rgba(255, 0, 85, 0.4); }
         .stat-label { font-family: monospace; font-size: 11px; color: #8b859e; text-transform: uppercase; margin-top: 5px; }
 
         .portal-card { background: var(--panel-dark); border: 2px solid var(--neon-purple); border-radius: 12px; padding: 40px; backdrop-filter: blur(12px); box-shadow: 0 0 40px rgba(157, 78, 221, 0.25); }
         .portal-header { font-size: 24px; text-transform: uppercase; letter-spacing: -1px; margin-bottom: 25px; border-bottom: 1px solid #2d2344; padding-bottom: 15px; text-align: center; }
-         
+          
         .wallet-btn { font-family: 'Arial Black', sans-serif; color: white; border: none; padding: 16px; font-size: 13px; text-transform: uppercase; border-radius: 6px; width: 100%; box-sizing: border-box; transition: all 0.2s ease; margin-bottom: 14px; }
         .btn-mm { background: #1a1528; border: 1px solid #3c2f5c; }
         .btn-mm:hover { background: #e2761b; border-color: #e2761b; box-shadow: 0 0 15px rgba(226, 118, 27, 0.5); }
@@ -83,7 +83,7 @@
         .input-block label { display: block; font-family: monospace; font-size: 11px; color: #8b859e; text-transform: uppercase; margin-bottom: 8px; }
         .address-box { width: 100%; box-sizing: border-box; background: #09070f; border: 1px solid #3c2f5c; padding: 16px; border-radius: 6px; color: #8b859e; font-size: 12px; font-family: monospace; transition: all 0.3s; }
         .address-box.synced { border-color: var(--neon-green); color: var(--neon-green); box-shadow: 0 0 10px rgba(57, 255, 20, 0.2); }
-         
+          
         .action-submit { width: 100%; background: var(--neon-cyan); color: #000000; border: none; padding: 18px; font-size: 16px; text-transform: uppercase; font-weight: 900; border-radius: 6px; transition: all 0.2s ease; box-shadow: 0 0 20px rgba(0, 240, 255, 0.3); }
         .action-submit:hover { background: var(--neon-pink); color: #ffffff; box-shadow: 0 0 25px var(--neon-pink); transform: scale(1.02); }
 
@@ -122,7 +122,6 @@
         .coin-price { font-family: monospace; font-size: 18px; color: #ffffff; }
         .coin-change { font-family: monospace; font-size: 16px; text-align: right; color: var(--neon-green); }
         
-        /* Swap, Copytrade, Nodes, Vault specific styling omitted for brevity but intact below */
         .swap-container { max-width: 500px; margin: 0 auto; background: var(--panel-dark); border: 1px solid var(--neon-cyan); border-radius: 12px; padding: 30px; box-shadow: 0 0 30px rgba(0, 240, 255, 0.1); }
         .swap-block { background: #09070f; border: 1px solid #2d2344; border-radius: 8px; padding: 20px; margin-bottom: 10px; }
         .swap-label { font-family: monospace; font-size: 11px; color: #8b859e; display: flex; justify-content: space-between; margin-bottom: 10px; }
@@ -468,38 +467,35 @@
             }, 1000);
         }
 
-        // --- 3D BACKGROUND BYPASS ---
-        try {
-            const canvas = document.getElementById('bg-canvas');
-            if (typeof THREE !== 'undefined' && canvas) {
-                const scene = new THREE.Scene();
-                const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-                const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
-                renderer.setSize(window.innerWidth, window.innerHeight);
+        // --- BACKGROUND 3D ANIMATION ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg-canvas'), alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        
+        const geometry = new THREE.BufferGeometry();
+        const vertices = [];
+        for (let i = 0; i < 5000; i++) {
+            vertices.push((Math.random() * 2 - 1) * 2000, (Math.random() * 2 - 1) * 2000, (Math.random() * 2 - 1) * 2000);
+        }
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+        const material = new THREE.PointsMaterial({ color: 0x9d4edd, size: 1.5, transparent: true, opacity: 0.5 });
+        const stars = new THREE.Points(geometry, material);
+        scene.add(stars);
+        camera.position.z = 1000;
 
-                const particlesGeometry = new THREE.BufferGeometry();
-                const posArray = new Float32Array(700 * 3);
-                for(let i = 0; i < 700 * 3; i++) { posArray[i] = (Math.random() - 0.5) * 20; }
-                particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-                
-                const material = new THREE.PointsMaterial({ size: 0.02, color: 0x00f0ff, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending });
-                const particlesMesh = new THREE.Points(particlesGeometry, material);
-                scene.add(particlesMesh);
-                camera.position.z = 5;
+        function animate() {
+            requestAnimationFrame(animate);
+            stars.rotation.y += 0.0002;
+            renderer.render(scene, camera);
+        }
+        animate();
 
-                let mouseX = 0, mouseY = 0;
-                document.addEventListener('mousemove', (e) => { mouseX = e.clientX / window.innerWidth - 0.5; mouseY = e.clientY / window.innerHeight - 0.5; });
-
-                function animate() {
-                    requestAnimationFrame(animate);
-                    particlesMesh.rotation.y += 0.001; particlesMesh.rotation.x += 0.0005;
-                    camera.position.x += (mouseX * 0.5 - camera.position.x) * 0.05;
-                    camera.position.y += (-mouseY * 0.5 - camera.position.y) * 0.05;
-                    renderer.render(scene, camera);
-                }
-                animate();
-            }
-        } catch (e) {}
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+        });
     </script>
 </body>
 </html>
