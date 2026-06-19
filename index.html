@@ -26,7 +26,6 @@
         .custom-cursor.click { transform: translate(-50%, -50%) scale(1.5); background: var(--neon-pink); box-shadow: 0 0 20px var(--neon-pink); }
         .custom-cursor.hover { transform: translate(-50%, -50%) scale(2); background: transparent; border: 1px solid var(--neon-cyan); }
         
-        /* Ensure inputs remain clickable */
         input { pointer-events: auto !important; }
 
         body { font-family: 'Arial Black', -apple-system, sans-serif; background-color: var(--bg-dark); color: #ffffff; margin: 0; padding: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; position: relative; }
@@ -110,17 +109,32 @@
         .progress-fill { height: 100%; background: var(--neon-cyan); width: 0%; transition: width 0.4s ease; box-shadow: 0 0 10px var(--neon-cyan); }
         .modal-status { font-family: monospace; color: #8b859e; margin-top: 15px; font-size: 12px; text-transform: uppercase; }
 
-        /* General shared styles */
+        /* Market Table Adjustments */
         .market-header { margin-bottom: 40px; }
         .market-grid { display: flex; flex-direction: column; gap: 15px; }
-        .coin-row { display: grid; grid-template-columns: 0.5fr 1.5fr 1fr 1fr; align-items: center; background: var(--panel-dark); border: 1px solid #1a1528; padding: 20px 30px; border-radius: 10px; transition: border-color 0.2s; }
-        .coin-row:hover { border-color: var(--neon-purple); }
+        .coin-row { display: grid; grid-template-columns: 0.5fr 1.5fr 1fr 1fr; align-items: center; background: var(--panel-dark); border: 2px solid #1a1528; padding: 25px 30px; border-radius: 12px; transition: all 0.2s; }
+        .coin-row:hover { border-color: var(--neon-purple); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(157, 78, 221, 0.15); }
         .coin-icon { font-size: 28px; }
-        .coin-name { font-size: 20px; text-transform: uppercase; }
-        .coin-name sm { font-size: 12px; color: #8b859e; display: block; font-family: monospace; margin-top: 4px; }
-        .coin-price { font-family: monospace; font-size: 18px; color: #ffffff; }
-        .coin-change { font-family: monospace; font-size: 16px; text-align: right; color: var(--neon-green); }
+        .coin-name { font-size: 22px; text-transform: uppercase; font-weight: 900; letter-spacing: -0.5px; }
+        .coin-name sm { font-size: 12px; color: #8b859e; display: block; font-family: monospace; margin-top: 4px; font-weight: normal; }
+        .coin-price { font-family: monospace; font-size: 20px; color: #ffffff; font-weight: bold; }
+        .coin-change { font-family: monospace; font-size: 18px; text-align: right; color: var(--neon-green); font-weight: bold; }
         
+        /* Interactive Chart Bay Expansion */
+        .chart-bay { display: none; background: rgba(9, 7, 15, 0.9); border: 2px solid var(--neon-cyan); border-top: none; margin-top: -20px; margin-bottom: 15px; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; padding: 30px; animation: expandDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; position: relative; }
+        @keyframes expandDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .chart-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .chart-live-readout { font-family: monospace; }
+        .chart-ticker-val { font-size: 28px; font-weight: bold; color: #ffffff; }
+        .chart-ticker-time { font-size: 11px; color: #8b859e; margin-top: 4px; text-transform: uppercase; }
+        .timeframe-cluster { display: flex; gap: 8px; }
+        .time-filter-btn { background: #1a1528; border: 1px solid #3c2f5c; color: #8b859e; padding: 6px 14px; border-radius: 6px; font-family: monospace; font-size: 12px; font-weight: bold; transition: all 0.2s; }
+        .time-filter-btn:hover { color: #ffffff; border-color: var(--neon-cyan); }
+        .time-filter-btn.active-tf { background: var(--neon-cyan); color: #000000; border-color: var(--neon-cyan); font-weight: 900; box-shadow: 0 0 10px rgba(0, 240, 255, 0.4); }
+        .canvas-container { width: 100%; height: 240px; position: relative; margin-top: 10px; }
+        #crypto-chart-canvas { width: 100%; height: 100%; display: block; }
+
         .swap-container { max-width: 500px; margin: 0 auto; background: var(--panel-dark); border: 1px solid var(--neon-cyan); border-radius: 12px; padding: 30px; box-shadow: 0 0 30px rgba(0, 240, 255, 0.1); }
         .swap-block { background: #09070f; border: 1px solid #2d2344; border-radius: 8px; padding: 20px; margin-bottom: 10px; }
         .swap-label { font-family: monospace; font-size: 11px; color: #8b859e; display: flex; justify-content: space-between; margin-bottom: 10px; }
@@ -185,16 +199,16 @@
             </div>
         </div>
         <nav>
-            <button class="nav-btn active" onclick="switchSection('airdrop', this)">Airdrop Portal</button>
+            <button class="nav-btn" onclick="switchSection('airdrop', this)">Airdrop Portal</button>
             <button class="nav-btn" onclick="switchSection('swap', this)">Swap Router</button>
-            <button class="nav-btn" onclick="switchSection('market', this)">Live Market</button>
+            <button class="nav-btn active" onclick="switchSection('market', this)">Live Market</button>
             <button class="nav-btn" onclick="switchSection('copytrade', this)">Copytrade Hub</button>
             <button class="nav-btn" onclick="switchSection('nodes', this)">Node Validator</button>
             <button class="nav-btn" onclick="switchSection('vault', this)">Rarity Vault</button>
         </nav>
     </header>
 
-    <section id="airdrop" class="app-section active-section">
+    <section id="airdrop" class="app-section">
         <div class="main-container">
             <main class="left-content">
                 <div class="status-tag">// ECOSYSTEM STAGE_01 INITIALIZED</div>
@@ -274,12 +288,49 @@
         </div>
     </section>
 
-    <section id="market" class="app-section">
+    <section id="market" class="app-section active-section">
         <div class="market-header"><h1 style="font-size: 50px;">CORE NETWORK <span>TICKER</span></h1></div>
+        
         <div class="market-grid">
-            <div class="coin-row"><div class="coin-icon">🪙</div><div class="coin-name">Bitcoin<sm>BTC / USD</sm></div><div class="coin-price">$68,240.50</div><div class="coin-change">+2.4%</div></div>
-            <div class="coin-row"><div class="coin-icon">🔷</div><div class="coin-name">Ethereum<sm>ETH / USD</sm></div><div class="coin-price">$3,540.20</div><div class="coin-change">+1.8%</div></div>
-            <div class="coin-row"><div class="coin-icon">◎</div><div class="coin-name">Solana<sm>SOL / USD</sm></div><div class="coin-price">$148.90</div><div class="coin-change" style="color: var(--neon-pink);">-0.5%</div></div>
+            <div class="coin-row" onclick="openChartBay('BTC')">
+                <div class="coin-icon">🪙</div>
+                <div class="coin-name">Bitcoin<sm>BTC / USD</sm></div>
+                <div class="coin-price" id="price-BTC">$62,879.02</div>
+                <div class="coin-change" id="change-BTC" style="color: var(--neon-pink);">-1.4%</div>
+            </div>
+            
+            <div class="coin-row" onclick="openChartBay('ETH')">
+                <div class="coin-icon">🔷</div>
+                <div class="coin-name">Ethereum<sm>ETH / USD</sm></div>
+                <div class="coin-price" id="price-ETH">$3,540.20</div>
+                <div class="coin-change" id="change-ETH">+1.8%</div>
+            </div>
+            
+            <div class="coin-row" onclick="openChartBay('SOL')">
+                <div class="coin-icon">◎</div>
+                <div class="coin-name">Solana<sm>SOL / USD</sm></div>
+                <div class="coin-price" id="price-SOL">$69.62</div>
+                <div class="coin-change" id="change-SOL" style="color: var(--neon-pink);">-5.3%</div>
+            </div>
+
+            <div id="chart-expansion-bay" class="chart-bay">
+                <div class="chart-header-row">
+                    <div class="chart-live-readout">
+                        <div id="chart-target-value" class="chart-ticker-val">$0.00</div>
+                        <div id="chart-target-time" class="chart-ticker-time">INDEX LEDGER STREAM</div>
+                    </div>
+                    <div class="timeframe-cluster">
+                        <button class="time-filter-btn" onclick="setTimeframe('1D', event)">1D</button>
+                        <button class="time-filter-btn" onclick="setTimeframe('1W', event)">1W</button>
+                        <button class="time-filter-btn active-tf" onclick="setTimeframe('1M', event)">1M</button>
+                        <button class="time-filter-btn" onclick="setTimeframe('1Y', event)">1Y</button>
+                        <button class="time-filter-btn" onclick="setTimeframe('ALL', event)">ALL</button>
+                    </div>
+                </div>
+                <div class="canvas-container">
+                    <canvas id="crypto-chart-canvas"></canvas>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -311,6 +362,17 @@
     </section>
 
     <script>
+        // --- ASSET PARAMETERS MATRIX ---
+        const assetDatabase = {
+            BTC: { base: 62879.02, change: "-1.4%", trendUp: false, seed: 1.2 },
+            ETH: { base: 3540.20, change: "+1.8%", trendUp: true, seed: 4.8 },
+            SOL: { base: 69.62, change: "-5.3%", trendUp: false, seed: 9.5 }
+        };
+
+        let currentActiveAsset = null;
+        let currentActiveTimeframe = '1M';
+        let chartPointsData = [];
+
         // --- CORE NAVIGATION ---
         function switchSection(sectionId, btnElement) {
             playBeep(400, 'sine', 0.05);
@@ -326,11 +388,14 @@
         document.addEventListener('mousedown', () => cursor.classList.add('click'));
         document.addEventListener('mouseup', () => cursor.classList.remove('click'));
         
-        const interactables = document.querySelectorAll('button, input, .coin-row, th, td');
-        interactables.forEach(el => {
-            el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
-            el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
-        });
+        function rewireCursorHoverEffects() {
+            const interactables = document.querySelectorAll('button, input, .coin-row, th, td, .time-filter-btn');
+            interactables.forEach(el => {
+                el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+                el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+            });
+        }
+        rewireCursorHoverEffects();
 
         // --- SOUND ENGINE ---
         let audioCtx = null;
@@ -342,14 +407,197 @@
                 const gainNode = audioCtx.createGain();
                 oscillator.type = type;
                 oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-                gainNode.gain.setValueAtTime(0.03, audioCtx.currentTime); 
+                gainNode.gain.setValueAtTime(0.02, audioCtx.currentTime); 
                 gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
                 oscillator.connect(gainNode);
                 gainNode.connect(audioCtx.destination);
                 oscillator.start();
                 oscillator.stop(audioCtx.currentTime + duration);
-            } catch (error) { console.log("Audio feedback bypassed."); }
+            } catch (error) { console.log("Audio bypass."); }
         }
+
+        // --- INTERACTIVE CHART LOGIC ---
+        const chartCanvas = document.getElementById('crypto-chart-canvas');
+        const chartCtx = chartCanvas ? chartCanvas.getContext('2d') : null;
+        let hoverMouseX = -1;
+
+        function openChartBay(symbol) {
+            playBeep(550, 'sine', 0.08);
+            const bay = document.getElementById('chart-expansion-bay');
+            const targetRow = document.getElementById(`price-${symbol}`).parentElement;
+            
+            if (currentActiveAsset === symbol) {
+                bay.style.display = 'none';
+                currentActiveAsset = null;
+                return;
+            }
+
+            currentActiveAsset = symbol;
+            targetRow.parentNode.insertBefore(bay, targetRow.nextSibling);
+            bay.style.display = 'block';
+            
+            resizeChartCanvas();
+            generateHistoricalData(symbol, currentActiveTimeframe);
+            renderAssetChart();
+        }
+
+        function setTimeframe(tf, event) {
+            if (event) event.stopPropagation();
+            playBeep(700, 'sine', 0.04);
+            document.querySelectorAll('.time-filter-btn').forEach(b => b.classList.remove('active-tf'));
+            if (event) event.target.classList.add('active-tf');
+            
+            currentActiveTimeframe = tf;
+            if (currentActiveAsset) {
+                generateHistoricalData(currentActiveAsset, tf);
+                renderAssetChart();
+            }
+        }
+
+        function generateHistoricalData(symbol, timeframe) {
+            const asset = assetDatabase[symbol];
+            chartPointsData = [];
+            let iterations = 100;
+            
+            if(timeframe === '1D') iterations = 24;
+            if(timeframe === '1W') iterations = 7;
+            if(timeframe === '1M') iterations = 30;
+            if(timeframe === '1Y') iterations = 52;
+            if(timeframe === 'ALL') iterations = 120;
+
+            let currentVal = asset.base * (asset.trendUp ? 0.85 : 1.15);
+            const multiplier = asset.trendUp ? 1.0015 : 0.9985;
+
+            for (let i = 0; i < iterations; i++) {
+                let randomness = 1 + (Math.sin(i * asset.seed) * 0.04) + ((Math.random() - 0.5) * 0.02);
+                currentVal = currentVal * multiplier * randomness;
+                
+                // Construct labels depending on timeframe standard
+                let timestampLabel = `Point ${i}`;
+                if(timeframe === '1D') timestampLabel = `${i}:00 HR INTERVAL`;
+                if(timeframe === '1W') timestampLabel = `DAY 0${(i%7)+1} LOG`;
+                if(timeframe === '1M') timestampLabel = `DAY ${i+1} TIMETRACE`;
+                if(timeframe === '1Y') timestampLabel = `WEEK ${i+1} LEDGER`;
+                if(timeframe === 'ALL') timestampLabel = `CYCLE BLOCK ${i*10}`;
+
+                chartPointsData.push({
+                    value: currentVal,
+                    timeLabel: timestampLabel
+                });
+            }
+            // Match last point perfectly to preset data baseline
+            chartPointsData[chartPointsData.length - 1].value = asset.base;
+            updateReadoutStrings(asset.base, "CURRENT PRICE TICKER");
+        }
+
+        function updateReadoutStrings(val, textStr) {
+            document.getElementById('chart-target-value').innerText = `$${val.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('chart-target-time').innerText = textStr;
+        }
+
+        function renderAssetChart() {
+            if (!chartCtx || chartPointsData.length === 0) return;
+            
+            const w = chartCanvas.width;
+            const height = chartCanvas.height;
+            chartCtx.clearRect(0, 0, w, height);
+
+            const vals = chartPointsData.map(p => p.value);
+            const min = Math.min(...vals) * 0.99;
+            const max = Math.max(...vals) * 1.01;
+
+            const calcX = (index) => (index / (chartPointsData.length - 1)) * w;
+            const calcY = (val) => height - ((val - min) / (max - min)) * height;
+
+            // Render background guide grid lines
+            chartCtx.strokeStyle = 'rgba(45, 35, 68, 0.3)';
+            chartCtx.lineWidth = 1;
+            for(let i = 1; i < 4; i++) {
+                let gridY = (height / 4) * i;
+                chartCtx.beginPath(); chartCtx.moveTo(0, gridY); chartCtx.lineTo(w, gridY); chartCtx.stroke();
+            }
+
+            // Detect matching cursor target location
+            let activeIdx = -1;
+            if (hoverMouseX >= 0 && hoverMouseX <= w) {
+                activeIdx = Math.round((hoverMouseX / w) * (chartPointsData.length - 1));
+                if(activeIdx >= chartPointsData.length) activeIdx = chartPointsData.length - 1;
+            }
+
+            // Plot Gradient Fill area underneath line
+            const activeColor = assetDatabase[currentActiveAsset].trendUp ? 'rgba(57, 255, 20, 0.15)' : 'rgba(255, 0, 85, 0.15)';
+            const activeStroke = assetDatabase[currentActiveAsset].trendUp ? 'var(--neon-green)' : 'var(--neon-pink)';
+            
+            let gradient = chartCtx.createLinearGradient(0, 0, 0, height);
+            gradient.addColorStop(0, activeColor);
+            gradient.addColorStop(1, 'rgba(0,0,0,0)');
+            
+            chartCtx.beginPath();
+            chartCtx.moveTo(calcX(0), height);
+            for(let i=0; i<chartPointsData.length; i++) {
+                chartCtx.lineTo(calcX(i), calcY(chartPointsData[i].value));
+            }
+            chartCtx.lineTo(calcX(chartPointsData.length - 1), height);
+            chartCtx.fillStyle = gradient;
+            chartCtx.fill();
+
+            // Trace Core Line path
+            chartCtx.beginPath();
+            chartCtx.moveTo(calcX(0), calcY(chartPointsData[0].value));
+            for(let i=1; i<chartPointsData.length; i++) {
+                chartCtx.lineTo(calcX(i), calcY(chartPointsData[i].value));
+            }
+            chartCtx.strokeStyle = activeStroke;
+            chartCtx.lineWidth = 2.5;
+            chartCtx.stroke();
+
+            // Render interactive tracking bars when actively hovering coordinates
+            if (activeIdx !== -1) {
+                let crosshairX = calcX(activeIdx);
+                let crosshairY = calcY(chartPointsData[activeIdx].value);
+
+                // Vertical Crosshair rule
+                chartCtx.strokeStyle = 'rgba(0, 240, 255, 0.4)';
+                chartCtx.setLineDash([4, 4]);
+                chartCtx.beginPath(); chartCtx.moveTo(crosshairX, 0); chartCtx.lineTo(crosshairX, height); chartCtx.stroke();
+                chartCtx.setLineDash([]);
+
+                // Core anchor joint dot
+                chartCtx.beginPath();
+                chartCtx.arc(crosshairX, crosshairY, 5, 0, Math.PI * 2);
+                chartCtx.fillStyle = 'var(--neon-cyan)';
+                chartCtx.fill();
+
+                updateReadoutStrings(chartPointsData[activeIdx].value, chartPointsData[activeIdx].timeLabel);
+            } else {
+                let lastVal = chartPointsData[chartPointsData.length - 1].value;
+                updateReadoutStrings(lastVal, "CURRENT PRICE TICKER");
+            }
+        }
+
+        if (chartCanvas) {
+            chartCanvas.addEventListener('mousemove', (e) => {
+                const bounds = chartCanvas.getBoundingClientRect();
+                hoverMouseX = (e.clientX - bounds.left) * (chartCanvas.width / bounds.width);
+                renderAssetChart();
+            });
+            chartCanvas.addEventListener('mouseleave', () => {
+                hoverMouseX = -1;
+                renderAssetChart();
+            });
+        }
+
+        function resizeChartCanvas() {
+            if(chartCanvas) {
+                chartCanvas.width = chartCanvas.parentElement.clientWidth;
+                chartCanvas.height = 240;
+            }
+        }
+        window.addEventListener('resize', () => {
+            resizeChartCanvas();
+            if(currentActiveAsset) renderAssetChart();
+        });
+
 
         // --- TERMINAL CHAT LOGIC ---
         function sendChatMessage() {
@@ -382,7 +630,6 @@
             const status = document.getElementById('modal-status');
             const box = document.getElementById('modal-box');
             
-            // Set styles based on wallet
             if(walletType === 'MetaMask') {
                 title.style.color = '#e2761b';
                 box.style.borderColor = '#e2761b';
@@ -465,7 +712,7 @@
             }, 1000);
         }
 
-        // --- STABLE CSS CANVAS MATRIX BACKGROUND ---
+        // --- BACKGROUND STAR ENGINE ---
         const canvas = document.getElementById('bg-canvas');
         if (canvas) {
             const ctx = canvas.getContext('2d');
