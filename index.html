@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PUMPXON // DEPLOYMENT MATRIX</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         :root {
             --bg-dark: #030206;
@@ -32,7 +31,7 @@
 
         body { font-family: 'Arial Black', -apple-system, sans-serif; background-color: var(--bg-dark); color: #ffffff; margin: 0; padding: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; position: relative; }
 
-        /* 3D Canvas & Ambience */
+        /* Background Canvas & Ambience */
         #bg-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -3; pointer-events: none; }
         .ambient-glow-1 { position: absolute; width: 500px; height: 500px; background: radial-gradient(circle, rgba(255, 0, 85, 0.12) 0%, rgba(0,0,0,0) 70%); top: -50px; left: -100px; z-index: -2; }
         .mascot-bg-matrix { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100vw; height: 100vh; background-image: linear-gradient(rgba(157, 78, 221, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(157, 78, 221, 0.03) 1px, transparent 1px); background-size: 40px 40px; z-index: -1; pointer-events: none; opacity: 0.85; }
@@ -106,4 +105,406 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(3, 2, 6, 0.85); backdrop-filter: blur(8px); z-index: 1000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
         .modal-overlay.active { display: flex; opacity: 1; }
         .modal-content { background: var(--panel-dark); border: 2px solid var(--neon-cyan); padding: 40px; border-radius: 12px; width: 320px; text-align: center; box-shadow: 0 0 40px rgba(0, 240, 255, 0.2); }
-        .modal-title { font-size: 20px; text-transform: uppercase; margin: 0 0 25
+        .modal-title { font-size: 20px; text-transform: uppercase; margin: 0 0 25px 0; letter-spacing: 1px; color: #fff; }
+        .progress-track { width: 100%; height: 8px; background: #09070f; border-radius: 4px; overflow: hidden; border: 1px solid #2d2344; }
+        .progress-fill { height: 100%; background: var(--neon-cyan); width: 0%; transition: width 0.4s ease; box-shadow: 0 0 10px var(--neon-cyan); }
+        .modal-status { font-family: monospace; color: #8b859e; margin-top: 15px; font-size: 12px; text-transform: uppercase; }
+
+        /* General shared styles */
+        .market-header { margin-bottom: 40px; }
+        .market-grid { display: flex; flex-direction: column; gap: 15px; }
+        .coin-row { display: grid; grid-template-columns: 0.5fr 1.5fr 1fr 1fr; align-items: center; background: var(--panel-dark); border: 1px solid #1a1528; padding: 20px 30px; border-radius: 10px; transition: border-color 0.2s; }
+        .coin-row:hover { border-color: var(--neon-purple); }
+        .coin-icon { font-size: 28px; }
+        .coin-name { font-size: 20px; text-transform: uppercase; }
+        .coin-name sm { font-size: 12px; color: #8b859e; display: block; font-family: monospace; margin-top: 4px; }
+        .coin-price { font-family: monospace; font-size: 18px; color: #ffffff; }
+        .coin-change { font-family: monospace; font-size: 16px; text-align: right; color: var(--neon-green); }
+        
+        .swap-container { max-width: 500px; margin: 0 auto; background: var(--panel-dark); border: 1px solid var(--neon-cyan); border-radius: 12px; padding: 30px; box-shadow: 0 0 30px rgba(0, 240, 255, 0.1); }
+        .swap-block { background: #09070f; border: 1px solid #2d2344; border-radius: 8px; padding: 20px; margin-bottom: 10px; }
+        .swap-label { font-family: monospace; font-size: 11px; color: #8b859e; display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .swap-input-row { display: flex; justify-content: space-between; align-items: center; }
+        .swap-input { background: transparent; border: none; color: white; font-size: 28px; font-family: monospace; outline: none; width: 60%; }
+        .token-selector { background: #1a1528; border: 1px solid #3c2f5c; color: white; padding: 8px 12px; border-radius: 20px; font-family: 'Arial Black'; font-size: 12px; display: flex; align-items: center; gap: 8px; }
+        .swap-divider { text-align: center; margin: -15px 0; position: relative; z-index: 2; }
+        .swap-arrow { background: var(--bg-dark); border: 1px solid var(--neon-cyan); color: var(--neon-cyan); width: 32px; height: 32px; border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; font-size: 14px; }
+
+        .leaderboard-table { width: 100%; border-collapse: collapse; background: var(--panel-dark); border-radius: 10px; overflow: hidden; border: 1px solid #2d2344; }
+        .leaderboard-table th { background: #1a1528; padding: 15px; text-align: left; font-family: monospace; color: #8b859e; font-size: 11px; border-bottom: 1px solid #3c2f5c; }
+        .leaderboard-table td { padding: 15px; border-bottom: 1px solid #1a1528; font-family: monospace; font-size: 13px; }
+        .leaderboard-table tr:hover { background: rgba(255, 255, 255, 0.02); }
+        .rank { color: var(--neon-cyan); font-weight: bold; }
+        .roi-positive { color: var(--neon-green); }
+
+        .node-grid, .vault-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .node-card { background: var(--panel-dark); border: 1px solid #2d2344; padding: 25px; border-radius: 10px; }
+        .node-status { display: flex; justify-content: space-between; align-items: center; font-family: monospace; font-size: 11px; margin-bottom: 15px; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--neon-green); box-shadow: 0 0 10px var(--neon-green); }
+        .node-title { font-size: 18px; margin: 0 0 5px 0; letter-spacing: -0.5px; text-transform: uppercase; }
+        .node-meta { font-family: monospace; font-size: 12px; color: #8b859e; margin-bottom: 20px; }
+        .node-btn { background: transparent; border: 1px solid var(--neon-purple); color: #ffffff; padding: 10px 14px; font-family: 'Arial Black', sans-serif; font-size: 11px; text-transform: uppercase; border-radius: 4px; width: 100%; transition: 0.2s; }
+        .node-btn:hover { background: var(--neon-purple); box-shadow: 0 0 15px var(--neon-purple); }
+
+        .vault-card { background: var(--panel-dark); border: 2px solid #1a1528; border-radius: 12px; padding: 30px; position: relative; }
+        .vault-card.premium { border-color: var(--neon-pink); box-shadow: 0 0 20px rgba(255, 0, 85, 0.15); }
+        .badge { position: absolute; top: 15px; right: 15px; font-family: monospace; font-size: 10px; background: var(--neon-pink); color: #fff; padding: 4px 8px; border-radius: 4px; }
+        .vault-tier { font-size: 22px; text-transform: uppercase; margin: 0 0 20px 0; letter-spacing: -1px; }
+        .vault-stat-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-family: -apple-system, sans-serif; font-size: 14px; }
+        .vault-stat-row span:last-child { font-family: monospace; font-weight: bold; color: var(--neon-cyan); }
+
+        @media (max-width: 900px) { .main-container { grid-template-columns: 1fr; gap: 40px; } h1 { font-size: 46px; } }
+    </style>
+</head>
+<body>
+    <div class="custom-cursor" id="cursor"></div>
+
+    <div id="wallet-modal" class="modal-overlay">
+        <div class="modal-content" id="modal-box">
+            <h3 class="modal-title" id="modal-title">CONNECTING...</h3>
+            <div class="progress-track">
+                <div id="modal-progress" class="progress-fill"></div>
+            </div>
+            <div class="modal-status" id="modal-status">Awaiting signature request...</div>
+        </div>
+    </div>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="ambient-glow-1"></div>
+    <div class="mascot-bg-matrix"></div>
+    <div class="mascot-glow-core"></div>
+
+    <header>
+        <div class="logo-container">
+            <div class="logo">⚡ PUMPXON SYSTEM</div>
+            <div class="network-status">
+                <div>ETH GAS: <span>14 GWEI</span></div>
+                <div style="color: #3c2f5c;">|</div>
+                <div>SOL TPS: <span>2,841</span></div>
+            </div>
+        </div>
+        <nav>
+            <button class="nav-btn active" onclick="switchSection('airdrop', this)">Airdrop Portal</button>
+            <button class="nav-btn" onclick="switchSection('swap', this)">Swap Router</button>
+            <button class="nav-btn" onclick="switchSection('market', this)">Live Market</button>
+            <button class="nav-btn" onclick="switchSection('copytrade', this)">Copytrade Hub</button>
+            <button class="nav-btn" onclick="switchSection('nodes', this)">Node Validator</button>
+            <button class="nav-btn" onclick="switchSection('vault', this)">Rarity Vault</button>
+        </nav>
+    </header>
+
+    <section id="airdrop" class="app-section active-section">
+        <div class="main-container">
+            <main class="left-content">
+                <div class="status-tag">// ECOSYSTEM STAGE_01 INITIALIZED</div>
+                <h1>THE DIGITAL<br>CULTURE <span>MATRIX.</span></h1>
+                <p class="manifesto">
+                    PumpXon System is a high-velocity, fully decentralized network canvas built for core community builders and on-chain tactical developers. Syncing your localized identity locks your trace securely to our genesis index contracts.
+                </p>
+                <div class="raw-stats">
+                    <div>
+                        <div class="stat-number">420K+</div>
+                        <div class="stat-label">Wallets Synced</div>
+                    </div>
+                    <div>
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label">Decentralized Hub</div>
+                    </div>
+                </div>
+
+                <div class="trollbox">
+                    <div class="trollbox-header">
+                        <span>TERMINAL_CHAT [GLOBAL]</span>
+                        <span>🟢 1,402 ONLINE</span>
+                    </div>
+                    <div class="trollbox-messages" id="chat-box">
+                        <div class="msg"><span class="msg-user">0x71A...9B2</span>: Gas is dropping, time to deploy</div>
+                        <div class="msg"><span class="msg-vip">pumpmaster.sol</span>: Vault yields are printing rn 🔥</div>
+                        <div class="msg"><span class="msg-user">0x22F...11C</span>: anyone got the testnet faucet link?</div>
+                    </div>
+                    <div class="trollbox-input">
+                        <input type="text" id="chat-input" placeholder="Transmit to global ledger..." onkeypress="handleChatEnter(event)">
+                        <button onclick="sendChatMessage()">SEND</button>
+                    </div>
+                </div>
+            </main>
+
+            <aside class="portal-card">
+                <div class="portal-header">CONSOLE ACCESS</div>
+                <button id="mm-btn" class="wallet-btn btn-mm" onclick="triggerWalletModal('MetaMask')">Initialize MetaMask</button>
+                <button id="phantom-btn" class="wallet-btn btn-phantom" onclick="triggerWalletModal('Phantom')">Initialize Phantom</button>
+                <div class="input-block">
+                    <label>SYNCHRONIZED IDENTITY SIGNATURE</label>
+                    <input class="address-box" type="text" id="address" placeholder="awaiting handshakes..." readonly>
+                </div>
+                <div class="input-block" style="border-top: 1px dashed #3c2f5c; padding-top: 15px;">
+                    <label>NET WORTH TRACKER (BETA)</label>
+                    <div id="net-worth" style="font-size: 24px; color: var(--neon-cyan); font-family: monospace;">$0.00</div>
+                </div>
+                <button id="claim-btn" class="action-submit" onclick="claimRewards(this)">
+                    CLAIM PORTAL REWARDS
+                </button>
+            </aside>
+        </div>
+    </section>
+
+    <section id="swap" class="app-section">
+        <div class="market-header" style="text-align: center;">
+            <div class="status-tag" style="justify-content: center; display: flex;">// ZERO-SLIPPAGE AGGREGATOR</div>
+            <h1 style="font-size: 50px; margin-bottom: 10px;">ATOMIC <span>SWAP</span></h1>
+        </div>
+        <div class="swap-container">
+            <div class="swap-block">
+                <div class="swap-label"><span>Pay</span><span>Balance: 0.00</span></div>
+                <div class="swap-input-row">
+                    <input type="number" class="swap-input" placeholder="0" value="1.5">
+                    <div class="token-selector">🔷 ETH ▾</div>
+                </div>
+            </div>
+            <div class="swap-divider"><div class="swap-arrow">↓</div></div>
+            <div class="swap-block">
+                <div class="swap-label"><span>Receive</span><span>Balance: 0.00</span></div>
+                <div class="swap-input-row">
+                    <input type="number" class="swap-input" placeholder="0" value="4820.45" readonly>
+                    <div class="token-selector" style="background: rgba(255,0,85,0.2); border-color: var(--neon-pink);"> USDC ▾</div>
+                </div>
+            </div>
+            <button class="action-submit" onclick="executeAction(this, 'SWAP EXECUTED')">EXECUTE SWAP</button>
+        </div>
+    </section>
+
+    <section id="market" class="app-section">
+        <div class="market-header"><h1 style="font-size: 50px;">CORE NETWORK <span>TICKER</span></h1></div>
+        <div class="market-grid">
+            <div class="coin-row"><div class="coin-icon">🪙</div><div class="coin-name">Bitcoin<sm>BTC / USD</sm></div><div class="coin-price">$68,240.50</div><div class="coin-change">+2.4%</div></div>
+            <div class="coin-row"><div class="coin-icon">🔷</div><div class="coin-name">Ethereum<sm>ETH / USD</sm></div><div class="coin-price">$3,540.20</div><div class="coin-change">+1.8%</div></div>
+            <div class="coin-row"><div class="coin-icon">◎</div><div class="coin-name">Solana<sm>SOL / USD</sm></div><div class="coin-price">$148.90</div><div class="coin-change" style="color: var(--neon-pink);">-0.5%</div></div>
+        </div>
+    </section>
+
+    <section id="copytrade" class="app-section">
+        <div class="market-header"><h1 style="font-size: 50px;">COPYTRADE <span>CORES</span></h1></div>
+        <table class="leaderboard-table">
+            <thead><tr><th>RANK</th><th>WALLET SIGNATURE</th><th>WIN RATE</th><th>7D ROI</th><th>ACTION</th></tr></thead>
+            <tbody>
+                <tr><td class="rank">#1</td><td>0x88A...4F1 (DeepBlue)</td><td>82.4%</td><td class="roi-positive">+412.5%</td><td><button class="nav-btn" style="padding: 5px 10px;" onclick="executeAction(this, 'MIRRORING...')">MIRROR</button></td></tr>
+                <tr><td class="rank">#2</td><td>sol:9Av...K2q (Phantom_Menace)</td><td>78.1%</td><td class="roi-positive">+280.2%</td><td><button class="nav-btn" style="padding: 5px 10px;" onclick="executeAction(this, 'MIRRORING...')">MIRROR</button></td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section id="nodes" class="app-section">
+        <div class="market-header"><h1 style="font-size: 50px;">VALIDATOR <span>MATRIX</span></h1></div>
+        <div class="node-grid">
+            <div class="node-card"><div class="node-status"><span class="status-dot"></span><span>NODE // 01 // ACTIVE</span></div><div class="node-title">US-EAST MAINNET</div><button class="node-btn" onclick="executeAction(this, 'OPTIMIZED')">Optimize Relay</button></div>
+            <div class="node-card"><div class="node-status"><span class="status-dot"></span><span>NODE // 02 // ACTIVE</span></div><div class="node-title">EU-WEST ROUTER</div><button class="node-btn" onclick="executeAction(this, 'OPTIMIZED')">Optimize Relay</button></div>
+        </div>
+    </section>
+
+    <section id="vault" class="app-section">
+        <div class="market-header"><h1 style="font-size: 50px;">TIERED <span>LEDGERS</span></h1></div>
+        <div class="vault-grid">
+            <div class="vault-card"><div class="vault-tier">ALPHA WHALE</div><div class="vault-stat-row"><span>Required:</span> <span>5,000 $PUMPXON</span></div></div>
+            <div class="vault-card premium"><div class="badge">EXCLUSIVE</div><div class="vault-tier" style="color: var(--neon-pink);">GENESIS ELITE</div><div class="vault-stat-row"><span>Required:</span> <span>25,000 $PUMPXON</span></div></div>
+        </div>
+    </section>
+
+    <script>
+        // --- CORE NAVIGATION ---
+        function switchSection(sectionId, btnElement) {
+            playBeep(400, 'sine', 0.05);
+            document.querySelectorAll('.app-section').forEach(sec => sec.classList.remove('active-section'));
+            document.getElementById(sectionId).classList.add('active-section');
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            if(btnElement) btnElement.classList.add('active');
+        }
+
+        // --- CUSTOM CURSOR ---
+        const cursor = document.getElementById('cursor');
+        document.addEventListener('mousemove', e => { cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px'; });
+        document.addEventListener('mousedown', () => cursor.classList.add('click'));
+        document.addEventListener('mouseup', () => cursor.classList.remove('click'));
+        
+        const interactables = document.querySelectorAll('button, input, .coin-row, th, td');
+        interactables.forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+        });
+
+        // --- SOUND ENGINE ---
+        let audioCtx = null;
+        function playBeep(frequency = 500, type = 'sine', duration = 0.1) {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.type = type;
+                oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+                gainNode.gain.setValueAtTime(0.03, audioCtx.currentTime); 
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + duration);
+            } catch (error) { console.log("Audio feedback bypassed."); }
+        }
+
+        // --- TERMINAL CHAT LOGIC ---
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if (msg) {
+                playBeep(800, 'square', 0.05);
+                const chatBox = document.getElementById('chat-box');
+                const newMsg = document.createElement('div');
+                newMsg.className = 'msg';
+                newMsg.innerHTML = `<span class="msg-self">YOU (Synced)</span>: ${msg}`;
+                chatBox.appendChild(newMsg);
+                input.value = '';
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        }
+        function handleChatEnter(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                sendChatMessage();
+            }
+        }
+
+        // --- WALLET POPUP SIMULATOR ---
+        function triggerWalletModal(walletType) {
+            playBeep(600);
+            const modal = document.getElementById('wallet-modal');
+            const title = document.getElementById('modal-title');
+            const progress = document.getElementById('modal-progress');
+            const status = document.getElementById('modal-status');
+            const box = document.getElementById('modal-box');
+            
+            // Set styles based on wallet
+            if(walletType === 'MetaMask') {
+                title.style.color = '#e2761b';
+                box.style.borderColor = '#e2761b';
+                progress.style.background = '#e2761b';
+                progress.style.boxShadow = '0 0 10px #e2761b';
+            } else {
+                title.style.color = '#ab9ff2';
+                box.style.borderColor = '#ab9ff2';
+                progress.style.background = '#ab9ff2';
+                progress.style.boxShadow = '0 0 10px #ab9ff2';
+            }
+            
+            title.innerText = `CONNECTING ${walletType.toUpperCase()}`;
+            progress.style.width = '5%';
+            status.innerText = "Initializing bridge...";
+            modal.classList.add('active');
+            
+            setTimeout(() => { progress.style.width = '40%'; status.innerText = "Requesting signature..."; playBeep(700, 'sine', 0.05); }, 800);
+            setTimeout(() => { progress.style.width = '85%'; status.innerText = "Verifying on-chain state..."; playBeep(800, 'sine', 0.05); }, 1600);
+            setTimeout(() => { 
+                progress.style.width = '100%'; 
+                status.innerText = "Identity Synced Successfully.";
+                playBeep(1000, 'square', 0.1);
+                
+                setTimeout(() => {
+                    modal.classList.remove('active');
+                    if (walletType === 'MetaMask') executeMetaMaskSync();
+                    else executePhantomSync();
+                }, 800);
+            }, 2500);
+        }
+
+        function executeMetaMaskSync() { 
+            const addrInput = document.getElementById('address');
+            addrInput.value = "0x71A...9B2 (EVM Synced)"; 
+            addrInput.classList.add('synced');
+            const btn = document.getElementById('mm-btn');
+            btn.innerText = "MetaMask Connected";
+            btn.classList.add('connected');
+            document.getElementById('net-worth').innerText = "$14,204.50";
+        }
+        
+        function executePhantomSync() { 
+            const addrInput = document.getElementById('address');
+            addrInput.value = "sol:9Av...K2q (SPL Synced)"; 
+            addrInput.classList.add('synced');
+            const btn = document.getElementById('phantom-btn');
+            btn.innerText = "Phantom Connected";
+            btn.classList.add('connected');
+            document.getElementById('net-worth').innerText = "$8,430.00";
+        }
+
+        // --- BUTTON ACTION FEEDBACK ---
+        function claimRewards(btn) {
+            playBeep(900, 'square', 0.2);
+            btn.innerText = "VERIFYING LEDGER...";
+            btn.style.background = "#fff";
+            setTimeout(() => {
+                btn.innerText = "TOKENS CLAIMED!";
+                btn.style.background = "var(--neon-green)";
+                btn.style.color = "#000";
+                btn.style.boxShadow = "0 0 25px var(--neon-green)";
+            }, 1000);
+        }
+
+        function executeAction(btn, successText) {
+            playBeep(700, 'sine', 0.1);
+            const originalText = btn.innerText;
+            btn.innerText = "PROCESSING...";
+            setTimeout(() => {
+                playBeep(900, 'square', 0.1);
+                btn.innerText = successText;
+                btn.style.background = "var(--neon-green)";
+                btn.style.color = "#000";
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.background = "";
+                    btn.style.color = "";
+                }, 2000);
+            }, 1000);
+        }
+
+        // --- STABLE CSS CANVAS MATRIX BACKGROUND ---
+        const canvas = document.getElementById('bg-canvas');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+
+            const particles = [];
+            for (let i = 0; i < 75; i++) {
+                particles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    radius: Math.random() * 1.5 + 0.5,
+                    vx: (Math.random() - 0.5) * 0.2,
+                    vy: (Math.random() - 0.5) * 0.2
+                });
+            }
+
+            function drawBackgroundParticles() {
+                ctx.clearRect(0, 0, width, height);
+                ctx.fillStyle = 'rgba(157, 78, 221, 0.15)';
+                particles.forEach(p => {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    if (p.x < 0 || p.x > width) p.vx *= -1;
+                    if (p.y < 0 || p.y > height) p.vy *= -1;
+                });
+                requestAnimationFrame(drawBackgroundParticles);
+            }
+            drawBackgroundParticles();
+
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            });
+        }
+    </script>
+</body>
+</html>
