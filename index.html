@@ -156,12 +156,19 @@
         .swap-arrow { background: var(--bg-dark); border: 1px solid var(--neon-cyan); color: var(--neon-cyan); width: 32px; height: 32px; border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; font-size: 14px; transition: transform 0.3s; pointer-events: auto; }
         .swap-arrow:hover { transform: rotate(180deg); color: var(--neon-pink); border-color: var(--neon-pink); }
 
-        .leaderboard-table { width: 100%; border-collapse: collapse; background: var(--panel-dark); border-radius: 10px; overflow: hidden; border: 1px solid #2d2344; }
-        .leaderboard-table th { background: #1a1528; padding: 15px; text-align: left; font-family: monospace; color: #8b859e; font-size: 11px; border-bottom: 1px solid #3c2f5c; }
+        /* Copytrade Hub Adjustments for 100 entries scrollable container */
+        .leaderboard-scroll-container { max-height: 600px; overflow-y: auto; border: 1px solid #2d2344; border-radius: 10px; }
+        .leaderboard-scroll-container::-webkit-scrollbar { width: 6px; }
+        .leaderboard-scroll-container::-webkit-scrollbar-track { background: var(--bg-dark); }
+        .leaderboard-scroll-container::-webkit-scrollbar-thumb { background: var(--neon-purple); border-radius: 10px; }
+
+        .leaderboard-table { width: 100%; border-collapse: collapse; background: var(--panel-dark); }
+        .leaderboard-table th { background: #1a1528; padding: 15px; text-align: left; font-family: monospace; color: #8b859e; font-size: 11px; border-bottom: 1px solid #3c2f5c; position: sticky; top: 0; z-index: 10; }
         .leaderboard-table td { padding: 15px; border-bottom: 1px solid #1a1528; font-family: monospace; font-size: 13px; }
         .leaderboard-table tr:hover { background: rgba(255, 255, 255, 0.02); }
         .rank { color: var(--neon-cyan); font-weight: bold; }
         .roi-positive { color: var(--neon-green); }
+        .roi-negative { color: var(--neon-pink); }
 
         .node-grid, .vault-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
         .node-card { background: var(--panel-dark); border: 1px solid #2d2344; padding: 25px; border-radius: 10px; }
@@ -366,13 +373,13 @@
 
     <section id="copytrade" class="app-section">
         <div class="market-header"><h1 style="font-size: 50px;">COPYTRADE <span>CORES</span></h1></div>
-        <table class="leaderboard-table">
-            <thead><tr><th>RANK</th><th>WALLET SIGNATURE</th><th>WIN RATE</th><th>7D ROI</th><th>ACTION</th></tr></thead>
-            <tbody>
-                <tr><td class="rank">#1</td><td>0x88A...4F1 (DeepBlue)</td><td>82.4%</td><td class="roi-positive">+412.5%</td><td><button class="nav-btn" style="padding: 5px 10px;" onclick="verifyAndMirror(this)">MIRROR</button></td></tr>
-                <tr><td class="rank">#2</td><td>sol:9Av...K2q (Phantom_Menace)</td><td>78.1%</td><td class="roi-positive">+280.2%</td><td><button class="nav-btn" style="padding: 5px 10px;" onclick="verifyAndMirror(this)">MIRROR</button></td></tr>
-            </tbody>
-        </table>
+        <div class="leaderboard-scroll-container">
+            <table class="leaderboard-table">
+                <thead><tr><th>RANK</th><th>WALLET SIGNATURE</th><th>WIN RATE</th><th>7D ROI</th><th>ACTION</th></tr></thead>
+                <tbody id="leaderboard-body">
+                    </tbody>
+            </table>
+        </div>
     </section>
 
     <section id="nodes" class="app-section">
@@ -404,14 +411,10 @@
         async function fetchLiveCryptoPrices() {
             try {
                 const response = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,usd-coin&include_24hr_change=true&_ts=" + Date.now());
-                
-                if (!response.ok) {
-                    throw new Error(`API response status: ${response.status}`);
-                }
-                
+                if (!response.ok) throw new Error(`API status: ${response.status}`);
                 const data = await response.json();
                 
-                if (data && data.bitcoin && data.ethereum && data.solana && data['usd-coin']) {
+                if (data && data.bitcoin && data.ethereum && data.solana) {
                     assetDatabase.BTC.base = data.bitcoin.usd;
                     assetDatabase.BTC.change = (data.bitcoin.usd_24h_change >= 0 ? "+" : "") + data.bitcoin.usd_24h_change.toFixed(2) + "%";
                     assetDatabase.BTC.trendUp = data.bitcoin.usd_24h_change >= 0;
@@ -423,16 +426,12 @@
                     assetDatabase.SOL.base = data.solana.usd;
                     assetDatabase.SOL.change = (data.solana.usd_24h_change >= 0 ? "+" : "") + data.solana.usd_24h_change.toFixed(2) + "%";
                     assetDatabase.SOL.trendUp = data.solana.usd_24h_change >= 0;
-
-                    assetDatabase.USDC.base = data['usd-coin'].usd;
-                } else {
-                    throw new Error("Incomplete data layout payload received.");
                 }
             } catch (err) {
-                console.warn("CoinGecko rate limited. Deploying live-calibrated fallback points.", err);
-                ['BTC', 'ETH', 'SOL', 'USDC'].forEach(symbol => {
+                console.warn("CoinGecko limit. Adjusting locally.", err);
+                ['BTC', 'ETH', 'SOL'].forEach(symbol => {
                     const jitter = 1 + ((Math.random() - 0.5) * 0.001);
-                    assetDatabase[symbol].base = assetDatabase[symbol].base * (symbol === 'USDC' ? 1 : jitter);
+                    assetDatabase[symbol].base *= jitter;
                 });
             } finally {
                 updateTickerUI();
@@ -444,10 +443,7 @@
             ['BTC', 'ETH', 'SOL'].forEach(symbol => {
                 const priceEl = document.getElementById(`price-${symbol}`);
                 const changeEl = document.getElementById(`change-${symbol}`);
-                
-                if (priceEl) {
-                    priceEl.innerText = `$${assetDatabase[symbol].base.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-                }
+                if (priceEl) priceEl.innerText = `$${assetDatabase[symbol].base.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
                 if (changeEl) {
                     changeEl.innerText = assetDatabase[symbol].change;
                     changeEl.style.color = assetDatabase[symbol].trendUp ? "var(--neon-green)" : "var(--neon-pink)";
@@ -455,10 +451,61 @@
             });
         }
 
+        // --- GENERATE 100 UNIQUE COPYTRADE CORES ---
+        function initCopytradeLeaderboard() {
+            const tbody = document.getElementById('leaderboard-body');
+            tbody.innerHTML = '';
+
+            const handles = [
+                'DeepBlue', 'Phantom_Menace', 'AlphaWhale', 'VortexTrader', 'CyberChaser', 'NeonPulse', 'SolSurfer', 'QuantumBot', 'HyperLiquid', 'EtherGazer',
+                'MemeLord', 'DegenKing', 'ShadowBroker', 'DeltaNeutral', 'GigaChad', 'BitCrusher', 'SolanaStaker', 'ZeroSlippage', 'MaxGains', 'RuneRunner',
+                'GasPumper', 'BlockHustler', 'MatrixNode', 'FlashLoaner', 'ApeMaster', 'VoidWalker', 'PixelTrader', 'NovaStrike', 'CosmicYield', 'ZenHodler',
+                'BullRunner', 'BearTrapper', 'SatoshiSon', 'VitalikFan', 'AnatolyGang', 'WAGMI_Club', 'DiamondHands', 'PaperCutter', 'RocketFuel', 'MoonShot',
+                'GlitchFx', 'TerminalX', 'SpecterSPL', 'EVM_Wizard', 'SandwichBot', 'JitoSniper', 'RaydiumRider', 'UniswapKing', 'CurvePooler', 'AaveWhale'
+            ];
+            
+            const modifiers = ['X', 'Alpha', 'Beta', 'Omega', 'Pro', 'Max', 'Prime', 'Zero', 'Net', 'Core', 'V2', '99', 'OG', 'Sol', 'Eth', 'Crypto'];
+
+            let cores = [];
+            for (let i = 1; i <= 100; i++) {
+                // Generate procedural wallet sigs
+                const hex = "0123456789ABCDEF";
+                let randHex = "";
+                for(let j=0; j<6; j++) randHex += hex[Math.floor(Math.random()*16)];
+                
+                const isSol = Math.random() > 0.5;
+                const signature = isSol ? `sol:${randHex.substring(0,3)}...${randHex.substring(3,6)}` : `0x${randHex.substring(0,3)}...${randHex.substring(3,6)}`;
+                
+                // Construct unique user aliases
+                const baseHandle = handles[i % handles.length];
+                const mod = modifiers[Math.floor(Math.random() * modifiers.length)];
+                const uniqueName = Math.random() > 0.5 ? `${baseHandle}_${mod}` : `${mod}${baseHandle}`;
+                
+                // Math distributions
+                const winRate = (70 + (Math.random() * 22)).toFixed(1);
+                const roiVal = (50 + (Math.random() * 450));
+                const trendUp = Math.random() > 0.15; // 85% positive profiles
+                const finalRoi = trendUp ? `+${roiVal.toFixed(1)}%` : `-${(Math.random()*30).toFixed(1)}%`;
+
+                cores.push({ rank: i, sig: `${signature} (${uniqueName})`, winRate: `${winRate}%`, roi: finalRoi, pos: trendUp });
+            }
+
+            cores.forEach(core => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="rank">#${core.rank}</td>
+                    <td>${core.sig}</td>
+                    <td>${core.winRate}</td>
+                    <td class="${core.pos ? 'roi-positive' : 'roi-negative'}">${core.roi}</td>
+                    <td><button class="nav-btn" style="padding: 5px 10px;" onclick="verifyAndMirror(this)">MIRROR</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
         // Current UI Swap Token State Matrix
         let currentPayToken = "ETH";
         let currentRecvToken = "USDC";
-
         let currentActiveAsset = null;
         let currentActiveTimeframe = '1M';
         let chartPointsData = [];
@@ -470,6 +517,7 @@
             document.getElementById(sectionId).classList.add('active-section');
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             if(btnElement) btnElement.classList.add('active');
+            if(sectionId === 'copytrade') rewireCursorHoverEffects(); // Refresh listeners on newly added table buttons
         }
 
         // --- CUSTOM CURSOR ---
@@ -522,7 +570,6 @@
 
         function selectSwapToken(type, symbol, icon) {
             playBeep(650, 'sine', 0.05);
-            
             if(type === 'pay') {
                 if(symbol === currentRecvToken) { currentRecvToken = currentPayToken; updateTokenSelectorUI('recv', currentRecvToken); }
                 currentPayToken = symbol;
@@ -532,18 +579,13 @@
                 currentRecvToken = symbol;
                 updateTokenSelectorUI('recv', currentRecvToken);
             }
-            
             document.querySelectorAll('.token-dropdown').forEach(d => d.classList.remove('show'));
             calculateSwapOutput();
         }
 
         function updateTokenSelectorUI(type, symbol) {
             const btn = document.getElementById(`${type}-token-btn`);
-            let icon = "🔷";
-            if(symbol === "SOL") icon = "◎";
-            if(symbol === "BTC") icon = "🪙";
-            if(symbol === "USDC") icon = "💵";
-            
+            let icon = symbol === "SOL" ? "◎" : symbol === "BTC" ? "🪙" : symbol === "USDC" ? "💵" : "🔷";
             btn.innerText = `${icon} ${symbol} ▾`;
 
             const drop = document.getElementById(`${type}-token-dropdown`);
@@ -565,7 +607,6 @@
             const inputPay = document.getElementById('swap-pay-input');
             const inputRecv = document.getElementById('swap-recv-input');
             inputPay.value = inputRecv.value;
-
             calculateSwapOutput();
         }
 
@@ -582,25 +623,18 @@
 
             const usdValueOfPayToken = assetDatabase[currentPayToken].base * payQty;
             const absoluteTokenOutput = usdValueOfPayToken / assetDatabase[currentRecvToken].base;
-            
-            inputRecv.value = absoluteTokenOutput.toLocaleString(undefined, {
-                minimumFractionDigits: 2, 
-                maximumFractionDigits: 4
-            }).replace(/,/g, '');
+            inputRecv.value = absoluteTokenOutput.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 4}).replace(/,/g, '');
         }
 
         function executeSecureRouterSwap(btn) {
             const addrInput = document.getElementById('address');
-            
             if (!addrInput.value || !addrInput.classList.contains('synced')) {
                 playBeep(250, 'sawtooth', 0.2);
                 alert("IDENTITY HANDSHAKE LOCKED: Please securely synchronize your Phantom or MetaMask identity on the Airdrop Portal matrix before executing swaps.");
                 switchSection('airdrop', document.querySelector("nav button:nth-child(1)"));
                 return;
             }
-            
             executeAction(btn, 'SWAP EXECUTED');
-            
             setTimeout(() => {
                 document.getElementById('swap-pay-bal').innerText = "0.00";
                 document.getElementById('swap-recv-input').value = "0.00";
@@ -649,13 +683,7 @@
         function generateHistoricalData(symbol, timeframe) {
             const asset = assetDatabase[symbol];
             chartPointsData = [];
-            let iterations = 100;
-            
-            if(timeframe === '1D') iterations = 24;
-            if(timeframe === '1W') iterations = 7;
-            if(timeframe === '1M') iterations = 30;
-            if(timeframe === '1Y') iterations = 52;
-            if(timeframe === 'ALL') iterations = 120;
+            let iterations = timeframe === '1D' ? 24 : timeframe === '1W' ? 7 : timeframe === '1M' ? 30 : timeframe === '1Y' ? 52 : 120;
 
             let currentVal = asset.base * (asset.trendUp ? 0.92 : 1.08);
             const multiplier = asset.trendUp ? 1.0008 : 0.9992;
@@ -663,14 +691,7 @@
             for (let i = 0; i < iterations; i++) {
                 let randomness = 1 + (Math.sin(i * asset.seed) * 0.02) + ((Math.random() - 0.5) * 0.015);
                 currentVal = currentVal * multiplier * randomness;
-                
-                let timestampLabel = `Point ${i}`;
-                if(timeframe === '1D') timestampLabel = `${i}:00 HR INTERVAL`;
-                if(timeframe === '1W') timestampLabel = `DAY 0${(i%7)+1} LOG`;
-                if(timeframe === '1M') timestampLabel = `DAY ${i+1} TIMETRACE`;
-                if(timeframe === '1Y') timestampLabel = `WEEK ${i+1} LEDGER`;
-                if(timeframe === 'ALL') timestampLabel = `CYCLE BLOCK ${i*10}`;
-
+                let timestampLabel = `${timeframe} INTERVAL BLK-${i}`;
                 chartPointsData.push({ value: currentVal, timeLabel: timestampLabel });
             }
             chartPointsData[chartPointsData.length - 1].value = asset.base;
@@ -684,7 +705,6 @@
 
         function renderAssetChart() {
             if (!chartCtx || chartPointsData.length === 0) return;
-            
             const w = chartCanvas.width;
             const height = chartCanvas.height;
             chartCtx.clearRect(0, 0, w, height);
@@ -696,65 +716,31 @@
             const calcX = (index) => (index / (chartPointsData.length - 1)) * w;
             const calcY = (val) => height - ((val - min) / (max - min)) * height;
 
-            chartCtx.strokeStyle = 'rgba(45, 35, 68, 0.3)';
-            chartCtx.lineWidth = 1;
-            for(let i = 1; i < 4; i++) {
-                let gridY = (height / 4) * i;
-                chartCtx.beginPath(); 
-                chartCtx.moveTo(0, gridY); 
-                chartCtx.lineTo(w, gridY); 
-                chartCtx.stroke(); 
-            }
-
-            let activeIdx = -1;
-            if (hoverMouseX >= 0 && hoverMouseX <= w) {
-                activeIdx = Math.round((hoverMouseX / w) * (chartPointsData.length - 1));
-                if(activeIdx >= chartPointsData.length) activeIdx = chartPointsData.length - 1;
-            }
-
+            let activeIdx = hoverMouseX >= 0 && hoverMouseX <= w ? Math.min(chartPointsData.length - 1, Math.round((hoverMouseX / w) * (chartPointsData.length - 1))) : -1;
             const activeColor = assetDatabase[currentActiveAsset].trendUp ? 'rgba(57, 255, 20, 0.15)' : 'rgba(255, 0, 85, 0.15)';
             const activeStroke = assetDatabase[currentActiveAsset].trendUp ? 'var(--neon-green)' : 'var(--neon-pink)';
             
             let gradient = chartCtx.createLinearGradient(0, 0, 0, height);
-            gradient.addColorStop(0, activeColor);
-            gradient.addColorStop(1, 'rgba(0,0,0,0)');
+            gradient.addColorStop(0, activeColor); gradient.addColorStop(1, 'rgba(0,0,0,0)');
             
-            chartCtx.beginPath();
-            chartCtx.moveTo(calcX(0), height);
-            for(let i=0; i<chartPointsData.length; i++) {
-                chartCtx.lineTo(calcX(i), calcY(chartPointsData[i].value));
-            }
+            chartCtx.beginPath(); chartCtx.moveTo(calcX(0), height);
+            for(let i=0; i<chartPointsData.length; i++) chartCtx.lineTo(calcX(i), calcY(chartPointsData[i].value));
             chartCtx.lineTo(calcX(chartPointsData.length - 1), height);
-            chartCtx.fillStyle = gradient;
-            chartCtx.fill();
+            chartCtx.fillStyle = gradient; chartCtx.fill();
 
-            chartCtx.beginPath();
-            chartCtx.moveTo(calcX(0), calcY(chartPointsData[0].value));
-            for(let i=1; i<chartPointsData.length; i++) {
-                chartCtx.lineTo(calcX(i), calcY(chartPointsData[i].value));
-            }
-            chartCtx.strokeStyle = activeStroke;
-            chartCtx.lineWidth = 2.5;
-            chartCtx.stroke();
+            chartCtx.beginPath(); chartCtx.moveTo(calcX(0), calcY(chartPointsData[0].value));
+            for(let i=1; i<chartPointsData.length; i++) chartCtx.lineTo(calcX(i), calcY(chartPointsData[i].value));
+            chartCtx.strokeStyle = activeStroke; chartCtx.lineWidth = 2.5; chartCtx.stroke();
 
             if (activeIdx !== -1) {
                 let crosshairX = calcX(activeIdx);
                 let crosshairY = calcY(chartPointsData[activeIdx].value);
-
-                chartCtx.strokeStyle = 'rgba(0, 240, 255, 0.4)';
-                chartCtx.setLineDash([4, 4]);
-                chartCtx.beginPath(); chartCtx.moveTo(crosshairX, 0); chartCtx.lineTo(crosshairX, height); chartCtx.stroke();
-                chartCtx.setLineDash([]);
-
-                chartCtx.beginPath();
-                chartCtx.arc(crosshairX, crosshairY, 5, 0, Math.PI * 2);
-                chartCtx.fillStyle = 'var(--neon-cyan)';
-                chartCtx.fill();
-
+                chartCtx.strokeStyle = 'rgba(0, 240, 255, 0.4)'; chartCtx.setLineDash([4, 4]);
+                chartCtx.beginPath(); chartCtx.moveTo(crosshairX, 0); chartCtx.lineTo(crosshairX, height); chartCtx.stroke(); chartCtx.setLineDash([]);
+                chartCtx.beginPath(); chartCtx.arc(crosshairX, crosshairY, 5, 0, Math.PI * 2); chartCtx.fillStyle = 'var(--neon-cyan)'; chartCtx.fill();
                 updateReadoutStrings(chartPointsData[activeIdx].value, chartPointsData[activeIdx].timeLabel);
             } else {
-                let lastVal = chartPointsData[chartPointsData.length - 1].value;
-                updateReadoutStrings(lastVal, "CURRENT PRICE TICKER");
+                updateReadoutStrings(chartPointsData[chartPointsData.length - 1].value, "CURRENT PRICE TICKER");
             }
         }
 
@@ -764,22 +750,11 @@
                 hoverMouseX = (e.clientX - bounds.left) * (chartCanvas.width / bounds.width);
                 renderAssetChart();
             });
-            chartCanvas.addEventListener('mouseleave', () => {
-                hoverMouseX = -1;
-                renderAssetChart();
-            });
+            chartCanvas.addEventListener('mouseleave', () => { hoverMouseX = -1; renderAssetChart(); });
         }
 
-        function resizeChartCanvas() {
-            if(chartCanvas) {
-                chartCanvas.width = chartCanvas.parentElement.clientWidth;
-                chartCanvas.height = 240;
-            }
-        }
-        window.addEventListener('resize', () => {
-            resizeChartCanvas();
-            if(currentActiveAsset) renderAssetChart();
-        });
+        function resizeChartCanvas() { if(chartCanvas) { chartCanvas.width = chartCanvas.parentElement.clientWidth; chartCanvas.height = 240; } }
+        window.addEventListener('resize', () => { resizeChartCanvas(); if(currentActiveAsset) renderAssetChart(); });
 
         // --- TERMINAL CHAT LOGIC ---
         function sendChatMessage() {
@@ -796,12 +771,7 @@
                 chatBox.scrollTop = chatBox.scrollHeight;
             }
         }
-        function handleChatEnter(event) {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                sendChatMessage();
-            }
-        }
+        function handleChatEnter(event) { if (event.key === "Enter") { event.preventDefault(); sendChatMessage(); } }
 
         // --- WALLET POPUP SIMULATOR ---
         function triggerWalletModal(walletType) {
@@ -812,30 +782,16 @@
             const status = document.getElementById('modal-status');
             const box = document.getElementById('modal-box');
             
-            if(walletType === 'MetaMask') {
-                title.style.color = '#e2761b';
-                box.style.borderColor = '#e2761b';
-                progress.style.background = '#e2761b';
-                progress.style.boxShadow = '0 0 10px #e2761b';
-            } else {
-                title.style.color = '#ab9ff2';
-                box.style.borderColor = '#ab9ff2';
-                progress.style.background = '#ab9ff2';
-                progress.style.boxShadow = '0 0 10px #ab9ff2';
-            }
+            let themeColor = walletType === 'MetaMask' ? '#e2761b' : '#ab9ff2';
+            title.style.color = themeColor; box.style.borderColor = themeColor; progress.style.background = themeColor; progress.style.boxShadow = `0 0 10px ${themeColor}`;
             
             title.innerText = `CONNECTING ${walletType.toUpperCase()}`;
-            progress.style.width = '5%';
-            status.innerText = "Initializing bridge...";
-            modal.classList.add('active');
+            progress.style.width = '5%'; status.innerText = "Initializing bridge..."; modal.classList.add('active');
             
             setTimeout(() => { progress.style.width = '40%'; status.innerText = "Requesting signature..."; playBeep(700, 'sine', 0.05); }, 800);
             setTimeout(() => { progress.style.width = '85%'; status.innerText = "Verifying on-chain state..."; playBeep(800, 'sine', 0.05); }, 1600);
             setTimeout(() => { 
-                progress.style.width = '100%'; 
-                status.innerText = "Identity Synced Successfully.";
-                playBeep(1000, 'square', 0.1);
-                
+                progress.style.width = '100%'; status.innerText = "Identity Synced Successfully."; playBeep(1000, 'square', 0.1);
                 setTimeout(() => {
                     modal.classList.remove('active');
                     if (walletType === 'MetaMask') executeMetaMaskSync();
@@ -847,36 +803,26 @@
 
         function executeMetaMaskSync() { 
             const addrInput = document.getElementById('address');
-            addrInput.value = "0x71A...9B2 (EVM Synced)"; 
-            addrInput.classList.add('synced');
-            const btn = document.getElementById('mm-btn');
-            btn.innerText = "MetaMask Connected";
-            btn.classList.add('connected');
+            addrInput.value = "0x71A...9B2 (EVM Synced)"; addrInput.classList.add('synced');
+            const btn = document.getElementById('mm-btn'); btn.innerText = "MetaMask Connected"; btn.classList.add('connected');
             document.getElementById('net-worth').innerText = "$14,204.50";
-            
-            document.getElementById('swap-pay-bal').innerText = "4.25";
-            document.getElementById('swap-recv-bal').innerText = "250.00";
+            document.getElementById('swap-pay-bal').innerText = "4.25"; document.getElementById('swap-recv-bal').innerText = "250.00";
         }
         
         function executePhantomSync() { 
             const addrInput = document.getElementById('address');
-            addrInput.value = "sol:9Av...K2q (SPL Synced)"; 
-            addrInput.classList.add('synced');
-            const btn = document.getElementById('phantom-btn');
-            btn.innerText = "Phantom Connected";
-            btn.classList.add('connected');
+            addrInput.value = "sol:9Av...K2q (SPL Synced)"; addrInput.classList.add('synced');
+            const btn = document.getElementById('phantom-btn'); btn.innerText = "Phantom Connected"; btn.classList.add('connected');
             document.getElementById('net-worth').innerText = "$8,430.00";
-            
-            document.getElementById('swap-pay-bal').innerText = "56.40";
-            document.getElementById('swap-recv-bal').innerText = "1,205.50";
+            document.getElementById('swap-pay-bal').innerText = "56.40"; document.getElementById('swap-recv-bal').innerText = "1,205.50";
         }
 
-        // --- COPYTRADE SECURITY ROUTER ---
+        // --- COPYTRADE SECURITY ROUTER (UPDATED TARGET PROTECTION MECHANISM) ---
         function verifyAndMirror(btn) {
             const addrInput = document.getElementById('address');
             if (!addrInput.value || !addrInput.classList.contains('synced')) {
                 playBeep(300, 'sawtooth', 0.15);
-                alert("IDENTITY HANDSHAKE REQUIRED: Please connect MetaMask or Phantom on the Airdrop Portal first.");
+                alert("IDENTITY HANDSHAKE REQUIRED: Please connect MetaMask or Phantom on the Airdrop Portal first before mirroring trader configurations.");
                 switchSection('airdrop', document.querySelector("nav button:nth-child(1)"));
                 return;
             }
@@ -885,31 +831,18 @@
 
         // --- BUTTON ACTION FEEDBACK ---
         function claimRewards(btn) {
-            playBeep(900, 'square', 0.2);
-            btn.innerText = "VERIFYING LEDGER...";
-            btn.style.background = "#fff";
+            playBeep(900, 'square', 0.2); btn.innerText = "VERIFYING LEDGER..."; btn.style.background = "#fff";
             setTimeout(() => {
-                btn.innerText = "TOKENS CLAIMED!";
-                btn.style.background = "var(--neon-green)";
-                btn.style.color = "#000";
-                btn.style.boxShadow = "0 0 25px var(--neon-green)";
+                btn.innerText = "TOKENS CLAIMED!"; btn.style.background = "var(--neon-green)"; btn.style.color = "#000"; btn.style.boxShadow = "0 0 25px var(--neon-green)";
             }, 1000);
         }
 
         function executeAction(btn, successText) {
             playBeep(700, 'sine', 0.1);
-            const originalText = btn.innerText;
-            btn.innerText = "PROCESSING...";
+            const originalText = btn.innerText; btn.innerText = "PROCESSING...";
             setTimeout(() => {
-                playBeep(900, 'square', 0.1);
-                btn.innerText = successText;
-                btn.style.background = "var(--neon-green)";
-                btn.style.color = "#000";
-                setTimeout(() => {
-                    btn.innerText = originalText;
-                    btn.style.background = "";
-                    btn.style.color = "";
-                }, 2000);
+                playBeep(900, 'square', 0.1); btn.innerText = successText; btn.style.background = "var(--neon-green)"; btn.style.color = "#000";
+                setTimeout(() => { btn.innerText = originalText; btn.style.background = ""; btn.style.color = ""; }, 2000);
             }, 1000);
         }
 
@@ -917,44 +850,25 @@
         const canvas = document.getElementById('bg-canvas');
         if (canvas) {
             const ctx = canvas.getContext('2d');
-            let width = canvas.width = window.innerWidth;
-            let height = canvas.height = window.innerHeight;
-
+            let width = canvas.width = window.innerWidth, height = canvas.height = window.innerHeight;
             const particles = [];
             for (let i = 0; i < 75; i++) {
-                particles.push({
-                    x: Math.random() * width,
-                    y: Math.random() * height,
-                    radius: Math.random() * 1.5 + 0.5,
-                    vx: (Math.random() - 0.5) * 0.2,
-                    vy: (Math.random() - 0.5) * 0.2
-                });
+                particles.push({ x: Math.random() * width, y: Math.random() * height, radius: Math.random() * 1.5 + 0.5, vx: (Math.random() - 0.5) * 0.2, vy: (Math.random() - 0.5) * 0.2 });
             }
-
             function drawBackgroundParticles() {
-                ctx.clearRect(0, 0, width, height);
-                ctx.fillStyle = 'rgba(157, 78, 221, 0.15)';
+                ctx.clearRect(0, 0, width, height); ctx.fillStyle = 'rgba(157, 78, 221, 0.15)';
                 particles.forEach(p => {
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                    ctx.fill();
-                    p.x += p.vx;
-                    p.y += p.vy;
-
-                    if (p.x < 0 || p.x > width) p.vx *= -1;
-                    if (p.y < 0 || p.y > height) p.vy *= -1;
+                    ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill(); p.x += p.vx; p.y += p.vy;
+                    if (p.x < 0 || p.x > width) p.vx *= -1; if (p.y < 0 || p.y > height) p.vy *= -1;
                 });
                 requestAnimationFrame(drawBackgroundParticles);
             }
             drawBackgroundParticles();
-
-            window.addEventListener('resize', () => {
-                width = canvas.width = window.innerWidth;
-                height = canvas.height = window.innerHeight;
-            });
+            window.addEventListener('resize', () => { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; });
         }
         
         // --- INITIALIZATION ---
+        initCopytradeLeaderboard();
         rewireCursorHoverEffects();
         fetchLiveCryptoPrices();
         setInterval(fetchLiveCryptoPrices, 45000);
