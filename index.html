@@ -339,8 +339,11 @@
         <table class="leaderboard-table">
             <thead><tr><th>RANK</th><th>WALLET SIGNATURE</th><th>WIN RATE</th><th>7D ROI</th><th>ACTION</th></tr></thead>
             <tbody>
-                <tr><td class="rank">#1</td><td>0x88A...4F1 (DeepBlue)</td><td>82.4%</td><td class="roi-positive">+412.5%</td><td><button class="nav-btn" style="padding: 5px 10px;" onclick="executeAction(this, 'MIRRORING...')">MIRROR</button></td></tr>
-                <tr><td class="rank">#2</td><td>sol:9Av...K2q (Phantom_Menace)</td><td>78.1%</td><td class="roi-positive">+280.2%</td><td><button class="nav-btn" style="padding: 5px 10px;" onclick="executeAction(this, 'MIRRORING...')">MIRROR</button></td></tr>
+                <tr><td class="rank">#1</td><td>0x88A...4F1 (DeepBlue)</td><td>82.4%</td><td class="roi-positive">+412.5%</td><td><button class="nav-btn" style="padding: 5px 10px;" onclick="verifyAndMirror(this)">MIRROR</button></td></tr>
+                <tr><td class="rank">#2</td><td>sol:9Av...K2q (Phantom_Menace)</td><td>78.1%</td><td class="roi-positive">+280.2%</td><td><button class="nav-btn" style="padding: 5px 10px;" onclick="verifyAndMirror(this)">MIRROR</button></td></tr>
+                <tr><td class="rank">#3</td><td>0x3F5...E89 (WhaleAlpha)</td><td>85.6%</td><td class="roi-positive">+319.4%</td><td><button class="nav-btn" style="padding: 5px 10px;" onclick="verifyAndMirror(this)">MIRROR</button></td></tr>
+                <tr><td class="rank">#4</td><td>sol:D6v...7pX (SolSurfer)</td><td>74.2%</td><td class="roi-positive">+195.8%</td><td><button class="nav-btn" style="padding: 5px 10px;" onclick="verifyAndMirror(this)">MIRROR</button></td></tr>
+                <tr><td class="rank">#5</td><td>0x71C...3A2 (GasGuzzler)</td><td>81.0%</td><td class="roi-positive">+244.1%</td><td><button class="nav-btn" style="padding: 5px 10px;" onclick="verifyAndMirror(this)">MIRROR</button></td></tr>
             </tbody>
         </table>
     </section>
@@ -511,7 +514,7 @@
             chartCtx.lineWidth = 1;
             for(let i = 1; i < 4; i++) {
                 let gridY = (height / 4) * i;
-                chartCtx.beginPath(); chartCtx.moveTo(0, gridY); chartCtx.lineTo(w, gridY); chartCtx.stroke();
+                chartCtx.beginPath(); chartCtx.moveTo(0, gridY); chartCtx.lineTo(w, gridY); stroke();
             }
 
             let activeIdx = -1;
@@ -671,6 +674,22 @@
             btn.innerText = "Phantom Connected";
             btn.classList.add('connected');
             document.getElementById('net-worth').innerText = "$8,430.00";
+        }
+
+        // --- COPYTRADE SECURITY ROUTER ---
+        function verifyAndMirror(btn) {
+            const addrInput = document.getElementById('address');
+            
+            // Check if user has an active wallet signature synced
+            if (!addrInput.value || !addrInput.classList.contains('synced')) {
+                playBeep(300, 'sawtooth', 0.15);
+                alert("IDENTITY HANDSHAKE REQUIRED: Please connect MetaMask or Phantom on the Airdrop Portal first.");
+                switchSection('airdrop', document.querySelector("nav button:nth-child(1)"));
+                return;
+            }
+
+            // If connected, execute standard feedback workflow
+            executeAction(btn, 'MIRRORING...');
         }
 
         // --- BUTTON ACTION FEEDBACK ---
