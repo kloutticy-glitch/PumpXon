@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PUMPXON // DEPLOYMENT MATRIX</title>
+    <!-- Three.js for 3D Background -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         :root {
@@ -194,12 +195,16 @@
         .wallet-btn { font-family: 'Arial Black', sans-serif; color: white; border: none; padding: 16px; font-size: 13px; text-transform: uppercase; border-radius: 6px; width: 100%; box-sizing: border-box; transition: all 0.2s ease; margin-bottom: 14px; position: relative; }
         .btn-mm { background: #1a1528; border: 1px solid #3c2f5c; }
         .btn-mm:hover { background: #e2761b; border-color: #e2761b; box-shadow: 0 0 15px rgba(226, 118, 27, 0.5); }
+        .btn-mm.connected { background: #e2761b; border-color: #e2761b; }
+        
         .btn-phantom { background: #1a1528; border: 1px solid #3c2f5c; }
         .btn-phantom:hover { background: var(--solana-glow); border-color: #4e44ce; box-shadow: 0 0 15px rgba(78, 68, 206, 0.5); }
+        .btn-phantom.connected { background: var(--solana-glow); border-color: #4e44ce; }
 
         .input-block { margin: 25px 0; }
         .input-block label { display: block; font-family: monospace; font-size: 11px; color: #8b859e; text-transform: uppercase; margin-bottom: 8px; }
-        .address-box { width: 100%; box-sizing: border-box; background: #09070f; border: 1px solid #3c2f5c; padding: 16px; border-radius: 6px; color: var(--neon-green); font-size: 12px; font-family: monospace; }
+        .address-box { width: 100%; box-sizing: border-box; background: #09070f; border: 1px solid #3c2f5c; padding: 16px; border-radius: 6px; color: #8b859e; font-size: 12px; font-family: monospace; transition: all 0.3s; }
+        .address-box.synced { border-color: var(--neon-green); color: var(--neon-green); box-shadow: 0 0 10px rgba(57, 255, 20, 0.2); }
          
         .action-submit { width: 100%; background: var(--neon-cyan); color: #000000; border: none; padding: 18px; font-size: 16px; text-transform: uppercase; font-weight: 900; border-radius: 6px; transition: all 0.2s ease; box-shadow: 0 0 20px rgba(0, 240, 255, 0.3); }
         .action-submit:hover { background: var(--neon-pink); color: #ffffff; box-shadow: 0 0 25px var(--neon-pink); transform: scale(1.02); }
@@ -269,8 +274,10 @@
     </style>
 </head>
 <body>
+    <!-- Custom Cursor -->
     <div class="custom-cursor" id="cursor"></div>
 
+    <!-- 3D Canvas Background -->
     <canvas id="bg-canvas"></canvas>
 
     <div class="ambient-glow-1"></div>
@@ -296,6 +303,7 @@
         </nav>
     </header>
 
+    <!-- SECTION 1: AIRDROP & MAIN -->
     <section id="airdrop" class="app-section active-section">
         <div class="main-container">
             <main class="left-content">
@@ -315,6 +323,7 @@
                     </div>
                 </div>
 
+                <!-- Live Trollbox -->
                 <div class="trollbox">
                     <div class="trollbox-header">
                         <span>TERMINAL_CHAT [GLOBAL]</span>
@@ -334,15 +343,15 @@
 
             <aside class="portal-card">
                 <div class="portal-header">CONSOLE ACCESS</div>
-                <button id="mm-btn" class="wallet-btn btn-mm" onclick="playBeep(600); connectMetaMask()">Initialize MetaMask</button>
-                <button id="phantom-btn" class="wallet-btn btn-phantom" onclick="playBeep(600); connectPhantom()">Initialize Phantom</button>
+                <button id="mm-btn" class="wallet-btn btn-mm" onclick="connectMetaMask()">Initialize MetaMask</button>
+                <button id="phantom-btn" class="wallet-btn btn-phantom" onclick="connectPhantom()">Initialize Phantom</button>
                 <div class="input-block">
                     <label>SYNCHRONIZED IDENTITY SIGNATURE</label>
                     <input class="address-box" type="text" id="address" placeholder="awaiting handshakes..." readonly>
                 </div>
                 <div class="input-block" style="border-top: 1px dashed #3c2f5c; padding-top: 15px;">
                     <label>NET WORTH TRACKER (BETA)</label>
-                    <div style="font-size: 24px; color: var(--neon-cyan); font-family: monospace;">$0.00</div>
+                    <div id="net-worth" style="font-size: 24px; color: var(--neon-cyan); font-family: monospace;">$0.00</div>
                 </div>
                 <button id="claim-btn" class="action-submit" onclick="playBeep(900, 'sine', 0.2)">
                     CLAIM PORTAL REWARDS
@@ -351,6 +360,7 @@
         </div>
     </section>
 
+    <!-- SECTION 2: SWAP ROUTER -->
     <section id="swap" class="app-section">
         <div class="market-header" style="text-align: center;">
             <div class="status-tag" style="justify-content: center; display: flex;">// ZERO-SLIPPAGE AGGREGATOR</div>
@@ -388,6 +398,7 @@
         </div>
     </section>
 
+    <!-- SECTION 3: LIVE MARKET -->
     <section id="market" class="app-section">
         <div class="market-header">
             <div class="status-tag">// PUMPXON GLOBAL MARGIN INDEX</div>
@@ -416,6 +427,7 @@
         </div>
     </section>
 
+    <!-- SECTION 4: COPYTRADE / LEADERBOARD -->
     <section id="copytrade" class="app-section">
         <div class="market-header">
             <div class="status-tag">// MULTI-CHAIN REPLICATION BLOCKS</div>
@@ -459,6 +471,7 @@
         </table>
     </section>
 
+    <!-- SECTION 5: NODES -->
     <section id="nodes" class="app-section">
         <div class="market-header">
             <div class="status-tag">// BACKEND NODE INFRASTRUCTURE</div>
@@ -487,6 +500,7 @@
         </div>
     </section>
 
+    <!-- SECTION 6: VAULT -->
     <section id="vault" class="app-section">
         <div class="market-header">
             <div class="status-tag">// CONTRACT ESCROW VAULT METRICS</div>
@@ -513,9 +527,8 @@
     </section>
 
     <script>
-        // --- 1. CORE NAVIGATION LOGIC (Placed at the top so it never crashes) ---
+        // --- 1. CORE NAVIGATION LOGIC ---
         function switchSection(sectionId, btnElement) {
-            // Lazy load sound check
             playBeep(400, 'sine', 0.05);
             
             // Hide all sections
@@ -526,8 +539,7 @@
             // Show selected section
             const targetSec = document.getElementById(sectionId);
             if(targetSec) {
-                targetSec.add('active-section'); // Standard compatibility fix
-                targetSec.classList.add('active-section');
+                targetSec.classList.add('active-section'); // Fixed the fatal typo here!
             }
             
             // Reset and update navigation buttons
@@ -546,7 +558,6 @@
         document.addEventListener('mousedown', () => cursor.classList.add('click'));
         document.addEventListener('mouseup', () => cursor.classList.remove('click'));
         
-        // Dynamic Hover hooks for custom cursor styling
         const interactables = document.querySelectorAll('button, input, .coin-row, th, td');
         interactables.forEach(el => {
             el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
@@ -557,7 +568,6 @@
         let audioCtx = null;
         function playBeep(frequency = 500, type = 'sine', duration = 0.1) {
             try {
-                // Initialize audio context lazily on user interaction to bypass modern browser security blocks
                 if (!audioCtx) {
                     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 }
@@ -571,7 +581,7 @@
                 oscillator.type = type;
                 oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
                 
-                gainNode.gain.setValueAtTime(0.03, audioCtx.currentTime); // Low baseline volume
+                gainNode.gain.setValueAtTime(0.03, audioCtx.currentTime); 
                 gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
                 
                 oscillator.connect(gainNode);
@@ -579,9 +589,8 @@
                 
                 oscillator.start();
                 oscillator.stop(audioCtx.currentTime + duration);
-            } catch (audioError) {
-                // Silent catch if audio hardware is busy or unsupported
-                console.log("Audio feedback pending interaction blueprint.");
+            } catch (error) {
+                console.log("Audio feedback bypassed.");
             }
         }
 
@@ -594,7 +603,6 @@
                 const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
                 renderer.setSize(window.innerWidth, window.innerHeight);
 
-                // Initialize particle array buffers
                 const particlesGeometry = new THREE.BufferGeometry();
                 const particlesCount = 700;
                 const posArray = new Float32Array(particlesCount * 3);
@@ -616,7 +624,6 @@
                 scene.add(particlesMesh);
                 camera.position.z = 5;
 
-                // Capture structural parallax data
                 let mouseX = 0;
                 let mouseY = 0;
                 document.addEventListener('mousemove', (event) => {
@@ -641,16 +648,37 @@
                     camera.updateProjectionMatrix();
                     renderer.setSize(window.innerWidth, window.innerHeight);
                 });
-            } else {
-                console.warn("Three.js framework offline. Standing by on CSS fallback engine.");
             }
         } catch (threeException) {
-            console.error("3D pipeline bypass engaged:", threeException);
+            console.error("3D pipeline bypass engaged.");
         }
 
         // --- 5. COMPONENT MOCK HANDSHAKES ---
-        function connectMetaMask() { document.getElementById('address').value = "0x71A...9B2 (Synced)"; }
-        function connectPhantom() { document.getElementById('address').value = "sol:9Av...K2q (Synced)"; }
+        function connectMetaMask() { 
+            playBeep(600);
+            const addrInput = document.getElementById('address');
+            addrInput.value = "0x71A...9B2 (EVM Synced)"; 
+            addrInput.classList.add('synced');
+            
+            const btn = document.getElementById('mm-btn');
+            btn.innerText = "MetaMask Connected";
+            btn.classList.add('connected');
+            
+            document.getElementById('net-worth').innerText = "$14,204.50";
+        }
+        
+        function connectPhantom() { 
+            playBeep(600);
+            const addrInput = document.getElementById('address');
+            addrInput.value = "sol:9Av...K2q (SPL Synced)"; 
+            addrInput.classList.add('synced');
+            
+            const btn = document.getElementById('phantom-btn');
+            btn.innerText = "Phantom Connected";
+            btn.classList.add('connected');
+            
+            document.getElementById('net-worth').innerText = "$8,430.00";
+        }
     </script>
 </body>
 </html>
