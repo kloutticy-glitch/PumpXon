@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PUMPXON // DEPLOYMENT MATRIX</title>
+    <title>PUMPXON // LIVE TRADING MATRIX</title>
     <style>
         :root {
             --bg-dark: #030206;
@@ -277,14 +277,14 @@
 
     <section id="swap" class="app-section">
         <div class="market-header" style="text-align: center;">
-            <div class="status-tag" style="justify-content: center; display: flex;">// ZERO-SLIPPAGE AGGREGATOR</div>
+            <div class="status-tag" style="justify-content: center; display: flex;">// LIVE DECENTRALIZED DATA FEED</div>
             <h1 style="font-size: 50px; margin-bottom: 10px;">ATOMIC <span>SWAP</span></h1>
         </div>
         <div class="swap-container">
             <div class="swap-block">
                 <div class="swap-label"><span>Pay</span><span>Balance: <span id="swap-pay-bal">0.00</span></span></div>
                 <div class="swap-input-row">
-                    <input type="number" id="swap-pay-input" class="swap-input" placeholder="0" value="1.5" oninput="calculateSwapOutput()">
+                    <input type="number" id="swap-pay-input" class="swap-input" placeholder="0" value="1" oninput="calculateSwapOutput()">
                     <div class="token-selector-wrapper">
                         <button id="pay-token-btn" class="token-selector" onclick="toggleSwapDropdown('pay')">🔷 ETH ▾</button>
                         <div id="pay-token-dropdown" class="token-dropdown">
@@ -302,7 +302,7 @@
             <div class="swap-block">
                 <div class="swap-label"><span>Receive</span><span>Balance: <span id="swap-recv-bal">0.00</span></span></div>
                 <div class="swap-input-row">
-                    <input type="number" id="swap-recv-input" class="swap-input" placeholder="0" value="4820.45" readonly>
+                    <input type="number" id="swap-recv-input" class="swap-input" placeholder="0" value="0.00" readonly>
                     <div class="token-selector-wrapper">
                         <button id="recv-token-btn" class="token-selector" style="background: rgba(255,0,85,0.2); border-color: var(--neon-pink);" onclick="toggleSwapDropdown('recv')">💵 USDC ▾</button>
                         <div id="recv-token-dropdown" class="token-dropdown">
@@ -325,22 +325,22 @@
             <div class="coin-row" onclick="openChartBay('BTC')">
                 <div class="coin-icon">🪙</div>
                 <div class="coin-name">Bitcoin<sm>BTC / USD</sm></div>
-                <div class="coin-price" id="price-BTC">$68,240.50</div>
-                <div class="coin-change" id="change-BTC" style="color: var(--neon-green);">+2.4%</div>
+                <div class="coin-price" id="price-BTC">LOADING...</div>
+                <div class="coin-change" id="change-BTC" style="color: var(--neon-green);">--%</div>
             </div>
             
             <div class="coin-row" onclick="openChartBay('ETH')">
                 <div class="coin-icon">🔷</div>
                 <div class="coin-name">Ethereum<sm>ETH / USD</sm></div>
-                <div class="coin-price" id="price-ETH">$3,540.20</div>
-                <div class="coin-change" id="change-ETH" style="color: var(--neon-green);">+1.8%</div>
+                <div class="coin-price" id="price-ETH">LOADING...</div>
+                <div class="coin-change" id="change-ETH" style="color: var(--neon-green);">--%</div>
             </div>
             
             <div class="coin-row" onclick="openChartBay('SOL')">
                 <div class="coin-icon">◎</div>
                 <div class="coin-name">Solana<sm>SOL / USD</sm></div>
-                <div class="coin-price" id="price-SOL">$148.90</div>
-                <div class="coin-change" id="change-SOL" style="color: var(--neon-pink);">-0.5%</div>
+                <div class="coin-price" id="price-SOL">LOADING...</div>
+                <div class="coin-change" id="change-SOL" style="color: var(--neon-pink);">--%</div>
             </div>
 
             <div id="chart-expansion-bay" class="chart-bay">
@@ -392,13 +392,54 @@
     </section>
 
     <script>
-        // --- DATA MATRIX (UPDATED BASE VALUES FROM CAPTURES) ---
+        // --- COINGECKO LIVE SYSTEM DATABASE ---
         const assetDatabase = {
-            BTC: { base: 68240.50, change: "+2.4%", trendUp: true, seed: 1.2 },
-            ETH: { base: 3540.20, change: "+1.8%", trendUp: true, seed: 4.8 },
-            SOL: { base: 148.90, change: "-0.5%", trendUp: false, seed: 9.5 },
-            USDC: { base: 1.00, change: "0.0%", trendUp: true, seed: 0.0 }
+            BTC: { base: 62800.00, change: "+0.0%", trendUp: true, seed: 1.2, id: "bitcoin" },
+            ETH: { base: 1750.00, change: "+0.0%", trendUp: true, seed: 4.8, id: "ethereum" },
+            SOL: { base: 69.50, change: "+0.0%", trendUp: true, seed: 9.5, id: "solana" },
+            USDC: { base: 1.00, change: "0.0%", trendUp: true, seed: 0.0, id: "usd-coin" }
         };
+
+        // Async API live engine fetching engine
+        async function fetchLiveCryptoPrices() {
+            try {
+                const response = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,usd-coin&include_24hr_change=true");
+                const data = await response.json();
+                
+                if(data) {
+                    // Map fetched API values directly into our reactive frontend engine objects
+                    assetDatabase.BTC.base = data.bitcoin.usd;
+                    assetDatabase.BTC.change = (data.bitcoin.usd_24h_change >= 0 ? "+" : "") + data.bitcoin.usd_24h_change.toFixed(2) + "%";
+                    assetDatabase.BTC.trendUp = data.bitcoin.usd_24h_change >= 0;
+
+                    assetDatabase.ETH.base = data.ethereum.usd;
+                    assetDatabase.ETH.change = (data.ethereum.usd_24h_change >= 0 ? "+" : "") + data.ethereum.usd_24h_change.toFixed(2) + "%";
+                    assetDatabase.ETH.trendUp = data.ethereum.usd_24h_change >= 0;
+
+                    assetDatabase.SOL.base = data.solana.usd;
+                    assetDatabase.SOL.change = (data.solana.usd_24h_change >= 0 ? "+" : "") + data.solana.usd_24h_change.toFixed(2) + "%";
+                    assetDatabase.SOL.trendUp = data.solana.usd_24h_change >= 0;
+
+                    updateTickerUI();
+                    calculateSwapOutput();
+                }
+            } catch (err) {
+                console.warn("CoinGecko rate limited or blocked. Using live-calibrated fallback points.", err);
+            }
+        }
+
+        function updateTickerUI() {
+            ['BTC', 'ETH', 'SOL'].forEach(symbol => {
+                const priceEl = document.getElementById(`price-${symbol}`);
+                const changeEl = document.getElementById(`change-${symbol}`);
+                
+                if(priceEl) priceEl.innerText = `$${assetDatabase[symbol].base.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                if(changeEl) {
+                    changeEl.innerText = assetDatabase[symbol].change;
+                    changeEl.style.color = assetDatabase[symbol].trendUp ? "var(--neon-green)" : "var(--neon-pink)";
+                }
+            });
+        }
 
         // Current UI Swap Token State Matrix
         let currentPayToken = "ETH";
@@ -430,7 +471,6 @@
                 el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
             });
         }
-        rewireCursorHoverEffects();
 
         // --- SOUND ENGINE ---
         let audioCtx = null;
@@ -460,7 +500,6 @@
             drop.classList.toggle('show');
         }
 
-        // Close dropdown panels instantly if clicking out into space
         window.addEventListener('click', function(e) {
             if (!e.target.closest('.token-selector-wrapper')) {
                 document.querySelectorAll('.token-dropdown').forEach(d => d.classList.remove('show'));
@@ -493,7 +532,6 @@
             
             btn.innerText = `${icon} ${symbol} ▾`;
 
-            // Style individual item classes inside dropdown menus
             const drop = document.getElementById(`${type}-token-dropdown`);
             drop.querySelectorAll('.dropdown-item').forEach(item => {
                 if(item.innerText.includes(symbol)) item.classList.add('selected');
@@ -520,6 +558,7 @@
         function calculateSwapOutput() {
             const inputPay = document.getElementById('swap-pay-input');
             const inputRecv = document.getElementById('swap-recv-input');
+            if(!inputPay || !inputRecv) return;
             
             const payQty = parseFloat(inputPay.value);
             if(isNaN(payQty) || payQty <= 0) {
@@ -539,7 +578,6 @@
         function executeSecureRouterSwap(btn) {
             const addrInput = document.getElementById('address');
             
-            // SECURITY CHECK: Lock swap mechanism unless synchronized wallet identity flag is detected
             if (!addrInput.value || !addrInput.classList.contains('synced')) {
                 playBeep(250, 'sawtooth', 0.2);
                 alert("IDENTITY HANDSHAKE LOCKED: Please securely synchronize your Phantom or MetaMask identity on the Airdrop Portal matrix before executing swaps.");
@@ -549,7 +587,6 @@
             
             executeAction(btn, 'SWAP EXECUTED');
             
-            // Simulate changing current localized asset balance values on success
             setTimeout(() => {
                 document.getElementById('swap-pay-bal').innerText = "0.00";
                 document.getElementById('swap-recv-input').value = "0.00";
@@ -606,11 +643,11 @@
             if(timeframe === '1Y') iterations = 52;
             if(timeframe === 'ALL') iterations = 120;
 
-            let currentVal = asset.base * (asset.trendUp ? 0.85 : 1.15);
-            const multiplier = asset.trendUp ? 1.0015 : 0.9985;
+            let currentVal = asset.base * (asset.trendUp ? 0.92 : 1.08);
+            const multiplier = asset.trendUp ? 1.0008 : 0.9992;
 
             for (let i = 0; i < iterations; i++) {
-                let randomness = 1 + (Math.sin(i * asset.seed) * 0.04) + ((Math.random() - 0.5) * 0.02);
+                let randomness = 1 + (Math.sin(i * asset.seed) * 0.02) + ((Math.random() - 0.5) * 0.015);
                 currentVal = currentVal * multiplier * randomness;
                 
                 let timestampLabel = `Point ${i}`;
@@ -639,8 +676,8 @@
             chartCtx.clearRect(0, 0, w, height);
 
             const vals = chartPointsData.map(p => p.value);
-            const min = Math.min(...vals) * 0.99;
-            const max = Math.max(...vals) * 1.01;
+            const min = Math.min(...vals) * 0.992;
+            const max = Math.max(...vals) * 1.008;
 
             const calcX = (index) => (index / (chartPointsData.length - 1)) * w;
             const calcY = (val) => height - ((val - min) / (max - min)) * height;
@@ -674,7 +711,7 @@
                 chartCtx.lineTo(calcX(i), calcY(chartPointsData[i].value));
             }
             chartCtx.lineTo(calcX(chartPointsData.length - 1), height);
-            chartCtx.fillStyle = gradient;
+            ctx.fillStyle = gradient;
             chartCtx.fill();
 
             chartCtx.beginPath();
@@ -903,8 +940,11 @@
             });
         }
         
-        // Run conversion equations once at launch
-        calculateSwapOutput();
+        // --- INITIALIZATION ---
+        rewireCursorHoverEffects();
+        fetchLiveCryptoPrices();
+        // Poll new api data stream packets automatically every 45 seconds
+        setInterval(fetchLiveCryptoPrices, 45000);
     </script>
 </body>
 </html>
