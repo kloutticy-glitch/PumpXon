@@ -8,498 +8,116 @@
     <style>
         :root {
             --bg-dark: #030206;
-            --panel-dark: rgba(13, 11, 22, 0.75);
+            --panel-dark: rgba(13, 11, 22, 0.85);
             --neon-pink: #ff0055;
             --neon-green: #39ff14;
             --neon-cyan: #00f0ff;
             --neon-purple: #9d4edd;
-            --solana-glow: linear-gradient(135deg, #ab9ff2 0%, #4e44ce 100%);
         }
 
-        /* Custom Cursor */
         * { cursor: none; }
-        .custom-cursor {
-            position: fixed; top: 0; left: 0; width: 8px; height: 8px;
-            background: var(--neon-cyan); border-radius: 50%; pointer-events: none;
-            z-index: 9999; transform: translate(-50%, -50%);
-            box-shadow: 0 0 15px var(--neon-cyan); transition: transform 0.1s ease-out, background 0.2s;
-        }
-        .custom-cursor.click { transform: translate(-50%, -50%) scale(1.5); background: var(--neon-pink); box-shadow: 0 0 20px var(--neon-pink); }
-        .custom-cursor.hover { transform: translate(-50%, -50%) scale(2); background: transparent; border: 1px solid var(--neon-cyan); }
-        
-        /* Ensure inputs remain clickable */
-        input { pointer-events: auto !important; }
+        body { font-family: 'Arial Black', sans-serif; background-color: var(--bg-dark); color: #ffffff; margin: 0; min-height: 100vh; overflow-x: hidden; }
 
-        body { font-family: 'Arial Black', -apple-system, sans-serif; background-color: var(--bg-dark); color: #ffffff; margin: 0; padding: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; position: relative; }
+        /* Persistent Global Chat */
+        .global-chat { position: fixed; bottom: 20px; right: 20px; width: 300px; z-index: 999; background: var(--panel-dark); border: 1px solid var(--neon-purple); border-radius: 8px; box-shadow: 0 0 20px rgba(157, 78, 221, 0.2); }
+        .trollbox-messages { height: 150px; overflow-y: auto; padding: 10px; font-family: monospace; font-size: 12px; }
+        .trollbox-input { display: flex; border-top: 1px solid #2d2344; }
+        .trollbox-input input { flex: 1; background: transparent; border: none; padding: 10px; color: white; outline: none; }
+        .trollbox-input button { background: var(--neon-purple); border: none; color: white; padding: 0 15px; cursor: none; }
 
-        /* 3D Canvas & Ambience */
-        #bg-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -3; pointer-events: none; }
-        .ambient-glow-1 { position: absolute; width: 500px; height: 500px; background: radial-gradient(circle, rgba(255, 0, 85, 0.12) 0%, rgba(0,0,0,0) 70%); top: -50px; left: -100px; z-index: -2; }
-        .mascot-bg-matrix { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100vw; height: 100vh; background-image: linear-gradient(rgba(157, 78, 221, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(157, 78, 221, 0.03) 1px, transparent 1px); background-size: 40px 40px; z-index: -1; pointer-events: none; opacity: 0.85; }
-        .mascot-glow-core { position: fixed; width: 600px; height: 600px; background: radial-gradient(circle, rgba(0, 240, 255, 0.04) 0%, rgba(157, 78, 221, 0.02) 40%, rgba(0,0,0,0) 70%); bottom: -100px; right: -100px; z-index: -2; pointer-events: none; animation: pulseGlow 8s ease-in-out infinite alternate; }
+        /* Layout */
+        #bg-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -3; }
+        header { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; padding: 40px 20px; }
+        .nav-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid #3c2f5c; color: #8b859e; padding: 10px 20px; border-radius: 6px; text-transform: uppercase; font-size: 12px; transition: 0.2s; }
+        .nav-btn.active { background: var(--neon-purple); color: white; border-color: var(--neon-purple); }
 
-        @keyframes pulseGlow { 0% { transform: scale(1) translate(0, 0); opacity: 0.6; } 100% { transform: scale(1.15) translate(-30px, -20px); opacity: 0.9; } }
-
-        header { width: 100%; max-width: 1100px; display: flex; justify-content: space-between; align-items: center; padding: 40px 20px; box-sizing: border-box; flex-wrap: wrap; gap: 20px; }
-        .logo-container { display: flex; align-items: center; gap: 15px; }
-        .logo { font-size: 26px; font-weight: 900; letter-spacing: -1px; text-transform: uppercase; background: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .network-status { font-family: monospace; font-size: 10px; color: var(--neon-green); border: 1px solid rgba(57, 255, 20, 0.3); background: rgba(57, 255, 20, 0.05); padding: 6px 12px; border-radius: 4px; display: flex; gap: 10px; }
-        .network-status span { font-weight: bold; }
-
-        nav { display: flex; gap: 10px; flex-wrap: wrap; }
-        .nav-btn { font-family: 'Arial Black', sans-serif; background: rgba(255, 255, 255, 0.02); border: 1px solid #1a1528; color: #8b859e; padding: 10px 16px; border-radius: 6px; text-transform: uppercase; font-size: 11px; transition: all 0.2s ease; }
-        .nav-btn:hover { color: #ffffff; border-color: var(--neon-cyan); }
-        .nav-btn.active { background: var(--neon-purple); color: #ffffff; border-color: var(--neon-purple); box-shadow: 0 0 15px rgba(157, 78, 221, 0.5); }
-
-        .app-section { display: none; width: 100%; max-width: 1100px; padding: 20px; box-sizing: border-box; z-index: 1; animation: fadeIn 0.3s ease-in-out; }
+        .app-section { display: none; max-width: 1100px; margin: 0 auto; padding: 20px; }
         .app-section.active-section { display: block; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        /* Interactive Elements */
+        .interactive-row { background: rgba(255,255,255,0.03); border: 1px solid #1a1528; padding: 20px; margin-bottom: 10px; border-radius: 8px; transition: 0.2s; display: flex; justify-content: space-between; }
+        .interactive-row:hover { border-color: var(--neon-cyan); background: rgba(0, 240, 255, 0.05); }
 
-        .main-container { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 50px; }
-        .left-content { display: flex; flex-direction: column; justify-content: center; }
-        
-        .status-tag { font-family: monospace; color: var(--neon-green); font-size: 13px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 15px; text-shadow: 0 0 10px rgba(57, 255, 20, 0.4); }
-        h1 { font-size: 68px; line-height: 0.9; margin: 0 0 30px 0; text-transform: uppercase; letter-spacing: -3px; }
-        h1 span { color: var(--neon-cyan); text-shadow: 0 0 20px rgba(0, 240, 255, 0.5); }
-        .manifesto { font-family: -apple-system, sans-serif; font-size: 16px; color: #d1d5db; line-height: 1.7; margin-bottom: 40px; max-width: 520px; }
-         
-        .raw-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 400px; border-top: 1px solid #1a1528; padding-top: 30px; }
-        .stat-number { font-size: 36px; letter-spacing: -1px; color: var(--neon-pink); text-shadow: 0 0 15px rgba(255, 0, 85, 0.4); }
-        .stat-label { font-family: monospace; font-size: 11px; color: #8b859e; text-transform: uppercase; margin-top: 5px; }
-
-        .portal-card { background: var(--panel-dark); border: 2px solid var(--neon-purple); border-radius: 12px; padding: 40px; backdrop-filter: blur(12px); box-shadow: 0 0 40px rgba(157, 78, 221, 0.25); }
-        .portal-header { font-size: 24px; text-transform: uppercase; letter-spacing: -1px; margin-bottom: 25px; border-bottom: 1px solid #2d2344; padding-bottom: 15px; text-align: center; }
-         
-        .wallet-btn { font-family: 'Arial Black', sans-serif; color: white; border: none; padding: 16px; font-size: 13px; text-transform: uppercase; border-radius: 6px; width: 100%; box-sizing: border-box; transition: all 0.2s ease; margin-bottom: 14px; }
-        .btn-mm { background: #1a1528; border: 1px solid #3c2f5c; }
-        .btn-mm:hover { background: #e2761b; border-color: #e2761b; box-shadow: 0 0 15px rgba(226, 118, 27, 0.5); }
-        .btn-mm.connected { background: #e2761b; border-color: #e2761b; }
-        .btn-phantom { background: #1a1528; border: 1px solid #3c2f5c; }
-        .btn-phantom:hover { background: var(--solana-glow); border-color: #4e44ce; box-shadow: 0 0 15px rgba(78, 68, 206, 0.5); }
-        .btn-phantom.connected { background: var(--solana-glow); border-color: #4e44ce; }
-
-        .input-block { margin: 25px 0; }
-        .input-block label { display: block; font-family: monospace; font-size: 11px; color: #8b859e; text-transform: uppercase; margin-bottom: 8px; }
-        .address-box { width: 100%; box-sizing: border-box; background: #09070f; border: 1px solid #3c2f5c; padding: 16px; border-radius: 6px; color: #8b859e; font-size: 12px; font-family: monospace; transition: all 0.3s; }
-        .address-box.synced { border-color: var(--neon-green); color: var(--neon-green); box-shadow: 0 0 10px rgba(57, 255, 20, 0.2); }
-         
-        .action-submit { width: 100%; background: var(--neon-cyan); color: #000000; border: none; padding: 18px; font-size: 16px; text-transform: uppercase; font-weight: 900; border-radius: 6px; transition: all 0.2s ease; box-shadow: 0 0 20px rgba(0, 240, 255, 0.3); }
-        .action-submit:hover { background: var(--neon-pink); color: #ffffff; box-shadow: 0 0 25px var(--neon-pink); transform: scale(1.02); }
-
-        /* Trollbox Chat Overlay */
-        .trollbox { margin-top: 30px; background: rgba(9, 7, 15, 0.8); border: 1px solid #2d2344; border-radius: 8px; overflow: hidden; }
-        .trollbox-header { background: #1a1528; padding: 10px 15px; font-family: monospace; font-size: 12px; color: var(--neon-cyan); border-bottom: 1px solid #2d2344; display: flex; justify-content: space-between; }
-        .trollbox-messages { height: 150px; overflow-y: auto; padding: 15px; font-family: monospace; font-size: 12px; display: flex; flex-direction: column; gap: 8px; scroll-behavior: smooth; }
-        .trollbox-messages::-webkit-scrollbar { width: 5px; }
-        .trollbox-messages::-webkit-scrollbar-thumb { background: var(--neon-purple); border-radius: 5px; }
-        .msg { color: #a3a1ab; word-wrap: break-word; }
-        .msg-user { color: var(--neon-purple); font-weight: bold; }
-        .msg-vip { color: var(--neon-pink); font-weight: bold; }
-        .msg-self { color: var(--neon-green); font-weight: bold; }
-        .trollbox-input { display: flex; border-top: 1px solid #2d2344; }
-        .trollbox-input input { flex: 1; background: transparent; border: none; padding: 12px 15px; color: white; font-family: monospace; outline: none; }
-        .trollbox-input button { background: var(--neon-purple); color: white; border: none; padding: 0 20px; font-family: 'Arial Black'; font-size: 10px; text-transform: uppercase; transition: background 0.2s; }
-        .trollbox-input button:hover { background: var(--neon-pink); }
-
-        /* Popup Modal Styles */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(3, 2, 6, 0.85); backdrop-filter: blur(8px); z-index: 1000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
-        .modal-overlay.active { display: flex; opacity: 1; }
-        .modal-content { background: var(--panel-dark); border: 2px solid var(--neon-cyan); padding: 40px; border-radius: 12px; width: 320px; text-align: center; box-shadow: 0 0 40px rgba(0, 240, 255, 0.2); }
-        .modal-title { font-size: 20px; text-transform: uppercase; margin: 0 0 25px 0; letter-spacing: 1px; color: #fff; }
-        .progress-track { width: 100%; height: 8px; background: #09070f; border-radius: 4px; overflow: hidden; border: 1px solid #2d2344; }
-        .progress-fill { height: 100%; background: var(--neon-cyan); width: 0%; transition: width 0.4s ease; box-shadow: 0 0 10px var(--neon-cyan); }
-        .modal-status { font-family: monospace; color: #8b859e; margin-top: 15px; font-size: 12px; text-transform: uppercase; }
-
-        /* General shared styles */
-        .market-header { margin-bottom: 40px; }
-        .market-grid { display: flex; flex-direction: column; gap: 15px; }
-        .coin-row { display: grid; grid-template-columns: 0.5fr 1.5fr 1fr 1fr; align-items: center; background: var(--panel-dark); border: 1px solid #1a1528; padding: 20px 30px; border-radius: 10px; transition: border-color 0.2s; }
-        .coin-row:hover { border-color: var(--neon-purple); }
-        .coin-icon { font-size: 28px; }
-        .coin-name { font-size: 20px; text-transform: uppercase; }
-        .coin-name sm { font-size: 12px; color: #8b859e; display: block; font-family: monospace; margin-top: 4px; }
-        .coin-price { font-family: monospace; font-size: 18px; color: #ffffff; }
-        .coin-change { font-family: monospace; font-size: 16px; text-align: right; color: var(--neon-green); }
-        
-        /* Swap, Copytrade, Nodes, Vault specific styling omitted for brevity but intact below */
-        .swap-container { max-width: 500px; margin: 0 auto; background: var(--panel-dark); border: 1px solid var(--neon-cyan); border-radius: 12px; padding: 30px; box-shadow: 0 0 30px rgba(0, 240, 255, 0.1); }
-        .swap-block { background: #09070f; border: 1px solid #2d2344; border-radius: 8px; padding: 20px; margin-bottom: 10px; }
-        .swap-label { font-family: monospace; font-size: 11px; color: #8b859e; display: flex; justify-content: space-between; margin-bottom: 10px; }
-        .swap-input-row { display: flex; justify-content: space-between; align-items: center; }
-        .swap-input { background: transparent; border: none; color: white; font-size: 28px; font-family: monospace; outline: none; width: 60%; }
-        .token-selector { background: #1a1528; border: 1px solid #3c2f5c; color: white; padding: 8px 12px; border-radius: 20px; font-family: 'Arial Black'; font-size: 12px; display: flex; align-items: center; gap: 8px; }
-        .swap-divider { text-align: center; margin: -15px 0; position: relative; z-index: 2; }
-        .swap-arrow { background: var(--bg-dark); border: 1px solid var(--neon-cyan); color: var(--neon-cyan); width: 32px; height: 32px; border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; font-size: 14px; }
-
-        .leaderboard-table { width: 100%; border-collapse: collapse; background: var(--panel-dark); border-radius: 10px; overflow: hidden; border: 1px solid #2d2344; }
-        .leaderboard-table th { background: #1a1528; padding: 15px; text-align: left; font-family: monospace; color: #8b859e; font-size: 11px; border-bottom: 1px solid #3c2f5c; }
-        .leaderboard-table td { padding: 15px; border-bottom: 1px solid #1a1528; font-family: monospace; font-size: 13px; }
-        .leaderboard-table tr:hover { background: rgba(255, 255, 255, 0.02); }
-        .rank { color: var(--neon-cyan); font-weight: bold; }
-        .roi-positive { color: var(--neon-green); }
-
-        .node-grid, .vault-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-        .node-card { background: var(--panel-dark); border: 1px solid #2d2344; padding: 25px; border-radius: 10px; }
-        .node-status { display: flex; justify-content: space-between; align-items: center; font-family: monospace; font-size: 11px; margin-bottom: 15px; }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--neon-green); box-shadow: 0 0 10px var(--neon-green); }
-        .node-title { font-size: 18px; margin: 0 0 5px 0; letter-spacing: -0.5px; text-transform: uppercase; }
-        .node-meta { font-family: monospace; font-size: 12px; color: #8b859e; margin-bottom: 20px; }
-        .node-btn { background: transparent; border: 1px solid var(--neon-purple); color: #ffffff; padding: 10px 14px; font-family: 'Arial Black', sans-serif; font-size: 11px; text-transform: uppercase; border-radius: 4px; width: 100%; transition: 0.2s; }
-        .node-btn:hover { background: var(--neon-purple); box-shadow: 0 0 15px var(--neon-purple); }
-
-        .vault-card { background: var(--panel-dark); border: 2px solid #1a1528; border-radius: 12px; padding: 30px; position: relative; }
-        .vault-card.premium { border-color: var(--neon-pink); box-shadow: 0 0 20px rgba(255, 0, 85, 0.15); }
-        .badge { position: absolute; top: 15px; right: 15px; font-family: monospace; font-size: 10px; background: var(--neon-pink); color: #fff; padding: 4px 8px; border-radius: 4px; }
-        .vault-tier { font-size: 22px; text-transform: uppercase; margin: 0 0 20px 0; letter-spacing: -1px; }
-        .vault-stat-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-family: -apple-system, sans-serif; font-size: 14px; }
-        .vault-stat-row span:last-child { font-family: monospace; font-weight: bold; color: var(--neon-cyan); }
-
-        @media (max-width: 900px) { .main-container { grid-template-columns: 1fr; gap: 40px; } h1 { font-size: 46px; } }
+        /* Cursor */
+        .custom-cursor { position: fixed; width: 10px; height: 10px; background: var(--neon-cyan); border-radius: 50%; pointer-events: none; z-index: 9999; }
     </style>
 </head>
 <body>
     <div class="custom-cursor" id="cursor"></div>
-
-    <div id="wallet-modal" class="modal-overlay">
-        <div class="modal-content" id="modal-box">
-            <h3 class="modal-title" id="modal-title">CONNECTING...</h3>
-            <div class="progress-track">
-                <div id="modal-progress" class="progress-fill"></div>
-            </div>
-            <div class="modal-status" id="modal-status">Awaiting signature request...</div>
-        </div>
-    </div>
-
     <canvas id="bg-canvas"></canvas>
 
-    <div class="ambient-glow-1"></div>
-    <div class="mascot-bg-matrix"></div>
-    <div class="mascot-glow-core"></div>
-
     <header>
-        <div class="logo-container">
-            <div class="logo">⚡ PUMPXON SYSTEM</div>
-            <div class="network-status">
-                <div>ETH GAS: <span>14 GWEI</span></div>
-                <div style="color: #3c2f5c;">|</div>
-                <div>SOL TPS: <span>2,841</span></div>
-            </div>
-        </div>
+        <div style="font-size: 24px; font-weight: 900; background: linear-gradient(to right, var(--neon-pink), var(--neon-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">PUMPXON SYSTEM</div>
         <nav>
-            <button class="nav-btn active" onclick="switchSection('airdrop', this)">Airdrop Portal</button>
-            <button class="nav-btn" onclick="switchSection('swap', this)">Swap Router</button>
-            <button class="nav-btn" onclick="switchSection('market', this)">Live Market</button>
-            <button class="nav-btn" onclick="switchSection('copytrade', this)">Copytrade Hub</button>
-            <button class="nav-btn" onclick="switchSection('nodes', this)">Node Validator</button>
-            <button class="nav-btn" onclick="switchSection('vault', this)">Rarity Vault</button>
+            <button class="nav-btn active" onclick="switchSection('airdrop', this)">Airdrop</button>
+            <button class="nav-btn" onclick="switchSection('swap', this)">Swap</button>
+            <button class="nav-btn" onclick="switchSection('market', this)">Market</button>
+            <button class="nav-btn" onclick="switchSection('copytrade', this)">Copytrade</button>
         </nav>
     </header>
 
     <section id="airdrop" class="app-section active-section">
-        <div class="main-container">
-            <main class="left-content">
-                <div class="status-tag">// ECOSYSTEM STAGE_01 INITIALIZED</div>
-                <h1>THE DIGITAL<br>CULTURE <span>MATRIX.</span></h1>
-                <p class="manifesto">
-                    PumpXon System is a high-velocity, fully decentralized network canvas built for core community builders and on-chain tactical developers. Syncing your localized identity locks your trace securely to our genesis index contracts.
-                </p>
-                <div class="raw-stats">
-                    <div>
-                        <div class="stat-number">420K+</div>
-                        <div class="stat-label">Wallets Synced</div>
-                    </div>
-                    <div>
-                        <div class="stat-number">100%</div>
-                        <div class="stat-label">Decentralized Hub</div>
-                    </div>
-                </div>
-
-                <div class="trollbox">
-                    <div class="trollbox-header">
-                        <span>TERMINAL_CHAT [GLOBAL]</span>
-                        <span>🟢 1,402 ONLINE</span>
-                    </div>
-                    <div class="trollbox-messages" id="chat-box">
-                        <div class="msg"><span class="msg-user">0x71A...9B2</span>: Gas is dropping, time to deploy</div>
-                        <div class="msg"><span class="msg-vip">pumpmaster.sol</span>: Vault yields are printing rn 🔥</div>
-                        <div class="msg"><span class="msg-user">0x22F...11C</span>: anyone got the testnet faucet link?</div>
-                    </div>
-                    <div class="trollbox-input">
-                        <input type="text" id="chat-input" placeholder="Transmit to global ledger..." onkeypress="handleChatEnter(event)">
-                        <button onclick="sendChatMessage()">SEND</button>
-                    </div>
-                </div>
-            </main>
-
-            <aside class="portal-card">
-                <div class="portal-header">CONSOLE ACCESS</div>
-                <button id="mm-btn" class="wallet-btn btn-mm" onclick="triggerWalletModal('MetaMask')">Initialize MetaMask</button>
-                <button id="phantom-btn" class="wallet-btn btn-phantom" onclick="triggerWalletModal('Phantom')">Initialize Phantom</button>
-                <div class="input-block">
-                    <label>SYNCHRONIZED IDENTITY SIGNATURE</label>
-                    <input class="address-box" type="text" id="address" placeholder="awaiting handshakes..." readonly>
-                </div>
-                <div class="input-block" style="border-top: 1px dashed #3c2f5c; padding-top: 15px;">
-                    <label>NET WORTH TRACKER (BETA)</label>
-                    <div id="net-worth" style="font-size: 24px; color: var(--neon-cyan); font-family: monospace;">$0.00</div>
-                </div>
-                <button id="claim-btn" class="action-submit" onclick="claimRewards(this)">
-                    CLAIM PORTAL REWARDS
-                </button>
-            </aside>
-        </div>
+        <h1>PORTAL INITIALIZED</h1>
+        <p>Sync your identity to begin.</p>
     </section>
 
     <section id="swap" class="app-section">
-        <div class="market-header" style="text-align: center;">
-            <div class="status-tag" style="justify-content: center; display: flex;">// ZERO-SLIPPAGE AGGREGATOR</div>
-            <h1 style="font-size: 50px; margin-bottom: 10px;">ATOMIC <span>SWAP</span></h1>
-        </div>
-        <div class="swap-container">
-            <div class="swap-block">
-                <div class="swap-label"><span>Pay</span><span>Balance: 0.00</span></div>
-                <div class="swap-input-row">
-                    <input type="number" class="swap-input" placeholder="0" value="1.5">
-                    <div class="token-selector">🔷 ETH ▾</div>
-                </div>
-            </div>
-            <div class="swap-divider"><div class="swap-arrow">↓</div></div>
-            <div class="swap-block">
-                <div class="swap-label"><span>Receive</span><span>Balance: 0.00</span></div>
-                <div class="swap-input-row">
-                    <input type="number" class="swap-input" placeholder="0" value="4820.45" readonly>
-                    <div class="token-selector" style="background: rgba(255,0,85,0.2); border-color: var(--neon-pink);"> USDC ▾</div>
-                </div>
-            </div>
-            <button class="action-submit" onclick="executeAction(this, 'SWAP EXECUTED')">EXECUTE SWAP</button>
-        </div>
+        <h1>LIQUIDITY ROUTER</h1>
     </section>
 
     <section id="market" class="app-section">
-        <div class="market-header"><h1 style="font-size: 50px;">CORE NETWORK <span>TICKER</span></h1></div>
-        <div class="market-grid">
-            <div class="coin-row"><div class="coin-icon">🪙</div><div class="coin-name">Bitcoin<sm>BTC / USD</sm></div><div class="coin-price">$68,240.50</div><div class="coin-change">+2.4%</div></div>
-            <div class="coin-row"><div class="coin-icon">🔷</div><div class="coin-name">Ethereum<sm>ETH / USD</sm></div><div class="coin-price">$3,540.20</div><div class="coin-change">+1.8%</div></div>
-            <div class="coin-row"><div class="coin-icon">◎</div><div class="coin-name">Solana<sm>SOL / USD</sm></div><div class="coin-price">$148.90</div><div class="coin-change" style="color: var(--neon-pink);">-0.5%</div></div>
-        </div>
+        <h1>LIVE TICKER</h1>
+        <div class="interactive-row" onclick="alert('BTC/USD Price: $68,240.50')"><span>Bitcoin (BTC)</span><span style="color:var(--neon-green)">+2.4%</span></div>
+        <div class="interactive-row" onclick="alert('ETH/USD Price: $3,540.20')"><span>Ethereum (ETH)</span><span style="color:var(--neon-green)">+1.8%</span></div>
+        <div class="interactive-row" onclick="alert('SOL/USD Price: $148.90')"><span>Solana (SOL)</span><span style="color:var(--neon-pink)">-0.5%</span></div>
     </section>
 
     <section id="copytrade" class="app-section">
-        <div class="market-header"><h1 style="font-size: 50px;">COPYTRADE <span>CORES</span></h1></div>
-        <table class="leaderboard-table">
-            <thead><tr><th>RANK</th><th>WALLET SIGNATURE</th><th>WIN RATE</th><th>7D ROI</th><th>ACTION</th></tr></thead>
-            <tbody>
-                <tr><td class="rank">#1</td><td>0x88A...4F1 (DeepBlue)</td><td>82.4%</td><td class="roi-positive">+412.5%</td><td><button class="nav-btn" style="padding: 5px 10px;" onclick="executeAction(this, 'MIRRORING...')">MIRROR</button></td></tr>
-                <tr><td class="rank">#2</td><td>sol:9Av...K2q (Phantom_Menace)</td><td>78.1%</td><td class="roi-positive">+280.2%</td><td><button class="nav-btn" style="padding: 5px 10px;" onclick="executeAction(this, 'MIRRORING...')">MIRROR</button></td></tr>
-            </tbody>
-        </table>
+        <h1>COPYTRADE CORES</h1>
+        <div id="wallet-list"></div>
     </section>
 
-    <section id="nodes" class="app-section">
-        <div class="market-header"><h1 style="font-size: 50px;">VALIDATOR <span>MATRIX</span></h1></div>
-        <div class="node-grid">
-            <div class="node-card"><div class="node-status"><span class="status-dot"></span><span>NODE // 01 // ACTIVE</span></div><div class="node-title">US-EAST MAINNET</div><button class="node-btn" onclick="executeAction(this, 'OPTIMIZED')">Optimize Relay</button></div>
-            <div class="node-card"><div class="node-status"><span class="status-dot"></span><span>NODE // 02 // ACTIVE</span></div><div class="node-title">EU-WEST ROUTER</div><button class="node-btn" onclick="executeAction(this, 'OPTIMIZED')">Optimize Relay</button></div>
+    <div class="global-chat">
+        <div class="trollbox-messages" id="chat-box"></div>
+        <div class="trollbox-input">
+            <input type="text" id="chat-input" placeholder="Message...">
+            <button onclick="sendChatMessage()">SEND</button>
         </div>
-    </section>
-
-    <section id="vault" class="app-section">
-        <div class="market-header"><h1 style="font-size: 50px;">TIERED <span>LEDGERS</span></h1></div>
-        <div class="vault-grid">
-            <div class="vault-card"><div class="vault-tier">ALPHA WHALE</div><div class="vault-stat-row"><span>Required:</span> <span>5,000 $PUMPXON</span></div></div>
-            <div class="vault-card premium"><div class="badge">EXCLUSIVE</div><div class="vault-tier" style="color: var(--neon-pink);">GENESIS ELITE</div><div class="vault-stat-row"><span>Required:</span> <span>25,000 $PUMPXON</span></div></div>
-        </div>
-    </section>
+    </div>
 
     <script>
-        // --- CORE NAVIGATION ---
-        function switchSection(sectionId, btnElement) {
-            playBeep(400, 'sine', 0.05);
-            document.querySelectorAll('.app-section').forEach(sec => sec.classList.remove('active-section'));
-            document.getElementById(sectionId).classList.add('active-section');
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            if(btnElement) btnElement.classList.add('active');
-        }
-
-        // --- CUSTOM CURSOR ---
-        const cursor = document.getElementById('cursor');
-        document.addEventListener('mousemove', e => { cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px'; });
-        document.addEventListener('mousedown', () => cursor.classList.add('click'));
-        document.addEventListener('mouseup', () => cursor.classList.remove('click'));
-        
-        const interactables = document.querySelectorAll('button, input, .coin-row, th, td');
-        interactables.forEach(el => {
-            el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
-            el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+        // Copytrade Setup
+        const wallets = ["0x88A...4F1", "sol:9Av...K2q", "0x11B...99C", "0x55F...22A", "sol:3Xp...L9m", "0xAA4...11B", "0x99C...33D", "sol:7Yt...N1k"];
+        const list = document.getElementById('wallet-list');
+        wallets.forEach(w => {
+            list.innerHTML += `<div class="interactive-row" onclick="alert('Mirroring ${w}...')"><span>${w}</span><span style="color:var(--neon-cyan)">ROI +${Math.floor(Math.random()*600)}%</span></div>`;
         });
 
-        // --- SOUND ENGINE ---
-        let audioCtx = null;
-        function playBeep(frequency = 500, type = 'sine', duration = 0.1) {
-            try {
-                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-                const oscillator = audioCtx.createOscillator();
-                const gainNode = audioCtx.createGain();
-                oscillator.type = type;
-                oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-                gainNode.gain.setValueAtTime(0.03, audioCtx.currentTime); 
-                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-                oscillator.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-                oscillator.start();
-                oscillator.stop(audioCtx.currentTime + duration);
-            } catch (error) { console.log("Audio feedback bypassed."); }
+        // Functions
+        function switchSection(id, btn) {
+            document.querySelectorAll('.app-section').forEach(s => s.classList.remove('active-section'));
+            document.getElementById(id).classList.add('active-section');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
         }
 
-        // --- TERMINAL CHAT LOGIC ---
         function sendChatMessage() {
             const input = document.getElementById('chat-input');
-            const msg = input.value.trim();
-            if (msg) {
-                playBeep(800, 'square', 0.05);
-                const chatBox = document.getElementById('chat-box');
-                const newMsg = document.createElement('div');
-                newMsg.className = 'msg';
-                newMsg.innerHTML = `<span class="msg-self">YOU (Synced)</span>: ${msg}`;
-                chatBox.appendChild(newMsg);
+            if(input.value) {
+                document.getElementById('chat-box').innerHTML += `<div><b style="color:var(--neon-green)">YOU</b>: ${input.value}</div>`;
                 input.value = '';
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }
-        }
-        function handleChatEnter(event) {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                sendChatMessage();
             }
         }
 
-        // --- WALLET POPUP SIMULATOR ---
-        function triggerWalletModal(walletType) {
-            playBeep(600);
-            const modal = document.getElementById('wallet-modal');
-            const title = document.getElementById('modal-title');
-            const progress = document.getElementById('modal-progress');
-            const status = document.getElementById('modal-status');
-            const box = document.getElementById('modal-box');
-            
-            // Set styles based on wallet
-            if(walletType === 'MetaMask') {
-                title.style.color = '#e2761b';
-                box.style.borderColor = '#e2761b';
-                progress.style.background = '#e2761b';
-                progress.style.boxShadow = '0 0 10px #e2761b';
-            } else {
-                title.style.color = '#ab9ff2';
-                box.style.borderColor = '#ab9ff2';
-                progress.style.background = '#ab9ff2';
-                progress.style.boxShadow = '0 0 10px #ab9ff2';
-            }
-            
-            title.innerText = `CONNECTING ${walletType.toUpperCase()}`;
-            progress.style.width = '5%';
-            status.innerText = "Initializing bridge...";
-            modal.classList.add('active');
-            
-            setTimeout(() => { progress.style.width = '40%'; status.innerText = "Requesting signature..."; playBeep(700, 'sine', 0.05); }, 800);
-            setTimeout(() => { progress.style.width = '85%'; status.innerText = "Verifying on-chain state..."; playBeep(800, 'sine', 0.05); }, 1600);
-            setTimeout(() => { 
-                progress.style.width = '100%'; 
-                status.innerText = "Identity Synced Successfully.";
-                playBeep(1000, 'square', 0.1);
-                
-                setTimeout(() => {
-                    modal.classList.remove('active');
-                    if (walletType === 'MetaMask') executeMetaMaskSync();
-                    else executePhantomSync();
-                }, 800);
-            }, 2500);
-        }
+        // Custom Cursor
+        const cursor = document.getElementById('cursor');
+        document.addEventListener('mousemove', e => { cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px'; });
 
-        function executeMetaMaskSync() { 
-            const addrInput = document.getElementById('address');
-            addrInput.value = "0x71A...9B2 (EVM Synced)"; 
-            addrInput.classList.add('synced');
-            const btn = document.getElementById('mm-btn');
-            btn.innerText = "MetaMask Connected";
-            btn.classList.add('connected');
-            document.getElementById('net-worth').innerText = "$14,204.50";
-        }
-        
-        function executePhantomSync() { 
-            const addrInput = document.getElementById('address');
-            addrInput.value = "sol:9Av...K2q (SPL Synced)"; 
-            addrInput.classList.add('synced');
-            const btn = document.getElementById('phantom-btn');
-            btn.innerText = "Phantom Connected";
-            btn.classList.add('connected');
-            document.getElementById('net-worth').innerText = "$8,430.00";
-        }
-
-        // --- BUTTON ACTION FEEDBACK ---
-        function claimRewards(btn) {
-            playBeep(900, 'square', 0.2);
-            btn.innerText = "VERIFYING LEDGER...";
-            btn.style.background = "#fff";
-            setTimeout(() => {
-                btn.innerText = "TOKENS CLAIMED!";
-                btn.style.background = "var(--neon-green)";
-                btn.style.color = "#000";
-                btn.style.boxShadow = "0 0 25px var(--neon-green)";
-            }, 1000);
-        }
-
-        function executeAction(btn, successText) {
-            playBeep(700, 'sine', 0.1);
-            const originalText = btn.innerText;
-            const originalBg = btn.style.background;
-            btn.innerText = "PROCESSING...";
-            setTimeout(() => {
-                playBeep(900, 'square', 0.1);
-                btn.innerText = successText;
-                btn.style.background = "var(--neon-green)";
-                btn.style.color = "#000";
-                setTimeout(() => {
-                    btn.innerText = originalText;
-                    btn.style.background = originalBg;
-                    btn.style.color = "";
-                }, 2000);
-            }, 1000);
-        }
-
-        // --- 3D BACKGROUND BYPASS ---
-        try {
-            const canvas = document.getElementById('bg-canvas');
-            if (typeof THREE !== 'undefined' && canvas) {
-                const scene = new THREE.Scene();
-                const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-                const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
-                renderer.setSize(window.innerWidth, window.innerHeight);
-
-                const particlesGeometry = new THREE.BufferGeometry();
-                const posArray = new Float32Array(700 * 3);
-                for(let i = 0; i < 700 * 3; i++) { posArray[i] = (Math.random() - 0.5) * 20; }
-                particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-                
-                const material = new THREE.PointsMaterial({ size: 0.02, color: 0x00f0ff, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending });
-                const particlesMesh = new THREE.Points(particlesGeometry, material);
-                scene.add(particlesMesh);
-                camera.position.z = 5;
-
-                let mouseX = 0, mouseY = 0;
-                document.addEventListener('mousemove', (e) => { mouseX = e.clientX / window.innerWidth - 0.5; mouseY = e.clientY / window.innerHeight - 0.5; });
-
-                function animate() {
-                    requestAnimationFrame(animate);
-                    particlesMesh.rotation.y += 0.001; particlesMesh.rotation.x += 0.0005;
-                    camera.position.x += (mouseX * 0.5 - camera.position.x) * 0.05;
-                    camera.position.y += (-mouseY * 0.5 - camera.position.y) * 0.05;
-                    renderer.render(scene, camera);
-                }
-                animate();
-            }
-        } catch (e) {}
+        // Background
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({canvas: document.getElementById('bg-canvas'), alpha: true});
+        renderer.setSize(window.innerWidth, window.innerHeight);
     </script>
 </body>
 </html>
