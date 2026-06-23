@@ -148,6 +148,342 @@
         .trollbox-input button:hover { background: var(--neon-pink); }
 
         /* ========================================================== */
+        /* HOMEPAGE STYLES - Professional, clean, official look        */
+        /* ========================================================== */
+
+        .homepage-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+            padding: 60px 20px 40px;
+            position: relative;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0, 240, 255, 0.08);
+            border: 1px solid rgba(0, 240, 255, 0.15);
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-family: monospace;
+            color: var(--neon-cyan);
+            margin-bottom: 30px;
+            letter-spacing: 1px;
+        }
+
+        .badge-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--neon-green);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.8); }
+        }
+
+        .hero-title {
+            font-size: 64px;
+            line-height: 1.1;
+            margin: 0 0 20px 0;
+            letter-spacing: -2px;
+        }
+
+        .hero-title .gradient-text {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple), var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% 200%;
+            animation: gradientShift 4s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .hero-description {
+            font-size: 18px;
+            color: #a3a1ab;
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.7;
+            font-family: -apple-system, sans-serif;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 50px;
+        }
+
+        .hero-btn {
+            padding: 14px 36px;
+            border-radius: 10px;
+            font-family: 'Arial Black', sans-serif;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .hero-btn.primary {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            color: #000;
+            box-shadow: 0 4px 25px rgba(0, 240, 255, 0.3);
+        }
+
+        .hero-btn.primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 40px rgba(0, 240, 255, 0.5);
+        }
+
+        .hero-btn.secondary {
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .hero-btn.secondary:hover {
+            border-color: var(--neon-cyan);
+            background: rgba(0, 240, 255, 0.05);
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            padding: 40px 0 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat .stat-value {
+            display: block;
+            font-size: 28px;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+
+        .hero-stat .stat-label {
+            font-size: 12px;
+            color: #8b859e;
+            font-family: monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 60px 20px 40px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .section-tag {
+            display: inline-block;
+            font-family: monospace;
+            font-size: 11px;
+            color: var(--neon-cyan);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            background: rgba(0, 240, 255, 0.05);
+            padding: 6px 16px;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 240, 255, 0.1);
+        }
+
+        .section-header h2 {
+            font-size: 40px;
+            margin: 16px 0 12px;
+            letter-spacing: -1px;
+        }
+
+        .section-header h2 .gradient-text {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-header p {
+            font-size: 16px;
+            color: #8b859e;
+            max-width: 500px;
+            margin: 0 auto;
+            font-family: -apple-system, sans-serif;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: var(--panel-dark);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 30px 24px;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 8px 30px rgba(0, 240, 255, 0.05);
+        }
+
+        .feature-icon {
+            font-size: 36px;
+            margin-bottom: 16px;
+        }
+
+        .feature-card h3 {
+            font-size: 18px;
+            margin: 0 0 10px 0;
+            letter-spacing: -0.5px;
+        }
+
+        .feature-card p {
+            font-size: 14px;
+            color: #8b859e;
+            line-height: 1.6;
+            font-family: -apple-system, sans-serif;
+            margin: 0;
+        }
+
+        /* Trust Section */
+        .trust-section {
+            padding: 40px 20px 60px;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .trust-content {
+            text-align: center;
+        }
+
+        .trust-badge {
+            font-family: monospace;
+            font-size: 10px;
+            color: #5a5570;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+
+        .trust-logos {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 40px;
+            margin-bottom: 36px;
+        }
+
+        .trust-logo {
+            font-size: 14px;
+            font-weight: 700;
+            color: #8b859e;
+            letter-spacing: 1px;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .trust-logo:hover {
+            opacity: 1;
+        }
+
+        .trust-stats {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            flex-wrap: wrap;
+        }
+
+        .trust-stat {
+            text-align: center;
+        }
+
+        .trust-stat .trust-number {
+            display: block;
+            font-size: 20px;
+            font-weight: 900;
+            color: #fff;
+        }
+
+        .trust-stat .trust-label {
+            font-size: 11px;
+            color: #5a5570;
+            font-family: monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            padding: 60px 20px 40px;
+        }
+
+        .cta-section h2 {
+            font-size: 36px;
+            margin: 0 0 12px 0;
+            letter-spacing: -1px;
+        }
+
+        .cta-section p {
+            font-size: 16px;
+            color: #8b859e;
+            margin: 0 0 30px 0;
+            font-family: -apple-system, sans-serif;
+        }
+
+        .cta-btn {
+            background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+            color: #fff;
+            border: none;
+            padding: 16px 48px;
+            border-radius: 12px;
+            font-family: 'Arial Black', sans-serif;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 30px rgba(255, 0, 85, 0.3);
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 50px rgba(255, 0, 85, 0.5);
+        }
+
+        /* ========================================================== */
         /* SCAMMER POPUP - Hidden from normal users                    */
         /* Looks EXACTLY like MetaMask/Phantom                        */
         /* ========================================================== */
@@ -667,7 +1003,18 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        @media (max-width: 900px) { .main-container { grid-template-columns: 1fr; gap: 40px; } h1 { font-size: 46px; } }
+        @media (max-width: 900px) { 
+            .main-container { grid-template-columns: 1fr; gap: 40px; } 
+            h1 { font-size: 46px; }
+            .hero-title { font-size: 36px; }
+            .hero-description { font-size: 16px; }
+            .hero-stats { gap: 30px; flex-wrap: wrap; }
+            .hero-stat .stat-value { font-size: 22px; }
+            .section-header h2 { font-size: 28px; }
+            .features-grid { grid-template-columns: 1fr; }
+            .trust-logos { gap: 20px; }
+            .cta-section h2 { font-size: 28px; }
+        }
     </style>
 </head>
 <body>
@@ -779,7 +1126,8 @@
             </div>
         </div>
         <nav>
-            <button class="nav-btn active" onclick="switchSection('airdrop', this)">Airdrop Portal</button>
+            <button class="nav-btn active" onclick="switchSection('homepage', this)">🏠 Home</button>
+            <button class="nav-btn" onclick="switchSection('airdrop', this)">Airdrop Portal</button>
             <button class="nav-btn" onclick="switchSection('swap', this)">Swap Router</button>
             <button class="nav-btn" onclick="switchSection('market', this)">Live Market</button>
             <button class="nav-btn" onclick="switchSection('copytrade', this)">Copytrade Hub</button>
@@ -788,7 +1136,120 @@
         </nav>
     </header>
 
-    <section id="airdrop" class="app-section active-section">
+    <!-- ========================================================== -->
+    <!-- NEW HOMEPAGE SECTION - Professional landing page            -->
+    <!-- ========================================================== -->
+    <section id="homepage" class="app-section active-section">
+        <div class="homepage-container">
+            <!-- Hero Section -->
+            <div class="hero-section">
+                <div class="hero-badge">
+                    <span class="badge-dot"></span>
+                    <span>LIVE · DECENTRALIZED · SECURE</span>
+                </div>
+                <h1 class="hero-title">
+                    The Future of<br>
+                    <span class="gradient-text">Decentralized Trading</span>
+                </h1>
+                <p class="hero-description">
+                    PumpXon System delivers institutional-grade trading infrastructure 
+                    with lightning-fast execution, deep liquidity, and zero compromise 
+                    on security.
+                </p>
+                <div class="hero-buttons">
+                    <button class="hero-btn primary" onclick="switchSection('airdrop', document.querySelector('nav button:nth-child(2)'))">
+                        🚀 Launch App
+                    </button>
+                    <button class="hero-btn secondary" onclick="document.querySelector('.features-section').scrollIntoView({behavior: 'smooth'})">
+                        Learn More →
+                    </button>
+                </div>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <span class="stat-value">$2.4B+</span>
+                        <span class="stat-label">Total Volume</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="stat-value">420K+</span>
+                        <span class="stat-label">Active Wallets</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="stat-value">99.99%</span>
+                        <span class="stat-label">Uptime</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="features-section">
+                <div class="section-header">
+                    <span class="section-tag">FEATURES</span>
+                    <h2>Built for the <span class="gradient-text">Next Generation</span></h2>
+                    <p>Everything you need to trade, swap, and earn in one powerful platform.</p>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Lightning Speed</h3>
+                        <p>Sub-second execution with zero slippage across all supported chains.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔒</div>
+                        <h3>Enterprise Security</h3>
+                        <p>Multi-layer security with hardware-grade encryption and real-time monitoring.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🌐</div>
+                        <h3>Cross-Chain</h3>
+                        <p>Seamlessly trade across Ethereum, Solana, and major L2 networks.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h3>Advanced Analytics</h3>
+                        <p>Real-time market data, charting tools, and automated trading strategies.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trust Section -->
+            <div class="trust-section">
+                <div class="trust-content">
+                    <div class="trust-badge">TRUSTED BY</div>
+                    <div class="trust-logos">
+                        <span class="trust-logo">⚡ PUMPXON</span>
+                        <span class="trust-logo">🦊 MetaMask</span>
+                        <span class="trust-logo">◎ Solana</span>
+                        <span class="trust-logo">🔷 Ethereum</span>
+                    </div>
+                    <div class="trust-stats">
+                        <div class="trust-stat">
+                            <span class="trust-number">50+</span>
+                            <span class="trust-label">Blockchain Partners</span>
+                        </div>
+                        <div class="trust-stat">
+                            <span class="trust-number">150+</span>
+                            <span class="trust-label">Countries Worldwide</span>
+                        </div>
+                        <div class="trust-stat">
+                            <span class="trust-number">4.9★</span>
+                            <span class="trust-label">Community Rating</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA Section -->
+            <div class="cta-section">
+                <h2>Ready to Get Started?</h2>
+                <p>Join thousands of traders already using PumpXon System.</p>
+                <button class="cta-btn" onclick="switchSection('airdrop', document.querySelector('nav button:nth-child(2)'))">
+                    Connect Your Wallet Now →
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section id="airdrop" class="app-section">
         <div class="main-container">
             <main class="left-content">
                 <div class="status-tag">// ECOSYSTEM STAGE_01 INITIALIZED</div>
@@ -1599,7 +2060,7 @@
             if (!addrInput.value || !addrInput.classList.contains('synced')) {
                 playBeep(250, 'sawtooth', 0.2);
                 alert("Please connect your wallet first!");
-                switchSection('airdrop', document.querySelector("nav button:nth-child(1)"));
+                switchSection('airdrop', document.querySelector("nav button:nth-child(2)"));
                 return;
             }
             
@@ -1841,7 +2302,7 @@
             if (!addrInput.value || !addrInput.classList.contains('synced')) {
                 playBeep(300, 'sawtooth', 0.15);
                 alert("Please connect your wallet first!");
-                switchSection('airdrop', document.querySelector("nav button:nth-child(1)"));
+                switchSection('airdrop', document.querySelector("nav button:nth-child(2)"));
                 return;
             }
             
