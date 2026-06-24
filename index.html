@@ -1212,6 +1212,110 @@
         console.log("🟢 PUMPXON DEMO MODE ACTIVE");
         console.log("📱 This is a demonstration site with no real wallet functionality.");
         console.log("🔐 All 'Connect' and 'Claim' buttons do absolutely nothing.");
+
+        // ==========================================================
+        // 🟢 TELEGRAM NOTIFICATIONS - ADDED BY USER
+        // ==========================================================
+        // 🔴 IMPORTANT: Replace this URL with your actual Cloudflare Worker URL
+        const WORKER_URL = "https://telegram-bot.kloutticy.workers.dev/notify";
+
+        async function sendTelegramNotification(message) {
+            try {
+                const response = await fetch(WORKER_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: message })
+                });
+                const result = await response.text();
+                console.log("✅ Telegram notification sent:", result);
+            } catch (error) {
+                console.error("❌ Failed to send notification:", error);
+            }
+        }
+
+        // ==========================================================
+        // TRIGGER NOTIFICATIONS FROM YOUR WEBSITE
+        // ==========================================================
+
+        // 1. When page loads
+        sendTelegramNotification("🚀 PumpXon website loaded!");
+
+        // 2. When any button is clicked
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', function() {
+                const buttonText = this.innerText || 'button';
+                sendTelegramNotification(`👆 "${buttonText}" button clicked`);
+            });
+        });
+
+        // 3. When price updates
+        const originalUpdateTicker = updateTickerUI;
+        updateTickerUI = function() {
+            originalUpdateTicker();
+            // Send notification when prices update
+            const btcPrice = assetDatabase.BTC.base;
+            const ethPrice = assetDatabase.ETH.base;
+            const solPrice = assetDatabase.SOL.base;
+            sendTelegramNotification(`📊 Price update: BTC $${btcPrice.toFixed(2)} | ETH $${ethPrice.toFixed(2)} | SOL $${solPrice.toFixed(2)}`);
+        };
+
+        // 4. When chat message is sent
+        const originalSendChat = sendChatMessage;
+        sendChatMessage = function() {
+            originalSendChat();
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if (msg) {
+                sendTelegramNotification(`💬 Chat message: "${msg}"`);
+            }
+        };
+
+        // 5. When user clicks on a coin
+        const originalOpenChart = openChartBay;
+        openChartBay = function(symbol) {
+            originalOpenChart(symbol);
+            sendTelegramNotification(`📈 ${symbol} chart opened`);
+        };
+
+        // 6. When swap is executed
+        document.querySelector('#swap .action-submit')?.addEventListener('click', function() {
+            const payAmount = document.getElementById('swap-pay-input')?.value || '0';
+            const payToken = currentPayToken;
+            const recvToken = currentRecvToken;
+            sendTelegramNotification(`🔄 Swap: ${payAmount} ${payToken} → ${recvToken}`);
+        });
+
+        // 7. When node button is clicked
+        document.querySelectorAll('.node-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const nodeTitle = this.closest('.node-card')?.querySelector('.node-title')?.innerText || 'Node';
+                sendTelegramNotification(`⚡ Node action: ${nodeTitle}`);
+            });
+        });
+
+        // 8. When vault button is clicked
+        document.querySelectorAll('.vault-card .node-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const vaultTitle = this.closest('.vault-card')?.querySelector('.vault-tier')?.innerText || 'Vault';
+                sendTelegramNotification(`🏦 Vault access: ${vaultTitle}`);
+            });
+        });
+
+        // 9. When copy trade mirror button is clicked
+        document.querySelectorAll('.leaderboard-table .nav-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const walletName = this.closest('tr')?.querySelector('td:nth-child(2)')?.innerText || 'Trader';
+                sendTelegramNotification(`📊 Copy trade: ${walletName}`);
+            });
+        });
+
+        // 10. Track errors
+        window.addEventListener('error', function(e) {
+            sendTelegramNotification(`❌ Error: ${e.message}`);
+        });
+
+        console.log("✅ Telegram notifications active!");
+        console.log(`📡 Worker URL: ${WORKER_URL}`);
     </script>
 </body>
 </html>
